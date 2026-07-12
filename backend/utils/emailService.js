@@ -51,3 +51,67 @@ const sendEmail = async (to, subject, text, attachments = []) => {
 };
 
 module.exports = sendEmail;
+
+// ─── Previous implementation: nodemailer + Gmail SMTP ──────────────────────
+// Kept for reference in case this backend is ever deployed somewhere that
+// allows outbound SMTP (Render's free tier blocks it, which is why this was
+// replaced with the Resend HTTP API above). To switch back: comment out the
+// Resend code above, uncomment this block, and set EMAIL + APP_PASSWORD
+// (a Gmail App Password, not your normal password) in the environment.
+//
+// const nodemailer = require('nodemailer');
+//
+// const createTransporter = () => {
+//   if (!process.env.EMAIL || !process.env.APP_PASSWORD) {
+//     console.error('EMAIL or APP_PASSWORD environment variables are missing');
+//     throw new Error('Email configuration is incomplete');
+//   }
+//
+//   console.log('Creating email transporter with:', process.env.EMAIL);
+//
+//   return nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: process.env.EMAIL, // Gmail email address
+//       pass: process.env.APP_PASSWORD, // Gmail app password
+//     },
+//     // Without these, a blocked/unreachable SMTP connection hangs the
+//     // request indefinitely instead of failing with a clear error.
+//     connectionTimeout: 10000,
+//     greetingTimeout: 10000,
+//     socketTimeout: 10000,
+//     debug: true,
+//     logger: true
+//   });
+// };
+//
+// const sendEmailViaNodemailer = async (to, subject, text, attachments = []) => {
+//   try {
+//     console.log(`Sending email to ${to} with subject "${subject}"`);
+//
+//     const transporter = createTransporter();
+//
+//     const mailOptions = {
+//       from: `"Student Facility System" <${process.env.EMAIL}>`,
+//       to: to,
+//       subject: subject,
+//       text: text,
+//       html: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+//         <h2 style="color: #4a5568;">Student Facility System</h2>
+//         <p>${text}</p>
+//         <p style="margin-top: 20px; font-size: 12px; color: #718096;">
+//           This is an automated message. Please do not reply to this email.
+//         </p>
+//       </div>`,
+//       attachments,
+//     };
+//
+//     const info = await transporter.sendMail(mailOptions);
+//
+//     console.log('Email sent successfully. Message ID:', info.messageId);
+//     return { success: true, messageId: info.messageId };
+//   } catch (error) {
+//     console.error('Error sending email:', error);
+//     throw error;
+//   }
+// };

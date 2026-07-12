@@ -383,8 +383,8 @@ const AdminDashboard = () => {
         style={{ background: ink.side, borderRight: `1px solid ${ink.sideLine}` }}>
 
         <div className="flex items-center gap-2.5 px-5 h-16 flex-shrink-0" style={{ borderBottom: `1px solid ${ink.sideLine}` }}>
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden" style={{ background: '#F0F3EE' }}>
-            <img src="/images/logo.png" alt="" className="w-full h-full object-contain p-1"/>
+          <div className="w-8 h-8 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <img src="/images/logo.png" alt="" className="w-full h-full object-contain"/>
           </div>
           <p style={{ ...sans, color: '#FFFFFF' }} className="font-bold text-[16px] leading-tight tracking-tight truncate">SFS Console</p>
           <button className="ml-auto md:hidden flex-shrink-0" style={{ color: ink.sideFaint }} onClick={()=>setSidebarOpen(false)}><FaTimes/></button>

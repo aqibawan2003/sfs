@@ -111,6 +111,7 @@ const RegistrationForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleShowPassword = () => setShowPassword(!showPassword);
   const toggleShowConfirmPassword = () =>
@@ -278,9 +279,11 @@ const RegistrationForm = () => {
   };
 
   const submitRegistration = async (values) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
     try {
       console.log("Manual submission starting...");
-      
+
       // Normalize role name
       let normalizedRole = role.toLowerCase();
       
@@ -372,6 +375,8 @@ const RegistrationForm = () => {
     } catch (error) {
       console.error("Error in manual submission:", error);
       toast.error('Registration failed. Please try again.');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -1060,7 +1065,8 @@ const RegistrationForm = () => {
             </Link>
             <button
               type="button"
-              className="px-6 py-2 bg-black font-bold mt-4 text-white rounded-lg"
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-black font-bold mt-4 text-white rounded-lg disabled:opacity-50"
               onClick={(e) => {
                 console.log("Submit button clicked");
                 e.preventDefault();
@@ -1089,7 +1095,7 @@ const RegistrationForm = () => {
                 submitRegistration(formik.values);
               }}
             >
-              Register
+              {isSubmitting ? 'Registering...' : 'Register'}
             </button>
             </div>
           </form>

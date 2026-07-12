@@ -76,14 +76,6 @@ exports.signUpUser = async (req, res, next) => {
       }
     }
 
-    // Check if email exists in pending registrations
-    const existingPending = await PendingRegistration.findOne({ email });
-
-    if (existingPending) {
-      // Delete old pending registration to allow re-registration with new OTP
-      logger.debug(`Deleting old pending registration for ${email}`);
-      await PendingRegistration.findByIdAndDelete(existingPending._id);
-    }
 
     // Validate role-specific fields
     const User = getUserModel(role);
@@ -247,16 +239,23 @@ exports.signUpUser = async (req, res, next) => {
 
     logger.debug('Creating pending registration for:', email);
 
-    // Save to PendingRegistration (NOT the actual user collection)
-    const pendingRegistration = new PendingRegistration({
-      email,
-      role,
-      registrationData,
-      verification_token: otpString,
-      verification_token_time: maxTokenTime()
-    });
-
-    await pendingRegistration.save();
+    // Atomic upsert (NOT the actual user collection) — replaces any existing
+    // pending registration for this email in one operation. Using a separate
+    // find-then-delete-then-insert here previously raced when two requests
+    // for the same email landed close together (e.g. a double-click while
+    // waiting on a slow/cold-starting server), crashing with a duplicate key
+    // error on the unique email index.
+    const pendingRegistration = await PendingRegistration.findOneAndUpdate(
+      { email },
+      {
+        email,
+        role,
+        registrationData,
+        verification_token: otpString,
+        verification_token_time: maxTokenTime()
+      },
+      { upsert: true, new: true, setDefaultsOnInsert: true }
+    );
 
     // Send verification email
     try {

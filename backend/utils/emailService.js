@@ -18,6 +18,12 @@ const createTransporter = () => {
       user: process.env.EMAIL, // Gmail email address
       pass: process.env.APP_PASSWORD, // Gmail app password
     },
+    // Without these, a blocked/unreachable SMTP connection (common on
+    // cloud hosts that restrict outbound mail ports) hangs the request
+    // indefinitely instead of failing with a clear error.
+    connectionTimeout: 10000,
+    greetingTimeout: 10000,
+    socketTimeout: 10000,
     // Debug options to help identify issues
     debug: true,
     logger: true

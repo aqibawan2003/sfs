@@ -1,0 +1,472 @@
+const HostelOwner = require('../../models/hostelowner/Hostelowner');
+const Hostelroom = require('../../models/hostelowner/Hostelroom');
+const RoomBed = require('../../models/hostelowner/RoomBed');
+const KitchenOwner = require('../../models/kitchenowner/Kitchenowner');
+const Dish = require('../../models/kitchenowner/Dish');
+
+// ─── Intent Detection ──────────────────────────────────────────────────────────
+function detectIntent(msg) {
+    const m = msg.toLowerCase();
+
+    if (/\b(hi|hello|hey|salaam|assalam|salam|good morning|good evening|howdy|aoa)\b/.test(m)) return 'greeting';
+    if (/\b(bye|goodbye|thanks|thank you|shukriya|ok done|khuda hafiz)\b/.test(m)) return 'farewell';
+
+    // Cheap / affordable intents — check BEFORE generic hostel/food
+    if (/\b(cheap|affordable|sasta|budget|low cost|inexpensive|low price|least expensive)\b/.test(m) && /\b(hostel|room|bed|stay|accommodation)\b/.test(m)) return 'cheap_hostel';
+    if (/\b(cheap|affordable|sasta|budget|low cost|inexpensive|low price|least expensive)\b/.test(m) && /\b(food|meal|dish|eat|khana|order)\b/.test(m)) return 'cheap_food';
+    if (/\b(cheap|affordable|sasta|budget|low cost|inexpensive|low price)\b/.test(m)) return 'cheap_general';
+
+    // Nearby / location based
+    if (/\b(near|nearby|close|closest|nearest|pass mein|qareeb)\b/.test(m) && /\b(hostel|room|bed|stay)\b/.test(m)) return 'nearby_hostel';
+    if (/\b(near|nearby|close|closest|nearest)\b/.test(m) && /\b(food|kitchen|eat|meal)\b/.test(m)) return 'nearby_food';
+
+    // Availability
+    if (/\b(available|availability|empty|free|vacant|khali)\b/.test(m) && /\b(bed|room|hostel)\b/.test(m)) return 'availability';
+
+    // University based
+    if (/\b(university|college|uet|pu|punjab|lums|ucp|gcu|fccu|shalimar|lcwu|umt|superior|hajvery)\b/.test(m) && /\b(hostel|room|near|stay)\b/.test(m)) return 'university_hostel';
+
+    // Generic hostel / food
+    if (/\b(hostel|room|bed|accommodation|stay|rent|booking|facilities)\b/.test(m)) return 'hostel';
+    if (/\b(food|meal|dish|eat|kitchen|menu|order|lunch|dinner|breakfast|khana|roti|biryani|karahi)\b/.test(m)) return 'food';
+
+    if (/\b(price|cost|fee|rate|charge|pkr|rupee|how much|kitna|total)\b/.test(m)) return 'pricing';
+    if (/\b(contact|phone|email|reach|number|call|support|help|aqib)\b/.test(m)) return 'contact';
+    if (/\b(how|work|use|register|signup|sign up|login|kaise|start)\b/.test(m)) return 'howto';
+    if (/\b(pay|payment|stripe|jazzcash|easypaisa|card|transaction)\b/.test(m)) return 'payment';
+    if (/\b(booking|book|reserve|confirm|booked|meri booking)\b/.test(m)) return 'booking_status';
+    if (/\b(cancel|unbook|wapas|refund)\b/.test(m)) return 'cancel';
+    if (/\b(facilities|wifi|ac|generator|laundry|cctv|parking|study room)\b/.test(m)) return 'facilities';
+
+    return 'unknown';
+}
+
+// ─── Static Responses ──────────────────────────────────────────────────────────
+function greetingResponse() {
+    return `👋 *Assalam-o-Alaikum! Welcome to Student Facility System (SFS)!*
+
+I'm your virtual assistant. Here's what I can help you with:
+🏠 *Hostel bookings* — rooms, beds, availability
+🍛 *Homemade food* — kitchen menus, dishes, prices
+💰 *Cheap options* — budget hostels & affordable food
+📍 *Nearby hostels* — near your university
+📞 *Contact & support*
+
+What would you like to know? Just ask! 😊`;
+}
+
+function contactResponse() {
+    return `📞 *Contact & Support*
+
+👤 *Developer:* Aqib Awan
+📧 *Email:* aqibawan0102@gmail.com
+📱 *Phone:* +92-310-4693600
+📍 *Location:* Shalimar College, Lahore, Pakistan
+
+⏰ *Support Hours:* Monday – Saturday, 9 AM – 6 PM PKT`;
+}
+
+function howToResponse() {
+    return `📖 *How to Use SFS*
+
+*For Students:*
+1️⃣ Register as a Student
+2️⃣ Browse hostels on map or filter by university & distance
+3️⃣ Select a room → choose a bed → pay via Stripe (PKR)
+4️⃣ Browse food kitchens → add to cart → checkout
+5️⃣ Track your bookings & orders from your profile
+
+*For Hostel Owners:*
+1️⃣ Register as Hostel Owner
+2️⃣ Wait for Admin approval ✅
+3️⃣ Add rooms & beds from your dashboard
+4️⃣ Manage bookings
+
+*For Kitchen Owners:*
+1️⃣ Register as Kitchen Owner
+2️⃣ Wait for Admin approval ✅
+3️⃣ Add your menu dishes with prices (PKR)
+4️⃣ Manage incoming orders in real-time`;
+}
+
+function paymentResponse() {
+    return `💳 *Payment Options*
+
+✅ *Stripe (Active)*
+• Accepts all major credit/debit cards
+• Test card: *4242 4242 4242 4242*
+• Expiry: Any future date | CVC: Any 3 digits
+• All amounts in *PKR (Pakistani Rupees)*
+
+🔒 *JazzCash* – Coming Soon
+🔒 *EasyPaisa* – Coming Soon
+
+Your payments are 100% secure and processed in PKR!`;
+}
+
+function farewellResponse() {
+    return `👋 *Thank you for using SFS!*
+
+Have a great day! If you need help again, I'm always here. 😊
+📧 aqibawan0102@gmail.com | 📱 +92-310-4693600`;
+}
+
+function facilitiesResponse() {
+    return `🛎️ *Common Hostel Facilities on SFS*
+
+✅ Wi-Fi (High Speed Internet)
+✅ AC (Air Conditioning)
+✅ CCTV (24/7 Security)
+✅ Generator (Uninterrupted Power)
+✅ Laundry Service
+✅ Parking
+✅ Water Cooler
+✅ Study Room
+
+Each hostel lists its available facilities. Visit the *Hostels* page and check each hostel's detail card!`;
+}
+
+function bookingStatusResponse() {
+    return `📋 *Your Bookings*
+
+To view your current bookings:
+1️⃣ Login to your student account
+2️⃣ Go to *Profile* → *My Bookings*
+3️⃣ See all booked rooms and bed details
+
+For food orders: Go to *Profile* → *My Orders*
+
+Need help? Contact: 📱 +92-310-4693600`;
+}
+
+function cancelResponse() {
+    return `❌ *Cancellation Policy*
+
+To cancel a hostel booking:
+1️⃣ Go to *Profile* → *My Bookings*
+2️⃣ Find the booking you want to cancel
+3️⃣ Click *Cancel Booking*
+
+⚠️ *Note:* Refund policies depend on the hostel owner. Contact the hostel directly for refund queries.
+
+📞 Support: aqibawan0102@gmail.com`;
+}
+
+function unknownResponse(userMessage) {
+    return `🤔 I didn't quite understand: "*${userMessage}*"
+
+Here's what I can help with:
+🏠 Type *hostel* – room & bed availability
+💰 Type *cheap hostel* – most affordable rooms
+📍 Type *nearby hostel* – hostels near your university
+🍛 Type *food* – kitchen menus & dishes
+🧾 Type *price* – pricing info
+💳 Type *payment* – payment methods
+📞 Type *contact* – reach support
+
+Just ask naturally — I'll do my best! 😊`;
+}
+
+// ─── Main Controller ────────────────────────────────────────────────────────────
+exports.handleMessage = async (req, res) => {
+    const userMessage = (req.body.text || '').trim();
+    if (!userMessage) {
+        return res.status(400).json({ reply: 'Please send a message.' });
+    }
+
+    const intent = detectIntent(userMessage);
+
+    try {
+        let reply = '';
+
+        switch (intent) {
+
+            case 'greeting':
+                reply = greetingResponse();
+                break;
+
+            case 'farewell':
+                reply = farewellResponse();
+                break;
+
+            case 'contact':
+                reply = contactResponse();
+                break;
+
+            case 'howto':
+                reply = howToResponse();
+                break;
+
+            case 'payment':
+                reply = paymentResponse();
+                break;
+
+            case 'facilities':
+                reply = facilitiesResponse();
+                break;
+
+            case 'booking_status':
+                reply = bookingStatusResponse();
+                break;
+
+            case 'cancel':
+                reply = cancelResponse();
+                break;
+
+            // ── Cheap Hostel ──────────────────────────────────────────────────
+            case 'cheap_hostel': {
+                const cheapRooms = await Hostelroom.find()
+                    .sort({ price: 1 })
+                    .limit(5)
+                    .populate('hostelId', 'hostel_name hostel_address hostel_type isApproved isBanned');
+
+                const validRooms = cheapRooms.filter(r => r.hostelId && r.hostelId.isApproved && !r.hostelId.isBanned);
+
+                if (validRooms.length === 0) {
+                    reply = `🏠 No hostel rooms found yet. Check back soon!`;
+                } else {
+                    const list = validRooms.map(r =>
+                        `🏠 *${r.hostelId.hostel_name}*\n   🛏️ ${r.name} — PKR ${r.price}/bed\n   📍 ${r.hostelId.hostel_address}`
+                    ).join('\n\n');
+                    reply = `💰 *Most Affordable Hostel Rooms on SFS*\n\n${list}\n\n👉 Visit the *Hostels* page to book the cheapest available bed!`;
+                }
+                break;
+            }
+
+            // ── Cheap Food ────────────────────────────────────────────────────
+            case 'cheap_food': {
+                const cheapDishes = await Dish.find({ availability: true })
+                    .sort({ price: 1 })
+                    .limit(8)
+                    .populate('kitchenOwner', 'kitchen_name address isApproved isBanned');
+
+                const validDishes = cheapDishes.filter(d => d.kitchenOwner && d.kitchenOwner.isApproved && !d.kitchenOwner.isBanned);
+
+                if (validDishes.length === 0) {
+                    reply = `🍛 No food items found yet. Check the Food page!`;
+                } else {
+                    const list = validDishes.map(d =>
+                        `🍽️ *${d.name}* — PKR ${d.price}\n   🍳 ${d.kitchenOwner.kitchen_name} | 📍 ${d.kitchenOwner.address}`
+                    ).join('\n\n');
+                    reply = `🍛 *Most Affordable Food on SFS*\n\n${list}\n\n👉 Visit the *Food* page to order budget-friendly meals!`;
+                }
+                break;
+            }
+
+            // ── Cheap General ─────────────────────────────────────────────────
+            case 'cheap_general': {
+                const cheapRoom = await Hostelroom.find().sort({ price: 1 }).limit(1).populate('hostelId', 'hostel_name isApproved isBanned');
+                const cheapDish = await Dish.find({ availability: true }).sort({ price: 1 }).limit(1).populate('kitchenOwner', 'kitchen_name isApproved isBanned');
+
+                const roomText = cheapRoom[0] && cheapRoom[0].hostelId?.isApproved
+                    ? `🏠 Cheapest room: *${cheapRoom[0].name}* at *PKR ${cheapRoom[0].price}/bed* (${cheapRoom[0].hostelId.hostel_name})`
+                    : `🏠 Browse *Hostels* page for cheapest rooms`;
+
+                const dishText = cheapDish[0] && cheapDish[0].kitchenOwner?.isApproved
+                    ? `🍛 Cheapest dish: *${cheapDish[0].name}* at *PKR ${cheapDish[0].price}* (${cheapDish[0].kitchenOwner.kitchen_name})`
+                    : `🍛 Browse *Food* page for cheapest meals`;
+
+                reply = `💰 *Budget Options on SFS*\n\n${roomText}\n${dishText}\n\n👉 Use filters on Hostels & Food pages to sort by price!`;
+                break;
+            }
+
+            // ── Nearby Hostel ─────────────────────────────────────────────────
+            case 'nearby_hostel': {
+                // Extract university name from message if mentioned
+                const m = userMessage.toLowerCase();
+                const uniKeywords = [
+                    { key: 'pu', name: 'University of the Punjab' },
+                    { key: 'punjab', name: 'University of the Punjab' },
+                    { key: 'uet', name: 'UET Lahore' },
+                    { key: 'lums', name: 'LUMS' },
+                    { key: 'ucp', name: 'University of Central Punjab' },
+                    { key: 'gcu', name: 'Government College University' },
+                    { key: 'fccu', name: 'Forman Christian College' },
+                    { key: 'shalimar', name: 'Govt. Shalimar Graduate College' },
+                    { key: 'lcwu', name: 'Lahore College for Women University' },
+                    { key: 'umt', name: 'University of Management & Technology' },
+                    { key: 'superior', name: 'Superior University' },
+                    { key: 'hajvery', name: 'Hajvery University' },
+                ];
+
+                const matched = uniKeywords.find(u => m.includes(u.key));
+
+                if (matched) {
+                    // Find hostels with this university in nearby_institutes
+                    const hostels = await HostelOwner.find({
+                        isApproved: true,
+                        isBanned: false,
+                        'nearby_institutes.university': { $regex: matched.name.split(' ')[0], $options: 'i' }
+                    }).select('hostel_name hostel_address hostel_type nearby_institutes').limit(5);
+
+                    if (hostels.length === 0) {
+                        reply = `📍 No hostels found near *${matched.name}* yet.\n\nTry the Hostels page map and filter by university!`;
+                    } else {
+                        const list = hostels.map(h => {
+                            const inst = h.nearby_institutes.find(i => i.university.toLowerCase().includes(matched.key));
+                            const dist = inst ? ` — ${inst.distance}` : '';
+                            return `🏠 *${h.hostel_name}*${dist}\n   📍 ${h.hostel_address}\n   🏷️ ${h.hostel_type}`;
+                        }).join('\n\n');
+                        reply = `📍 *Hostels Near ${matched.name}*\n\n${list}\n\n👉 Use the *distance filter* on the Hostels page for more options!`;
+                    }
+                } else {
+                    // No specific university mentioned — show all with distances
+                    const hostels = await HostelOwner.find({ isApproved: true, isBanned: false })
+                        .select('hostel_name hostel_address nearby_institutes hostel_type')
+                        .limit(5);
+
+                    const list = hostels.map(h => {
+                        const inst = h.nearby_institutes?.[0];
+                        const distText = inst ? `\n   🎓 ${inst.university} — ${inst.distance}` : '';
+                        return `🏠 *${h.hostel_name}*\n   📍 ${h.hostel_address}${distText}`;
+                    }).join('\n\n');
+
+                    reply = `📍 *Hostels with University Distances*\n\n${list}\n\n💡 *Tip:* On the Hostels page, type your university name and set max distance to filter nearby hostels!`;
+                }
+                break;
+            }
+
+            // ── Nearby Food ───────────────────────────────────────────────────
+            case 'nearby_food': {
+                const kitchens = await KitchenOwner.find({ isApproved: true, isBanned: false })
+                    .select('kitchen_name address kitchen_description')
+                    .limit(6);
+
+                if (kitchens.length === 0) {
+                    reply = `🍛 No kitchens available yet. Check back soon!`;
+                } else {
+                    const list = kitchens.map(k =>
+                        `🍳 *${k.kitchen_name}*\n   📍 ${k.address}`
+                    ).join('\n\n');
+                    reply = `📍 *Food Kitchens in Lahore*\n\n${list}\n\n👉 Visit the *Food* page to browse menus and place orders!`;
+                }
+                break;
+            }
+
+            // ── University Hostel ─────────────────────────────────────────────
+            case 'university_hostel': {
+                const m = userMessage.toLowerCase();
+                const uniMap = {
+                    'uet': 'UET', 'pu': 'Punjab', 'punjab': 'Punjab',
+                    'lums': 'LUMS', 'ucp': 'Central Punjab', 'gcu': 'Government College',
+                    'fccu': 'Forman', 'shalimar': 'Shalimar', 'lcwu': 'Women',
+                    'umt': 'Management', 'superior': 'Superior', 'hajvery': 'Hajvery'
+                };
+
+                const matchedKey = Object.keys(uniMap).find(k => m.includes(k));
+                const searchTerm = matchedKey ? uniMap[matchedKey] : null;
+
+                const query = searchTerm
+                    ? { isApproved: true, isBanned: false, 'nearby_institutes.university': { $regex: searchTerm, $options: 'i' } }
+                    : { isApproved: true, isBanned: false };
+
+                const hostels = await HostelOwner.find(query)
+                    .select('hostel_name hostel_address hostel_type nearby_institutes facilities')
+                    .limit(5);
+
+                if (hostels.length === 0) {
+                    reply = `🏠 No hostels found for that university.\n\nVisit the *Hostels* page and use the university filter!`;
+                } else {
+                    const list = hostels.map(h => {
+                        const inst = searchTerm
+                            ? h.nearby_institutes.find(i => i.university.toLowerCase().includes(searchTerm.toLowerCase()))
+                            : h.nearby_institutes?.[0];
+                        const distText = inst ? ` (${inst.distance} from ${inst.university})` : '';
+                        return `🏠 *${h.hostel_name}*${distText}\n   📍 ${h.hostel_address}\n   🏷️ ${h.hostel_type}\n   🛎️ ${(h.facilities || []).slice(0, 3).join(', ')}`;
+                    }).join('\n\n');
+                    reply = `🎓 *Hostels Near Your University*\n\n${list}\n\n👉 Visit the *Hostels* page to view rooms and book a bed!`;
+                }
+                break;
+            }
+
+            // ── Availability ──────────────────────────────────────────────────
+            case 'availability': {
+                const availableBeds = await RoomBed.countDocuments({ isBooked: false });
+                const totalBeds = await RoomBed.countDocuments();
+                const bookedBeds = totalBeds - availableBeds;
+
+                const availableRooms = await Hostelroom.countDocuments({ availability: true });
+
+                reply = `📊 *Current Availability on SFS*\n\n🛏️ *Beds:* ${availableBeds} available out of ${totalBeds} total\n🏠 *Rooms:* ${availableRooms} rooms available\n❌ *Booked:* ${bookedBeds} beds taken\n\n👉 Visit the *Hostels* page to see which specific beds are free and book one!`;
+                break;
+            }
+
+            // ── Generic Hostel ────────────────────────────────────────────────
+            case 'hostel': {
+                const hostels = await HostelOwner.find({ isApproved: true, isBanned: false })
+                    .select('hostel_name hostel_address hostel_type facilities nearby_institutes')
+                    .limit(5);
+
+                const availableBeds = await RoomBed.countDocuments({ isBooked: false });
+                const totalBeds = await RoomBed.countDocuments();
+
+                if (hostels.length === 0) {
+                    reply = `🏠 No approved hostels listed yet. Check back soon or contact: +92-310-4693600`;
+                } else {
+                    const list = hostels.map(h => {
+                        const inst = h.nearby_institutes?.[0];
+                        const distText = inst ? `\n   🎓 ${inst.university} — ${inst.distance}` : '';
+                        return `🏠 *${h.hostel_name}*\n   📍 ${h.hostel_address}\n   🏷️ ${h.hostel_type}\n   🛎️ ${(h.facilities || []).slice(0, 3).join(', ')}${distText}`;
+                    }).join('\n\n');
+                    reply = `🏠 *Available Hostels on SFS*\n\n${list}\n\n📊 *Beds:* ${availableBeds} / ${totalBeds} available\n\n💡 Ask me: *cheap hostel*, *nearby hostel*, or *hostel near UET*!`;
+                }
+                break;
+            }
+
+            // ── Generic Food ──────────────────────────────────────────────────
+            case 'food': {
+                const kitchens = await KitchenOwner.find({ isApproved: true, isBanned: false })
+                    .select('kitchen_name address kitchen_description')
+                    .limit(4);
+
+                const dishes = await Dish.find({ availability: true })
+                    .sort({ price: 1 })
+                    .select('name price category')
+                    .limit(8);
+
+                if (kitchens.length === 0) {
+                    reply = `🍛 No approved kitchens yet. Check back soon!`;
+                } else {
+                    const kitchenList = kitchens.map(k =>
+                        `🍳 *${k.kitchen_name}* — 📍 ${k.address}`
+                    ).join('\n');
+
+                    const dishList = dishes.length > 0
+                        ? dishes.map(d => `• ${d.name} — PKR ${d.price}`).join('\n')
+                        : 'No dishes listed yet.';
+
+                    reply = `🍛 *Food Kitchens on SFS*\n\n${kitchenList}\n\n🍽️ *Available Dishes (Low to High):*\n${dishList}\n\n💡 Ask me: *cheap food* or *food near me*!\n👉 Visit the *Food* page to place an order!`;
+                }
+                break;
+            }
+
+            // ── Pricing ───────────────────────────────────────────────────────
+            case 'pricing': {
+                const rooms = await Hostelroom.find().sort({ price: 1 }).select('name price').limit(5);
+                const dishes = await Dish.find({ availability: true }).sort({ price: 1 }).select('name price').limit(5);
+
+                const roomPricing = rooms.length > 0
+                    ? rooms.map(r => `• ${r.name}: PKR ${r.price}/bed`).join('\n')
+                    : '• Browse Hostels page for room prices';
+
+                const dishPricing = dishes.length > 0
+                    ? dishes.map(d => `• ${d.name}: PKR ${d.price}`).join('\n')
+                    : '• Browse Food page for dish prices';
+
+                reply = `💰 *Pricing (All in PKR)*\n\n🏠 *Hostel Bed Prices (Cheapest First):*\n${roomPricing}\n\n🍛 *Food Dish Prices (Cheapest First):*\n${dishPricing}\n\n✅ All payments via Stripe in PKR!`;
+                break;
+            }
+
+            default:
+                reply = unknownResponse(userMessage);
+        }
+
+        return res.json({ reply });
+
+    } catch (error) {
+        console.error('Chatbot error:', error);
+        return res.json({
+            reply: `⚠️ I'm having trouble fetching live data right now.\n\n📞 For immediate help:\n📧 aqibawan0102@gmail.com\n📱 +92-310-4693600`
+        });
+    }
+};

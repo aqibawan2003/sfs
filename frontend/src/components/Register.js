@@ -380,15 +380,15 @@ const RegistrationForm = () => {
     <div className="h-full w-full bg-[#181C14] ">
       <div className=" h-[100vh]   flex justify-center container">
       <div className="border-[#59636e] border rounded-lg flex flex-col md:flex-row w-[92%] md:w-auto mx-auto md:mx-0 md:ml-32 mt-16 md:mt-28 mb-16 md:mb-28">
-        <div className="flex flex-col bg-[#25292e] items-center  justify-center h-[80vh] rounded-lg    ">
+        <div className="flex flex-col bg-[#25292e] items-center  justify-center h-auto md:h-[80vh] rounded-lg    ">
           <img
-            className="w-full md:w-[600px] h-[100%] rounded"
+            className="w-full md:w-[600px] h-auto md:h-[100%] rounded"
             src="/images/signup.jpg"
             alt="Signup"
           />
 
         </div>
-        <div className="relative  bg-[#25292e]   rounded-lg pt-8 p-4    w-full max-w-lg overflow-y-auto  h-[80vh]">
+        <div className="relative  bg-[#25292e]   rounded-lg pt-8 p-4    w-full max-w-lg overflow-visible md:overflow-y-auto  h-auto md:h-[80vh]">
           <form onSubmit={formik.handleSubmit} className="space-y-4">
           <h2 className="text-3xl text-center font-bold text-[#ECDFCC]">Register as</h2>
             <div className="mb-4 text-gray-300 flex flex-wrap gap-x-2 gap-y-1">
@@ -1060,7 +1060,7 @@ const RegistrationForm = () => {
             </Link>
             <button
               type="button"
-              className="p-1 flex-grow bg-black font-bold ml-72 mt-4 text-white rounded-lg"
+              className="p-1 flex-grow bg-black font-bold md:ml-72 mt-4 text-white rounded-lg"
               onClick={(e) => {
                 console.log("Submit button clicked");
                 e.preventDefault();

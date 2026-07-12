@@ -23,7 +23,9 @@ On first connection, `seedDummyData.js` automatically seeds 15 hostels, 15 kitch
 | `PORT` | ✅ | Port to listen on |
 | `MONGODB_URI` | ✅ | MongoDB connection string |
 | `JWT_SECRET` | ✅ | Signs auth tokens - use a long random string |
-| `EMAIL` / `APP_PASSWORD` | ✅ | Gmail address + [App Password](https://myaccount.google.com/apppasswords) used to send OTP and contact-form emails |
+| `EMAIL` | ✅ | Address used as the Contact Us notification destination |
+| `SENDGRID_API_KEY` / `SENDGRID_FROM` | ✅ | Sends OTP/verification emails via [SendGrid](https://sendgrid.com)'s HTTPS API. `SENDGRID_FROM` must be a Single Sender-verified address. Used instead of Gmail SMTP because Render's free tier blocks outbound SMTP — nodemailer/Gmail still works fine locally, and that code is kept commented out in `utils/emailService.js` for hosts that do allow SMTP |
+| `APP_PASSWORD` | Optional | Gmail [App Password](https://myaccount.google.com/apppasswords) — only needed if you switch back to the commented-out nodemailer/SMTP code in `utils/emailService.js` |
 | `CONTACT_NOTIFY_EMAIL` | Optional | Where Contact Us submissions get emailed; defaults to `EMAIL` |
 | `STRIPE_SECRET_KEY` | ✅ | Stripe secret key (`sk_test_...`) - server-side only, never expose this |
 | `ALLOWED_ORIGIN` | ✅ | Comma-separated frontend URL(s) for CORS and Socket.IO |

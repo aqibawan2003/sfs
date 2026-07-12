@@ -31,5 +31,8 @@ Thumbs.db
 # ─── Vercel CLI local config ─────────────────────────────────────
 .vercel/
 
+# ─── Claude Code local tooling config ────────────────────────────
+.claude/
+
 # ─── Test coverage ───────────────────────────────────────────────
 coverage/

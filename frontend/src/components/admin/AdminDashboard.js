@@ -443,13 +443,13 @@ const AdminDashboard = () => {
 
       <div className="flex-1 flex flex-col min-w-0">
 
-        <header className="sticky top-0 z-20 flex items-center justify-between gap-4 px-5 md:px-8 h-16" style={{ background: ink.surface, borderBottom: `1px solid ${ink.line}` }}>
+        <header className="sticky top-0 z-20 flex items-center justify-between gap-4 px-5 md:px-8 h-16" style={{ background: ink.side, borderBottom: `1px solid ${ink.sideLine}` }}>
           <div className="flex items-center gap-3 min-w-0">
-            <button className="md:hidden flex-shrink-0" onClick={()=>setSidebarOpen(o=>!o)} style={{ color: ink.sub }}><FaBars/></button>
-            <h1 style={sans} className="text-[19px] md:text-[24px] font-bold tracking-tight truncate">{currentLabel}</h1>
+            <button className="md:hidden flex-shrink-0" onClick={()=>setSidebarOpen(o=>!o)} style={{ color: ink.sideText }}><FaBars/></button>
+            <h1 style={{ ...sans, color: '#FFFFFF' }} className="text-[19px] md:text-[24px] font-bold tracking-tight truncate">{currentLabel}</h1>
           </div>
-          <div className="flex items-center gap-2 flex-shrink-0" style={{ color: ink.sub }}>
-            <FaCalendarAlt className="text-[13px]" style={{ color: ink.brand }}/>
+          <div className="flex items-center gap-2 flex-shrink-0" style={{ color: ink.sideText }}>
+            <FaCalendarAlt className="text-[13px]" style={{ color: ink.brandLight }}/>
             <span style={body} className="text-[12.5px] md:text-[13px] font-medium hidden sm:inline">{dateStr}</span>
           </div>
         </header>

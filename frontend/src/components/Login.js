@@ -94,17 +94,17 @@ const LoginForm = () => {
   return (
     <div className="h-full w-full bg-black">
     
-      <div className="bg-black h-full w-full flex  justify-center container">
-      
+      <div className="bg-black h-full w-full flex flex-col md:flex-row justify-center container">
+
         <div className="flex flex-col items-center  justify-center max-h-[100vh] bg-black mb-12 mt-8">
 
           <img
-            className="w-[500px] h-[500px] mt-5 rounded-md bg-black"
+            className="w-[85vw] max-w-[500px] h-auto md:h-[500px] mt-5 rounded-md bg-black"
             src="/images/login.jpg"
             alt="Login Illustration"
           />
         </div>
-        <div className="pl-10 flex flex-col justify-center relative bg-black p-3 mt-8 mb-12 w-full max-w-lg overflow-y-auto scrollbar-hide h-[100vh]">
+        <div className="px-4 md:pl-10 md:px-0 flex flex-col justify-center relative bg-black p-3 mt-8 mb-12 w-full max-w-lg overflow-y-auto scrollbar-hide h-[100vh]">
         <div className="text-gray-300 text-center pt-9 justify-end">
             <h1 className="font-bold text-4xl">Welcome Back</h1>
             <p className="text-wrap max-w-md p-3">

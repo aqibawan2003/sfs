@@ -1054,13 +1054,13 @@ const RegistrationForm = () => {
               ) : null}
             </div>
 
-            <div className="flex">
+            <div className="flex justify-between items-center gap-3">
             <Link to='/'>
             <button className="px-4 py-2 bg-black font-bold  mt-4 text-white rounded-lg">Back</button>
             </Link>
             <button
               type="button"
-              className="p-1 flex-grow bg-black font-bold md:ml-72 mt-4 text-white rounded-lg"
+              className="px-6 py-2 bg-black font-bold mt-4 text-white rounded-lg"
               onClick={(e) => {
                 console.log("Submit button clicked");
                 e.preventDefault();

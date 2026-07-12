@@ -101,8 +101,9 @@ const OtpScreen = () => {
       <div className="flex flex-col lg:flex-row justify-center items-center bg-gray-800 text-gray-100 rounded-lg shadow-lg max-w-4xl w-full">
         {/* Left side with form */}
         <div className="w-full lg:w-1/2 p-6">
-          <p className="text-2xl text-center font-bold mb-5">Please Check your Email</p>
-          
+          <p className="text-2xl text-center font-bold mb-2">Please Check your Email</p>
+          <p className="text-sm text-center text-gray-400 mb-5">Didn't get the code? Check your spam folder.</p>
+
           <form onSubmit={handleOtpSubmit}>
             <div className="mb-4">
               <label htmlFor="otp" className="block text-lg font-medium">

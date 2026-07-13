@@ -30,6 +30,10 @@ function detectIntent(msg) {
     if (/\b(hi|hello|hey|salaam|assalam|salam|good morning|good evening|howdy|aoa)\b/.test(m)) return 'greeting';
     if (/\b(bye|goodbye|thanks|thank you|shukriya|ok done|khuda hafiz)\b/.test(m)) return 'farewell';
 
+    // Casual conversation — checked before the topic-specific intents below so
+    // "how are you" doesn't get swallowed by the bare word "how" in the howto check.
+    if (/how('?re| are) you|how (r|you)( doing)?|what'?s up|whats up|who are you|what are you|are you (a )?(bot|human|real|ai)\b|what can you do|what do you do|your name|who made you/.test(m)) return 'small_talk';
+
     // Cheap / affordable intents — check BEFORE generic hostel/food
     if (/\b(cheap|affordable|sasta|budget|low cost|inexpensive|low price|least expensive)\b/.test(m) && /\b(hostels?|rooms?|beds?|stay|accommodation)\b/.test(m)) return 'cheap_hostel';
     if (/\b(cheap|affordable|sasta|budget|low cost|inexpensive|low price|least expensive)\b/.test(m) && /\b(foods?|meals?|dish(es)?|eat|khana|order)\b/.test(m)) return 'cheap_food';
@@ -51,7 +55,7 @@ function detectIntent(msg) {
 
     if (/\b(price|cost|fee|rate|charge|pkr|rupee|how much|kitna|total)\b/.test(m)) return 'pricing';
     if (/\b(contact|phone|email|reach|number|call|support|help|aqib)\b/.test(m)) return 'contact';
-    if (/\b(how|work|use|register|signup|sign up|login|kaise|start)\b/.test(m)) return 'howto';
+    if (/how (to|do|does|can)\b|\b(work|use|register|signup|sign up|login|kaise|start)\b/.test(m)) return 'howto';
     if (/\b(pay|payment|stripe|jazzcash|easypaisa|card|transaction)\b/.test(m)) return 'payment';
     if (/\b(booking|book|reserve|confirm|booked|meri booking)\b/.test(m)) return 'booking_status';
     if (/\b(cancel|unbook|wapas|refund)\b/.test(m)) return 'cancel';
@@ -72,6 +76,12 @@ I'm the SFS assistant. Here's what I can help you with:
 *Contact & support*
 
 What would you like to know?`;
+}
+
+function smallTalkResponse() {
+    return `I'm doing well, thanks for asking! I'm the SFS assistant — a bot built for the Student Facility System, here to help with hostel bookings, food orders, pricing, and account questions.
+
+What can I help you with?`;
 }
 
 function contactResponse() {
@@ -200,6 +210,10 @@ exports.handleMessage = async (req, res) => {
 
             case 'greeting':
                 reply = greetingResponse();
+                break;
+
+            case 'small_talk':
+                reply = smallTalkResponse();
                 break;
 
             case 'farewell':

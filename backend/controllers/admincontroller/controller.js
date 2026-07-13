@@ -149,7 +149,7 @@ exports.verifyNewAdmin = async (req, res) => {
             return res.status(400).json({ message: "Maximum 4 mini admins allowed." });
         }
 
-        const admin = new Admin(pendingRegistration.registrationData);
+        const admin = new Admin({ ...pendingRegistration.registrationData, email_verified: true });
         await admin.save();
         await PendingRegistration.findByIdAndDelete(pendingRegistration._id);
 

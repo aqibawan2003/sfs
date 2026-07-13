@@ -47,6 +47,7 @@ router.get('/kitchens', ctrl.getAllKitchens);
 router.delete('/kitchens/:id', ctrl.removeKitchen);
 
 // ── Super Admin only routes ───────────────────────────────────────────
+router.post('/verify-new-admin', superAdminOnly, ctrl.verifyNewAdmin);
 router.get('/list', superAdminOnly, ctrl.listMiniAdmins);
 router.delete('/:id/delete', superAdminOnly, ctrl.deleteMiniAdmin);
 router.patch('/:id/reset-password', superAdminOnly, ctrl.resetMiniAdminPassword);

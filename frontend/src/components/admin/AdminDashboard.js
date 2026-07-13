@@ -92,8 +92,8 @@ const StatusPill = ({ status }) => {
   return <Pill tone="neutral">{status}</Pill>;
 };
 
-const Avatar = ({ name }) => (
-  <span className="w-9 h-9 rounded-full inline-flex items-center justify-center font-bold text-[13px] flex-shrink-0"
+const Avatar = ({ name, size='md' }) => (
+  <span className={`${size==='sm' ? 'w-6 h-6 text-[10.5px]' : 'w-9 h-9 text-[13px]'} rounded-full inline-flex items-center justify-center font-bold flex-shrink-0`}
     style={{ background: ink.brandDim, color: ink.brandDark, ...sans }}>
     {((name||'?').trim()[0]||'?').toUpperCase()}
   </span>
@@ -248,6 +248,9 @@ const AdminDashboard = () => {
   const [regError, setRegError] = useState('');
   const [regSuccess,setRegSuccess]=useState('');
   const [regLoading,setRegLoading]=useState(false);
+  const [pendingAdminEmail, setPendingAdminEmail] = useState('');
+  const [newAdminOtp, setNewAdminOtp] = useState('');
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
   const [resetTarget, setResetTarget] = useState(null);
   const [resetForm,   setResetForm]   = useState({ newPassword:'', confirmPassword:'' });
@@ -308,9 +311,29 @@ const AdminDashboard = () => {
     if(regForm.password!==regForm.confirmPassword){setRegError('Passwords do not match.');return;}
     if(regForm.password.length<6){setRegError('Password must be at least 6 characters.');return;}
     setRegLoading(true);
-    try { await axios.post(`${API_BASE_URL}/api/admin/register`,{...regForm,role:'admin'},authHeaders); setRegSuccess(`Admin "${regForm.first_name} ${regForm.last_name}" created!`); setRegForm({first_name:'',last_name:'',email:'',password:'',confirmPassword:''}); fetchMiniAdmins(); }
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/admin/register`,{...regForm,role:'admin'},authHeaders);
+      if (res.data.requiresVerification) {
+        setPendingAdminEmail(regForm.email);
+        setRegSuccess(res.data.message || `Verification code sent to ${regForm.email}.`);
+      }
+    }
     catch(err){setRegError(err.response?.data?.message||'Failed to create admin.');}
     setRegLoading(false);
+  };
+
+  const handleVerifyNewAdmin = async (e) => {
+    e.preventDefault(); setRegError('');
+    if (!newAdminOtp.trim()) { setRegError('Enter the verification code.'); return; }
+    setVerifyLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/admin/verify-new-admin`, { email: pendingAdminEmail, otp: newAdminOtp }, authHeaders);
+      toast.success(res.data.message || 'Admin created!');
+      setShowAddAdmin(false); setPendingAdminEmail(''); setNewAdminOtp('');
+      setRegForm({first_name:'',last_name:'',email:'',password:'',confirmPassword:''}); setRegSuccess('');
+      fetchMiniAdmins();
+    } catch(err){ setRegError(err.response?.data?.message||'Verification failed.'); }
+    setVerifyLoading(false);
   };
 
   const handleResetPassword = async (e) => {
@@ -792,26 +815,38 @@ const AdminDashboard = () => {
               {showAddAdmin && (
                 <div className="rounded-xl p-6" style={{ background: ink.surface, border: `1px solid ${ink.line}`, boxShadow: '0 1px 3px rgba(26,26,26,0.05)' }}>
                   <div className="flex items-center justify-between mb-5">
-                    <h2 style={sans} className="font-bold text-[15px] flex items-center gap-2"><FaUserPlus style={{color:ink.brand}}/>Create mini admin</h2>
-                    <button onClick={()=>setShowAddAdmin(false)} style={{ color: ink.faint }}><FaTimes/></button>
+                    <h2 style={sans} className="font-bold text-[15px] flex items-center gap-2"><FaUserPlus style={{color:ink.brand}}/>{pendingAdminEmail ? 'Verify admin email' : 'Create mini admin'}</h2>
+                    <button onClick={()=>{setShowAddAdmin(false);setPendingAdminEmail('');setNewAdminOtp('');setRegSuccess('');}} style={{ color: ink.faint }}><FaTimes/></button>
                   </div>
-                  <form onSubmit={handleAddAdmin} className="space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField label="First name" type="text" required value={regForm.first_name} onChange={e=>setRegForm({...regForm,first_name:e.target.value})} placeholder="Ali"/>
-                      <FormField label="Last name" type="text" required value={regForm.last_name} onChange={e=>setRegForm({...regForm,last_name:e.target.value})} placeholder="Khan"/>
-                    </div>
-                    <FormField label="Email" type="email" required value={regForm.email} onChange={e=>setRegForm({...regForm,email:e.target.value})} placeholder="admin@sfs.com"/>
-                    <div className="grid grid-cols-2 gap-3">
-                      <FormField label="Password" type="password" required value={regForm.password} onChange={e=>setRegForm({...regForm,password:e.target.value})} placeholder="Min. 6 chars"/>
-                      <FormField label="Confirm" type="password" required value={regForm.confirmPassword} onChange={e=>setRegForm({...regForm,confirmPassword:e.target.value})} placeholder="Repeat"/>
-                    </div>
-                    {regError && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: '#8F3B28', color: '#FFFFFF' }}>{regError}</div>}
-                    {regSuccess && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: ink.brandDim, border: `1px solid ${ink.line}`, color: ink.brandDark }}>{regSuccess}</div>}
-                    <div className="flex gap-3 pt-1">
-                      <PrimaryBtn type="submit" disabled={regLoading}>{regLoading?'Creating…':'Create admin'}</PrimaryBtn>
-                      <GhostBtn type="button" onClick={()=>setShowAddAdmin(false)}>Cancel</GhostBtn>
-                    </div>
-                  </form>
+                  {pendingAdminEmail ? (
+                    <form onSubmit={handleVerifyNewAdmin} className="space-y-4">
+                      <p className="text-[12.5px]" style={{ color: ink.sub }}>A verification code was sent to <strong>{pendingAdminEmail}</strong>. Enter it below to confirm this is a real, reachable email and activate the account.</p>
+                      <FormField label="Verification code" type="text" required value={newAdminOtp} onChange={e=>setNewAdminOtp(e.target.value)} placeholder="6-digit code"/>
+                      {regError && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: '#8F3B28', color: '#FFFFFF' }}>{regError}</div>}
+                      <div className="flex gap-3 pt-1">
+                        <PrimaryBtn type="submit" disabled={verifyLoading}>{verifyLoading?'Verifying…':'Confirm & activate'}</PrimaryBtn>
+                        <GhostBtn type="button" onClick={()=>{setPendingAdminEmail('');setRegSuccess('');setRegError('');}}>Back</GhostBtn>
+                      </div>
+                    </form>
+                  ) : (
+                    <form onSubmit={handleAddAdmin} className="space-y-4">
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField label="First name" type="text" required value={regForm.first_name} onChange={e=>setRegForm({...regForm,first_name:e.target.value})} placeholder="Ali"/>
+                        <FormField label="Last name" type="text" required value={regForm.last_name} onChange={e=>setRegForm({...regForm,last_name:e.target.value})} placeholder="Khan"/>
+                      </div>
+                      <FormField label="Email" type="email" required value={regForm.email} onChange={e=>setRegForm({...regForm,email:e.target.value})} placeholder="admin@sfs.com"/>
+                      <div className="grid grid-cols-2 gap-3">
+                        <FormField label="Password" type="password" required value={regForm.password} onChange={e=>setRegForm({...regForm,password:e.target.value})} placeholder="Min. 6 chars"/>
+                        <FormField label="Confirm" type="password" required value={regForm.confirmPassword} onChange={e=>setRegForm({...regForm,confirmPassword:e.target.value})} placeholder="Repeat"/>
+                      </div>
+                      {regError && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: '#8F3B28', color: '#FFFFFF' }}>{regError}</div>}
+                      {regSuccess && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: ink.brandDim, border: `1px solid ${ink.line}`, color: ink.brandDark }}>{regSuccess}</div>}
+                      <div className="flex gap-3 pt-1">
+                        <PrimaryBtn type="submit" disabled={regLoading}>{regLoading?'Sending code…':'Create admin'}</PrimaryBtn>
+                        <GhostBtn type="button" onClick={()=>setShowAddAdmin(false)}>Cancel</GhostBtn>
+                      </div>
+                    </form>
+                  )}
                 </div>
               )}
 
@@ -824,7 +859,7 @@ const AdminDashboard = () => {
                       {miniAdmins.length===0 ? <EmptyRow cols={4} message="No mini admins created yet"/> : miniAdmins.map((a,i)=>(
                         <tr key={a._id} className={`transition-colors duration-150 ${i%2===1 ? 'bg-[#F5F7F1]' : ''} hover:bg-[#EBEFE6]`} style={{ borderBottom: `1px solid ${ink.lineSoft}` }}>
                           <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={a.first_name}/><span className="font-semibold" style={{ color: ink.text }}>{a.first_name} {a.last_name}</span></span></td>
-                          <td className={tdCls} style={{ color: ink.sub }}>{a.email}</td>
+                          <td className={tdCls} style={{ color: ink.sub }}><span className="flex items-center gap-2"><Avatar name={a.email} size="sm"/>{a.email}</span></td>
                           <td className={tdCls}><Pill tone="neutral">Admin</Pill></td>
                           <td className="px-5 py-3">
                             <div className="flex gap-2">

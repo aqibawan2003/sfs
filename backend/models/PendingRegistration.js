@@ -10,7 +10,7 @@ const pendingRegistrationSchema = new mongoose.Schema({
     role: {
         type: String,
         required: true,
-        enum: ['student', 'kitchenOwner', 'hostelOwner']
+        enum: ['student', 'kitchenOwner', 'hostelOwner', 'admin']
     },
     registrationData: {
         type: mongoose.Schema.Types.Mixed, // Stores all registration fields

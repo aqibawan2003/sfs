@@ -1,9 +1,12 @@
 const Student = require('../../models/student/Student');
 const Admin = require('../../models/admin/Admin');
+const PendingRegistration = require('../../models/PendingRegistration');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const logger = require('../../utils/logger');
+const sendEmail = require('../../utils/emailService');
+const { generateVerificationToken, maxTokenTime } = require('../../utils/Utils');
 
 exports.registerAdmin = async (req, res) => {
     try {
@@ -57,6 +60,50 @@ exports.registerAdmin = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
+        // Mini admins must verify their email before the account is created —
+        // proves the email is real/reachable instead of trusting whatever the
+        // super admin typed in. The super_admin bootstrap path above (first
+        // admin ever) is unaffected — that one still goes live immediately,
+        // matching the documented Postman-based first-time setup.
+        if (role === 'admin') {
+            const otp = generateVerificationToken();
+            const otpString = otp.toString();
+
+            // Atomic upsert (avoids the same email-uniqueness race condition
+            // fixed earlier in student/owner registration).
+            await PendingRegistration.findOneAndUpdate(
+                { email },
+                {
+                    email,
+                    role: 'admin',
+                    registrationData: { first_name, last_name, email, password: hashedPassword, role: 'admin' },
+                    verification_token: otpString,
+                    verification_token_time: maxTokenTime(),
+                },
+                { upsert: true, new: true, setDefaultsOnInsert: true }
+            );
+
+            try {
+                await sendEmail(
+                    email,
+                    'Verify Your SFS Admin Account',
+                    `A Student Facility System admin account is being created for ${email}.\n\nVerification code: ${otpString}\n\nGive this code to the super admin who is setting up your account (or enter it yourself if you're doing this from the dashboard). If you didn't expect this, you can ignore this email.`
+                );
+            } catch (emailError) {
+                await PendingRegistration.findOneAndDelete({ email, role: 'admin' });
+                return res.status(500).json({
+                    message: "Failed to send verification email. Please try again.",
+                    error: emailError.message
+                });
+            }
+
+            return res.status(200).json({
+                message: `Verification code sent to ${email}. Enter it to confirm and activate this admin account.`,
+                requiresVerification: true,
+                email,
+            });
+        }
+
         const admin = new Admin({
             first_name,
             last_name,
@@ -68,8 +115,53 @@ exports.registerAdmin = async (req, res) => {
         await admin.save();
 
         res.status(201).json({
-            message: `${role === 'super_admin' ? 'Super Admin' : 'Mini Admin'} registered successfully`,
+            message: 'Super Admin registered successfully',
             role,
+        });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+// ── Verify a mini admin's email and finalize account creation ─────────
+// (super_admin only — the OTP proves the entered email is real/reachable)
+exports.verifyNewAdmin = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ message: "Email and verification code are required." });
+        }
+
+        const pendingRegistration = await PendingRegistration.findOne({
+            email,
+            role: 'admin',
+            verification_token: otp.toString(),
+            verification_token_time: { $gt: new Date() }
+        });
+
+        if (!pendingRegistration) {
+            return res.status(400).json({ message: "Invalid or expired code. Please create the admin again." });
+        }
+
+        const miniAdminCount = await Admin.countDocuments({ role: 'admin' });
+        if (miniAdminCount >= 4) {
+            await PendingRegistration.findByIdAndDelete(pendingRegistration._id);
+            return res.status(400).json({ message: "Maximum 4 mini admins allowed." });
+        }
+
+        const admin = new Admin(pendingRegistration.registrationData);
+        await admin.save();
+        await PendingRegistration.findByIdAndDelete(pendingRegistration._id);
+
+        res.status(201).json({
+            message: `Admin ${admin.first_name} ${admin.last_name} verified and created successfully.`,
+            admin: {
+                _id: admin._id,
+                first_name: admin.first_name,
+                last_name: admin.last_name,
+                email: admin.email,
+                role: admin.role,
+            }
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });

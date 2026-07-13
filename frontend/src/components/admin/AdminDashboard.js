@@ -352,7 +352,7 @@ const AdminDashboard = () => {
     if(cpForm.newPassword.length<6){setCpError('Min. 6 characters.');return;}
     if(cpForm.currentPassword===cpForm.newPassword){setCpError('New password must differ from current.');return;}
     setCpLoading(true);
-    try { await axios.patch(`${API_BASE_URL}/api/admin/change-password`,{currentPassword:cpForm.currentPassword,newPassword:cpForm.newPassword},authHeaders); setCpSuccess('Password changed! Logging you out...'); setCpForm({currentPassword:'',newPassword:'',confirmPassword:''}); setTimeout(()=>handleLogout(),3000); }
+    try { await axios.patch(`${API_BASE_URL}/api/admin/change-password`,{currentPassword:cpForm.currentPassword,newPassword:cpForm.newPassword,confirmPassword:cpForm.confirmPassword},authHeaders); setCpSuccess('Password changed! Logging you out...'); setCpForm({currentPassword:'',newPassword:'',confirmPassword:''}); setTimeout(()=>handleLogout(),3000); }
     catch(err){setCpError(err.response?.data?.message||'Failed.');}
     setCpLoading(false);
   };
@@ -395,7 +395,7 @@ const AdminDashboard = () => {
   const hostelType = (hostel) => hostel.hostelType || hostel.hostel_type || 'Hostel';
   const hostelOwnerName = (hostel) => `${hostel.hostel_owner_id?.first_name || ''} ${hostel.hostel_owner_id?.last_name || ''}`;
   const hostelAddress = (hostel) => hostel.hostelAddress || hostel.hostel_address || hostel.address || hostel.location;
-  const kitchenOwnerName = (kitchen) => `${kitchen.kitchen_owner_id?.first_name || kitchen.owner_id?.first_name || ''} ${kitchen.kitchen_owner_id?.last_name || kitchen.owner_id?.last_name || ''}`;
+  const kitchenOwnerName = (kitchen) => `${kitchen.first_name || ''} ${kitchen.last_name || ''}`;
   const currentLabel = tabs.find(t=>t.key===activeTab)?.label || 'Overview';
   const dateStr = new Date().toLocaleDateString('en-PK',{ weekday:'long', day:'numeric', month:'long', timeZone:'Asia/Karachi' });
 

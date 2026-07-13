@@ -104,7 +104,7 @@ const LoginForm = () => {
             alt="Login Illustration"
           />
         </div>
-        <div className="px-4 md:pl-10 md:px-0 flex flex-col justify-center relative bg-black p-3 mt-8 mb-12 w-full max-w-lg overflow-y-auto scrollbar-hide h-[100vh]">
+        <div className="px-4 md:pl-10 md:px-0 flex flex-col justify-center relative bg-black p-3 mt-8 mb-12 w-full max-w-lg overflow-y-auto scrollbar-hide h-auto md:h-[100vh]">
         <div className="text-gray-300 text-center pt-9 justify-end">
             <h1 className="font-bold text-4xl">Welcome Back</h1>
             <p className="text-wrap max-w-md p-3">

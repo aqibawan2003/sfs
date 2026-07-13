@@ -2,11 +2,12 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import ImageUploadField from '../common/ImageUploadField';
 import {
   FaUsers, FaHome, FaUtensils, FaBuilding, FaList, FaChartBar,
   FaSignOutAlt, FaBan, FaTrash, FaCheck, FaTimes,
   FaUnlock, FaUserPlus, FaUserShield,
-  FaExclamationTriangle, FaKey, FaLock, FaBell,
+  FaExclamationTriangle, FaKey, FaLock, FaBell, FaCamera,
   FaBoxOpen, FaChevronRight,
   FaEnvelopeOpenText, FaEnvelope, FaCheckDouble, FaPhone, FaWhatsapp, FaReply,
   FaCalendarAlt, FaCheckCircle, FaCalendarCheck, FaShoppingBag, FaSearch, FaBars,
@@ -89,12 +90,19 @@ const StatusPill = ({ status }) => {
   return <Pill tone="neutral">{status}</Pill>;
 };
 
-const Avatar = ({ name, size='md' }) => (
-  <span className={`${size==='sm' ? 'w-6 h-6 text-[10.5px]' : 'w-9 h-9 text-[13px]'} rounded-full inline-flex items-center justify-center font-bold flex-shrink-0`}
-    style={{ background: ink.brandDim, color: ink.brandDark, ...sans }}>
-    {((name||'?').trim()[0]||'?').toUpperCase()}
-  </span>
-);
+const Avatar = ({ name, size='md', src }) => {
+  const [failed, setFailed] = useState(false);
+  const dims = size==='sm' ? 'w-6 h-6 text-[10.5px]' : 'w-9 h-9 text-[13px]';
+  if (src && !failed) {
+    return <img src={src} alt="" className={`${dims} rounded-full object-cover flex-shrink-0`} onError={() => setFailed(true)}/>;
+  }
+  return (
+    <span className={`${dims} rounded-full inline-flex items-center justify-center font-bold flex-shrink-0`}
+      style={{ background: ink.brandDim, color: ink.brandDark, ...sans }}>
+      {((name||'?').trim()[0]||'?').toUpperCase()}
+    </span>
+  );
+};
 
 const Action = ({ onClick, icon, label, tone='default' }) => {
   const tones = {
@@ -261,6 +269,12 @@ const AdminDashboard = () => {
   const [cpSuccess,setCpSuccess]= useState('');
   const [cpLoading,setCpLoading]= useState(false);
 
+  const [showEditProfilePic, setShowEditProfilePic] = useState(false);
+  const [myProfilePic, setMyProfilePic] = useState(adminData.profile_picture || '');
+  const [ppInput,   setPpInput]   = useState(adminData.profile_picture || '');
+  const [ppError,   setPpError]   = useState('');
+  const [ppLoading, setPpLoading] = useState(false);
+
   const [search, setSearch] = useState('');
 
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
@@ -354,6 +368,20 @@ const AdminDashboard = () => {
     setCpLoading(false);
   };
 
+  const handleUpdateProfilePicture = async (e) => {
+    e.preventDefault(); setPpError('');
+    setPpLoading(true);
+    try {
+      const res = await axios.patch(`${API_BASE_URL}/api/admin/profile-picture`, { profile_picture: ppInput }, authHeaders);
+      const updatedAdmin = { ...adminData, profile_picture: res.data.admin.profile_picture };
+      localStorage.setItem('adminData', JSON.stringify(updatedAdmin));
+      setMyProfilePic(res.data.admin.profile_picture);
+      toast.success('Profile picture updated!');
+      setShowEditProfilePic(false);
+    } catch(err){ setPpError(err.response?.data?.message||'Failed to update profile picture.'); }
+    setPpLoading(false);
+  };
+
   const handleLogout = () => { localStorage.removeItem('adminToken'); localStorage.removeItem('adminData'); navigate('/admin/login'); };
 
   const tabs = [
@@ -440,12 +468,22 @@ const AdminDashboard = () => {
 
         <div className="px-3 py-3 flex-shrink-0" style={{ borderTop: `1px solid ${ink.sideLine}` }}>
           <div className="flex items-center gap-2 px-3 py-2.5 rounded-lg mb-1" style={{ background: 'rgba(255,255,255,0.06)' }}>
-            <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-bold" style={{ background: ink.brandLight, color: '#1B2B21' }}>
-              {(adminData.email||'A')[0].toUpperCase()}
-            </div>
+            {myProfilePic ? (
+              <img src={myProfilePic} alt="" className="w-7 h-7 rounded-full object-cover flex-shrink-0"
+                onError={()=>setMyProfilePic('')}/>
+            ) : (
+              <div className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0 text-[11px] font-bold" style={{ background: ink.brandLight, color: '#1B2B21' }}>
+                {(adminData.email||'A')[0].toUpperCase()}
+              </div>
+            )}
             <p style={{ ...body, color: ink.sideText }} className="text-[12px] truncate flex-1">{adminData.email||'admin'}</p>
             <span style={{ background: 'rgba(255,255,255,0.12)', color: '#FFFFFF', ...body }} className="text-[9.5px] font-bold px-1.5 py-0.5 rounded flex-shrink-0 uppercase">{isSuperAdmin?'Root':'Staff'}</span>
           </div>
+          <button onClick={() => { setShowEditProfilePic(true); setPpError(''); setPpInput(myProfilePic); }}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-white/5" style={{ color: ink.sideText }}>
+            <FaCamera className="text-[12px] flex-shrink-0" style={{ color: ink.sideFaint }}/>
+            <span className="text-[13.5px] font-medium">Edit profile picture</span>
+          </button>
           <button onClick={() => { setShowChangePassword(true); setCpError(''); setCpSuccess(''); setCpForm({ currentPassword:'', newPassword:'', confirmPassword:'' }); }}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-white/5" style={{ color: ink.sideText }}>
             <FaLock className="text-[12px] flex-shrink-0" style={{ color: ink.sideFaint }}/>
@@ -855,7 +893,7 @@ const AdminDashboard = () => {
                     <tbody>
                       {miniAdmins.length===0 ? <EmptyRow cols={4} message="No mini admins created yet"/> : miniAdmins.map((a,i)=>(
                         <tr key={a._id} className={`transition-colors duration-150 ${i%2===1 ? 'bg-[#F5F7F1]' : ''} hover:bg-[#EBEFE6]`} style={{ borderBottom: `1px solid ${ink.lineSoft}` }}>
-                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={a.first_name}/><span className="font-semibold" style={{ color: ink.text }}>{a.first_name} {a.last_name}</span></span></td>
+                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={a.first_name} src={a.profile_picture}/><span className="font-semibold" style={{ color: ink.text }}>{a.first_name} {a.last_name}</span></span></td>
                           <td className={tdCls} style={{ color: ink.sub }}><span className="flex items-center gap-2"><Avatar name={a.email} size="sm"/>{a.email}</span></td>
                           <td className={tdCls}><Pill tone="neutral">Admin</Pill></td>
                           <td className="px-5 py-3">
@@ -913,6 +951,20 @@ const AdminDashboard = () => {
             <div className="flex gap-3 pt-1">
               <PrimaryBtn type="submit" disabled={cpLoading||!!cpSuccess}>{cpLoading?'Changing…':'Change password'}</PrimaryBtn>
               <GhostBtn type="button" onClick={()=>setShowChangePassword(false)}>Cancel</GhostBtn>
+            </div>
+          </form>
+        </Modal>
+      )}
+
+      {showEditProfilePic && (
+        <Modal onClose={()=>setShowEditProfilePic(false)} title="Edit profile picture" icon={<FaCamera style={{color:ink.brand, fontSize: 13}}/>}>
+          <p className="text-[12px] mb-4" style={{ color: ink.faint }}>Logged in as <span style={{ color: ink.text, fontWeight: 600 }}>{adminData.email}</span></p>
+          <form onSubmit={handleUpdateProfilePicture} className="space-y-3">
+            <ImageUploadField label="Profile picture" name="admin_profile_picture" value={ppInput} onChange={setPpInput} uploadType="profile" darkMode={false}/>
+            {ppError && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: '#8F3B28', color: '#FFFFFF' }}>{ppError}</div>}
+            <div className="flex gap-3 pt-1">
+              <PrimaryBtn type="submit" disabled={ppLoading}>{ppLoading?'Saving…':'Save picture'}</PrimaryBtn>
+              <GhostBtn type="button" onClick={()=>setShowEditProfilePic(false)}>Cancel</GhostBtn>
             </div>
           </form>
         </Modal>

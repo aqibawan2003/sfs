@@ -13,6 +13,9 @@ router.use(adminAuth);
 // Change own password (any logged-in admin including super_admin)
 router.patch('/change-password', ctrl.changeOwnPassword);
 
+// Update own profile picture (any logged-in admin including super_admin)
+router.patch('/profile-picture', ctrl.updateOwnProfilePicture);
+
 // Dashboard statistics
 router.get('/stats', ctrl.getDashboardStats);
 

@@ -674,3 +674,36 @@ exports.changeOwnPassword = async (req, res) => {
         res.status(500).json({ message: 'Server error', error: error.message });
     }
 };
+
+// ── Update Own Profile Picture (any logged-in admin) ──────────────────
+// Accepts a Cloudinary URL already uploaded via POST /api/upload/image
+// (same flow students/owners use) — this endpoint just saves the URL.
+exports.updateOwnProfilePicture = async (req, res) => {
+    try {
+        const { profile_picture } = req.body;
+
+        const admin = await Admin.findByIdAndUpdate(
+            req.admin._id || req.admin.id,
+            { profile_picture: profile_picture || '' },
+            { new: true }
+        ).select('-password');
+
+        if (!admin) {
+            return res.status(404).json({ message: 'Admin not found.' });
+        }
+
+        res.json({
+            message: 'Profile picture updated.',
+            admin: {
+                _id: admin._id,
+                first_name: admin.first_name,
+                last_name: admin.last_name,
+                email: admin.email,
+                role: admin.role,
+                profile_picture: admin.profile_picture,
+            }
+        });
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+};

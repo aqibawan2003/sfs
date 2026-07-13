@@ -5,9 +5,9 @@ import { toast } from 'react-toastify';
 import {
   FaUsers, FaHome, FaUtensils, FaBuilding, FaList, FaChartBar,
   FaSignOutAlt, FaBan, FaTrash, FaCheck, FaTimes,
-  FaUnlock, FaShieldAlt, FaUserPlus, FaUserShield,
-  FaExclamationTriangle, FaKey, FaLock, FaBed, FaBell,
-  FaClipboardList, FaBoxOpen, FaChevronRight,
+  FaUnlock, FaUserPlus, FaUserShield,
+  FaExclamationTriangle, FaKey, FaLock, FaBell,
+  FaBoxOpen, FaChevronRight,
   FaEnvelopeOpenText, FaEnvelope, FaCheckDouble, FaPhone, FaWhatsapp, FaReply,
   FaCalendarAlt, FaCheckCircle, FaCalendarCheck, FaShoppingBag, FaSearch, FaBars,
 } from 'react-icons/fa';
@@ -23,9 +23,6 @@ const MAX_MINI_ADMINS = 4;
 // of an unrelated dark "console" theme.
 const sans = { fontFamily: "'Space Grotesk', system-ui, sans-serif" };
 const body = { fontFamily: "system-ui, -apple-system, sans-serif" };
-// Kept as `mono`/`display` names since 100+ references below use them.
-const mono = body;
-const display = sans;
 
 const ink = {
   bg:        '#F0F3EE',
@@ -807,7 +804,7 @@ const AdminDashboard = () => {
               <div className="rounded-xl p-4 flex items-start gap-3" style={{ background: '#ECDFCC', border: '1px solid #D6C4B0' }}>
                 <FaExclamationTriangle className="mt-0.5 flex-shrink-0 text-[13px]" style={{ color: '#8A6D3B' }}/>
                 <p className="text-[12.5px] leading-relaxed" style={{ color: '#8A6D3B' }}>
-                  A super admin account is created once via <code style={{ ...body, background: 'rgba(0,0,0,0.06)' }} className="px-1.5 py-0.5 rounded text-[11.5px]">POST /api/admin/register</code> before any admin exists (see <code style={{ ...body, background: 'rgba(0,0,0,0.06)' }} className="px-1.5 py-0.5 rounded text-[11.5px]">DEPLOYMENT_GUIDE.md</code>), or via <code style={{ ...body, background: 'rgba(0,0,0,0.06)' }} className="px-1.5 py-0.5 rounded text-[11.5px]">node seedSuperAdmin.js</code>.
+                  A super admin account is created once via <code style={{ ...body, background: 'rgba(0,0,0,0.06)' }} className="px-1.5 py-0.5 rounded text-[11.5px]">POST /api/admin/register</code> before any admin exists (see <code style={{ ...body, background: 'rgba(0,0,0,0.06)' }} className="px-1.5 py-0.5 rounded text-[11.5px]">DEPLOYMENT_GUIDE.md</code>).
                   From here you can only manage mini admins.
                 </p>
               </div>

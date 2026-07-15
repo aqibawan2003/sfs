@@ -172,7 +172,7 @@ const Navbar = ({ module }) => {
               )}
 
               {isLoggedIn && (
-                <div className="bg-white rounded-lg">
+                <div className="bg-white rounded-lg inline-block">
                   <button
                     type="button"
                     onClick={() => navigate('/StudentProfile')}

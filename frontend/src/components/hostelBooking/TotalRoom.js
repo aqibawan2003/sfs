@@ -52,9 +52,9 @@ const TotalRoom = () => {
   if (error) return <div>Error: {typeof error === 'string' ? error : (error?.message || 'Failed to load rooms.')}</div>;
 
   return (
-    <div className="flex gap-[120px] bg-[#1E201E]">
+    <div className="flex bg-[#1E201E]">
       <HostelNavbar />
-      <div className="flex-1 p-6 ml-[180px] text-white">
+      <div className="flex-1 p-6 ml-0 md:ml-[180px] text-white">
        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {rooms.map((room) => (

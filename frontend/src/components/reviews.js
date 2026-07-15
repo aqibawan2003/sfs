@@ -120,7 +120,7 @@ const Reviews = () => {
             <SwiperSlide
               key={review.id}
               className="bg-[#1E201E] border-2 border-[#59636e] shadow-md rounded-md mb-10 text-white flex flex-col items-center justify-between text-center p-4 transition-transform duration-300 ease-in-out transform hover:scale-105 hover:shadow-xl hover:shadow-[#aa828f]/50"
-              style={{ height: "500px", width: "300px" }} // Adjusted height and width for better display
+              style={{ height: "500px", width: "min(300px, 85vw)" }} // Adjusted height and width for better display
             >
               <div className="flex relative flex-col items-center justify-center h-full">
                 <img
@@ -134,7 +134,7 @@ const Reviews = () => {
 
               {/* Rating Stars */}
              
-              <div className="flex  absolute justify-center bottom-2 right-28 items-center mb-2 pb-12">
+              <div className="flex absolute left-0 right-0 justify-center bottom-2 items-center mb-2 pb-12">
                 {[...Array(5)].map((_, index) => (
                   <FaStar
                     key={index}

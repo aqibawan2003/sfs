@@ -40,7 +40,7 @@ const BookedRoom = () => {
     <div className="flex flex-col min-h-screen bg-[#1E201E]">
       <Navbar module="hostel" />
 
-      <div className="flex-grow p-4 md:p-8 ml-0 md:ml-[120px]">
+      <div className="flex-grow p-4 md:p-8">
         <h1 className="text-3xl text-white font-bold mb-6">Booked Beds</h1>
         {bookedRooms.length === 0 ? (
           <div className="text-white text-center mt-20">

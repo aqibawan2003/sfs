@@ -68,9 +68,9 @@ const Dishes = () => {
   return (
     <div className="flex bg-black">
       <KitchenOwnerNavbar />
-      <div className=" ">
+      <div className="flex flex-wrap w-full">
         {dishes.map((item) => (
-          <div key={item._id} className="border ml-4   flex-grow w-1/4 mt-8 text-white">
+          <div key={item._id} className="border ml-4   flex-grow w-full sm:w-[45%] lg:w-1/4 mt-8 text-white">
             {item.imageUrls && item.imageUrls.length > 0 && (
               <img src={item.imageUrls[0]} alt={item.name} className="w-full h-48" />
             )}

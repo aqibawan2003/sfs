@@ -81,8 +81,8 @@ const KitchenOwnerOrders = () => {
         <h1 className="text-2xl font-bold mb-4">Confirmed Orders</h1>
         {orders.length > 0 ? orders.map(order => (
           <div key={order._id} className="border p-4 mb-4 rounded shadow-lg">
-            <div className="p-4 shadow rounded flex justify-between">
-              <div className= 'w-1/2 p-2  rounded pr-8 mr-2 bg-[#25292e] border border-[#59636e]'>
+            <div className="p-4 shadow rounded flex flex-col md:flex-row justify-between gap-4">
+              <div className= 'w-full md:w-1/2 p-2  rounded md:pr-8 md:mr-2 bg-[#25292e] border border-[#59636e]'>
                 <h3 className="text-lg font-bold">Order ID: {order._id}</h3>
                 <div className="border p-4 mt-4">
                   <h4 className="font-bold mb-2">Summary</h4>
@@ -105,7 +105,7 @@ const KitchenOwnerOrders = () => {
                   </div>
                 </div>
               </div>
-              <div className='w-1/2  border-gray-700 border-2  rounded'>
+              <div className='w-full md:w-1/2  border-gray-700 border-2  rounded'>
                 {/* Pass orderStatus as a prop */}
                 <ChatModule orderId={order._id} kitchenId={order.kitchenOwnerId} orderStatus={order.status} />
               </div>

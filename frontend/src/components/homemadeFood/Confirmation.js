@@ -1,9 +1,16 @@
 import React from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import Navbar from '../Navbar';
 
 const Confirmation = () => {
   const location = useLocation();
+
+  // Reached directly (no state passed, e.g. a page refresh or someone typing
+  // the URL) — nothing to show, so send them back instead of crashing.
+  if (!location.state) {
+    return <Navigate to="/" replace />;
+  }
+
   const { name, phone, address, cartItems } = location.state;
 
   // Flatten cartItems into a single array of items

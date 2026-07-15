@@ -71,7 +71,7 @@ const KitchenDetail = () => {
           <p className="text-base mb-6 text-center">About: {kitchen.kitchen_description}</p>
           <div className=' border border-[#59636e]'>
             <h2 className="text-4xl text-center font-bold mb-4 pt-4 ">Menu</h2>
-            <div className="mt-6 gap-6 pb-8 flex justify-center items-center ">
+            <div className="mt-6 gap-6 pb-8 flex flex-wrap justify-center items-center ">
               {kitchen.dishes.map((dish) => (
                 <div key={dish._id} className="rounded mt-6 shadow-lg border border-[#59636e] ml-4">
                   <img className="w-52 h-48" src={dish.imageUrls && dish.imageUrls[0]} alt={dish.name} />

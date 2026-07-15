@@ -76,13 +76,13 @@ const OrderPage = () => {
         <main className="flex-grow container mx-auto p-4 mt-28 bg-[#25292e] border border-[#59636e]">
           {orders.map((order) => (
             <div className="mb-4 rounded text-white" key={order._id}>
-              <div className="p-4 rounded flex justify-between">
-                <div className="w-1/2 p-2 rounded pr-8 mr-2 border border-[#59636e]">
+              <div className="p-4 rounded flex flex-col md:flex-row justify-between gap-4">
+                <div className="w-full md:w-1/2 p-2 rounded md:pr-8 md:mr-2 border border-[#59636e]">
                   <h2 className="text-2xl font-bold mb-2">Order ID: {order._id}</h2>
                   <OrderDetails details={order} />
                   <OrderList items={order.dishes} />
                 </div>
-                <div className="w-1/2 bg-[#25292e] border border-[#59636e] shadow-[#25292e] text-white rounded">
+                <div className="w-full md:w-1/2 bg-[#25292e] border border-[#59636e] shadow-[#25292e] text-white rounded">
                   <ChatModule orderId={order._id} kitchenId={order.kitchenOwnerId} orderStatus={order.status} />
                 </div>
               </div>

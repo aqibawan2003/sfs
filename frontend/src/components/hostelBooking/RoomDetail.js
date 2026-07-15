@@ -142,7 +142,7 @@ const RoomDetail = () => {
           }
           <h2 className="pt-2 font-bold text-2xl pb-4 text-center">Room No: {roomData.name||'N/A'}</h2>
           <p className="text-center">No. of Beds: {roomData.capacity??beds.length}</p>
-          <p className="text-center ml-32 whitespace-normal break-words mx-4">Description: {roomData.description||'No description available.'}</p>
+          <p className="text-center whitespace-normal break-words mx-4">Description: {roomData.description||'No description available.'}</p>
           <p className="text-center">Price per Bed: PKR {roomData.price??'N/A'}</p>
           <h3 className="text-xl text-center font-semibold mt-4">Beds:</h3>
           {beds.length === 0

@@ -26,7 +26,7 @@ const HostelOwnerBookingBed = () => {
     <div className="bg-[#1E201E] min-h-screen">
       <HostelNavbar />
 
-      <div className="p-8 ml-[180px]">
+      <div className="p-8 ml-0 md:ml-[180px]">
         <h1 className="text-3xl text-white font-bold mb-6">Booked Beds</h1>
 
         {loading ? (
@@ -38,10 +38,10 @@ const HostelOwnerBookingBed = () => {
         ) : (
           <div className="grid grid-cols-1 gap-6">
             {bookings.map((booking) => (
-              <div key={booking.bookingId} className="bg-gray-800 p-6 flex gap-1 rounded-lg shadow-md border border-gray-600">
+              <div key={booking.bookingId} className="bg-gray-800 p-6 flex flex-col md:flex-row flex-wrap gap-4 rounded-lg shadow-md border border-gray-600">
                 <h3 className="text-xl text-yellow-400 font-bold mb-4">{booking.studentName}</h3>
 
-                <div className="text-white space-y-2 gap-4 ml-8 flex">
+                <div className="text-white gap-4 md:ml-8 flex flex-wrap">
                   <p><span className="font-semibold flex flex-col pt-2 text-gray-400">Booking ID:</span> {booking.bookingId}</p>
                   <p><span className="font-semibold flex flex-col text-gray-400">CNIC:</span> {booking.cnic}</p>
                   <p><span className="font-semibold flex flex-col text-gray-400">Email:</span> {booking.email}</p>
@@ -57,7 +57,7 @@ const HostelOwnerBookingBed = () => {
                 </div>
 
                 <button
-                  className="px-6 py-2 ml-10 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50"
+                  className="px-6 py-2 ml-0 md:ml-10 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50"
                   disabled={removingId === booking.bookingId}
                   onClick={() => handleRemove(booking.bookingId)}
                 >

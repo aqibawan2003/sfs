@@ -25,7 +25,7 @@ const HostelOwnerProfile = () => {
   return (
     <div className="bg-[#1E201E] h-screen flex">
       <HostelNavbar />
-      <div className="flex flex-col p-6 ml-[180px] ">
+      <div className="flex flex-col p-6 ml-0 md:ml-[180px] ">
         {/* Flex-grow ensures it takes the remaining space after navbar */}
         <Profile />
 

@@ -71,6 +71,7 @@ const Pill = ({ tone='neutral', children }) => {
     strong:  { background: ink.brand, color: '#FFFFFF' },
     amber:   { background: '#8A6D3B', color: '#FFFFFF' },
     muted:   { background: '#3C3D37', color: '#D6D6D2' },
+    danger:  { background: '#8F3B28', color: '#FFFFFF' },
   };
   return (
     <span style={{ ...styles[tone], ...body, fontSize: 11, letterSpacing: '0.03em' }}
@@ -88,6 +89,17 @@ const StatusPill = ({ status }) => {
   if (status === 'read') return <Pill tone="neutral">Read</Pill>;
   if (status === 'new') return <Pill tone="amber">New</Pill>;
   return <Pill tone="neutral">{status}</Pill>;
+};
+
+// KYC turnaround target is 48h from registration; badge only applies while still pending.
+const PendingAge = ({ createdAt }) => {
+  if (!createdAt) return null;
+  const hours = (Date.now() - new Date(createdAt).getTime()) / 3600000;
+  if (hours < 0) return null;
+  const label = hours >= 48 ? `${Math.floor(hours/24)}d ${Math.floor(hours%24)}h` : `${Math.floor(hours)}h`;
+  if (hours >= 48) return <Pill tone="danger">Overdue {label}</Pill>;
+  if (hours >= 36) return <Pill tone="amber">{label} · due soon</Pill>;
+  return <Pill tone="neutral">{label} waiting</Pill>;
 };
 
 const Avatar = ({ name, size='md', src }) => {
@@ -416,6 +428,12 @@ const AdminDashboard = () => {
     }));
   };
   const ownerStatus = (owner) => owner.isBanned ? 'banned' : owner.isApproved ? 'approved active' : 'pending';
+  // Surfaces the longest-waiting pending owners first so the 48h KYC target is actually achievable, not just claimed.
+  const sortPendingFirst = (rows) => [...rows].sort((a,b) => {
+    const aPending = !a.isApproved && !a.isBanned, bPending = !b.isApproved && !b.isBanned;
+    if (aPending !== bPending) return aPending ? -1 : 1;
+    return aPending ? new Date(a.createdAt||0) - new Date(b.createdAt||0) : 0;
+  });
   const hostelTitle = (hostel) => hostel.hostelName || hostel.hostel_name;
   const hostelType = (hostel) => hostel.hostelType || hostel.hostel_type || 'Hostel';
   const hostelOwnerName = (hostel) => `${hostel.hostel_owner_id?.first_name || ''} ${hostel.hostel_owner_id?.last_name || ''}`;
@@ -559,6 +577,11 @@ const AdminDashboard = () => {
                         <div className="flex items-center gap-3">
                           <FaHome style={{ color: '#8A6D3B' }} className="text-sm"/>
                           <span className="text-[13.5px] font-medium">{stats.pendingHostelOwners} hostel owner{stats.pendingHostelOwners!==1?'s':''} awaiting approval</span>
+                          {(stats.overdueHostelOwners||0) > 0 && (
+                            <span className="text-[10.5px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background:'#F8D7DA', color:'#842029' }}>
+                              {stats.overdueHostelOwners} over 48h
+                            </span>
+                          )}
                         </div>
                         <FaChevronRight className="text-[11px]" style={{ color: ink.faint }}/>
                       </button>
@@ -568,6 +591,11 @@ const AdminDashboard = () => {
                         <div className="flex items-center gap-3">
                           <FaUtensils style={{ color: '#8A6D3B' }} className="text-sm"/>
                           <span className="text-[13.5px] font-medium">{stats.pendingKitchenOwners} kitchen owner{stats.pendingKitchenOwners!==1?'s':''} awaiting approval</span>
+                          {(stats.overdueKitchenOwners||0) > 0 && (
+                            <span className="text-[10.5px] font-bold uppercase tracking-wide px-2 py-0.5 rounded-full" style={{ background:'#F8D7DA', color:'#842029' }}>
+                              {stats.overdueKitchenOwners} over 48h
+                            </span>
+                          )}
                         </div>
                         <FaChevronRight className="text-[11px]" style={{ color: ink.faint }}/>
                       </button>
@@ -632,13 +660,13 @@ const AdminDashboard = () => {
                   <thead style={{ background: ink.panel }}><tr>{['ID','Name','Hostel','Email','Status',''].map(h=><th key={h} className={thCls} style={{ borderBottom: `1px solid ${ink.line}`, color: ink.sub }}>{h}</th>)}</tr></thead>
                   {loading ? <LoadingRows cols={6}/> : (
                     <tbody>
-                      {(() => { const rows = filterRows(hostelOwners, ['owner_id','first_name','last_name','email','hostel_name',ownerStatus]); return rows.length===0 ? <EmptyRow cols={6} message="No matching hostel owners"/> : rows.map((o,i)=>(
+                      {(() => { const rows = sortPendingFirst(filterRows(hostelOwners, ['owner_id','first_name','last_name','email','hostel_name',ownerStatus])); return rows.length===0 ? <EmptyRow cols={6} message="No matching hostel owners"/> : rows.map((o,i)=>(
                         <tr key={o._id} className={`transition-colors duration-150 ${i%2===1 ? 'bg-[#F5F7F1]' : ''} hover:bg-[#EBEFE6]`} style={{ borderBottom: `1px solid ${ink.lineSoft}` }}>
                           <td className={tdCls} style={{ ...body, color: ink.faint }}>{o.owner_id}</td>
                           <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={o.first_name}/><span className="font-semibold" style={{ color: ink.text }}>{o.first_name} {o.last_name}</span></span></td>
                           <td className={tdCls} style={{ color: ink.brandDark, fontWeight: 600 }}>{o.hostel_name}</td>
                           <td className={tdCls} style={{ color: ink.sub }}>{o.email}</td>
-                          <td className={tdCls}><StatusPill status={o.isBanned?'banned':o.isApproved?'approved':'pending'}/></td>
+                          <td className={tdCls}><span className="flex items-center gap-2 flex-wrap"><StatusPill status={o.isBanned?'banned':o.isApproved?'approved':'pending'}/>{!o.isApproved && !o.isBanned && <PendingAge createdAt={o.createdAt}/>}</span></td>
                           <td className="px-5 py-3"><UserActions item={o} type="hostel-owner"/></td>
                         </tr>
                       )); })()}
@@ -660,13 +688,13 @@ const AdminDashboard = () => {
                   <thead style={{ background: ink.panel }}><tr>{['ID','Name','Kitchen','Email','Status',''].map(h=><th key={h} className={thCls} style={{ borderBottom: `1px solid ${ink.line}`, color: ink.sub }}>{h}</th>)}</tr></thead>
                   {loading ? <LoadingRows cols={6}/> : (
                     <tbody>
-                      {(() => { const rows = filterRows(kitchenOwners, ['provider_id','first_name','last_name','email','kitchen_name',ownerStatus]); return rows.length===0 ? <EmptyRow cols={6} message="No matching kitchen owners"/> : rows.map((o,i)=>(
+                      {(() => { const rows = sortPendingFirst(filterRows(kitchenOwners, ['provider_id','first_name','last_name','email','kitchen_name',ownerStatus])); return rows.length===0 ? <EmptyRow cols={6} message="No matching kitchen owners"/> : rows.map((o,i)=>(
                         <tr key={o._id} className={`transition-colors duration-150 ${i%2===1 ? 'bg-[#F5F7F1]' : ''} hover:bg-[#EBEFE6]`} style={{ borderBottom: `1px solid ${ink.lineSoft}` }}>
                           <td className={tdCls} style={{ ...body, color: ink.faint }}>{o.provider_id}</td>
                           <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={o.first_name}/><span className="font-semibold" style={{ color: ink.text }}>{o.first_name} {o.last_name}</span></span></td>
                           <td className={tdCls} style={{ color: ink.brandDark, fontWeight: 600 }}>{o.kitchen_name}</td>
                           <td className={tdCls} style={{ color: ink.sub }}>{o.email}</td>
-                          <td className={tdCls}><StatusPill status={o.isBanned?'banned':o.isApproved?'approved':'pending'}/></td>
+                          <td className={tdCls}><span className="flex items-center gap-2 flex-wrap"><StatusPill status={o.isBanned?'banned':o.isApproved?'approved':'pending'}/>{!o.isApproved && !o.isBanned && <PendingAge createdAt={o.createdAt}/>}</span></td>
                           <td className="px-5 py-3"><UserActions item={o} type="kitchen-owner"/></td>
                         </tr>
                       )); })()}

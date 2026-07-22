@@ -505,6 +505,11 @@ exports.getDashboardStats = async (req, res) => {
         const pendingHostelOwners = await Hostelowner.countDocuments({ isApproved: false });
         const pendingKitchenOwners = await Kitchenowner.countDocuments({ isApproved: false });
 
+        // Owners still pending 48+ hours after registering breach our KYC turnaround target.
+        const slaDeadline = new Date(Date.now() - 48 * 60 * 60 * 1000);
+        const overdueHostelOwners = await Hostelowner.countDocuments({ isApproved: false, createdAt: { $lt: slaDeadline } });
+        const overdueKitchenOwners = await Kitchenowner.countDocuments({ isApproved: false, createdAt: { $lt: slaDeadline } });
+
         res.status(200).json({
             totalStudents,
             totalHostelOwners,
@@ -514,7 +519,9 @@ exports.getDashboardStats = async (req, res) => {
             totalBookings,
             totalOrders,
             pendingHostelOwners,
-            pendingKitchenOwners
+            pendingKitchenOwners,
+            overdueHostelOwners,
+            overdueKitchenOwners
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });

@@ -128,7 +128,13 @@ const Reviews = () => {
                   alt={review.name}
                   className="w-24 h-24 mt-12 rounded-full mb-4 object-cover"
                 />
-                <h3 className="text-xl font-bold mb-2">{review.name}</h3>
+                <h3 className="text-xl font-bold mb-1">{review.name}</h3>
+                {review.targetName && (
+                  <p className="text-xs text-[#a5b68d] mb-2">
+                    {review.targetType === "kitchen" ? "Kitchen: " : "Hostel: "}
+                    {review.targetName}
+                  </p>
+                )}
                 <p className="flex-grow mb-4">{review.review}</p>
               </div>
 

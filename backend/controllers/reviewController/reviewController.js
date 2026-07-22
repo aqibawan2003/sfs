@@ -2,6 +2,8 @@
 const Review = require('../../models/student/Review');
 const Booking = require('../../models/student/Booking');
 const Order = require('../../models/student/Order');
+const HostelOwner = require('../../models/hostelowner/Hostelowner');
+const KitchenOwner = require('../../models/kitchenowner/Kitchenowner');
 const logger = require('../../utils/logger');
 
 // Fallback avatar used on the home page carousel if a student has no picture.
@@ -31,7 +33,7 @@ async function hasUsedTarget(studentId, targetType, targetId) {
   return false;
 }
 
-function shapeForCard(review) {
+function shapeForCard(review, targetName) {
   const s = review.student_id || {};
   const name = [s.first_name, s.last_name].filter(Boolean).join(' ') || 'Student';
   return {
@@ -41,7 +43,27 @@ function shapeForCard(review) {
     review: review.review_text,
     rating: review.rating,
     date: review.createdAt,
+    targetType: review.target_type,
+    targetName: targetName || '',
   };
+}
+
+// Batch-resolve hostel/kitchen names for a list of reviews (mixed types),
+// so the home page carousel can show which place each review is about.
+async function attachTargetNames(reviews) {
+  const hostelIds = reviews.filter((r) => r.target_type === 'hostel').map((r) => r.target_id);
+  const kitchenIds = reviews.filter((r) => r.target_type === 'kitchen').map((r) => r.target_id);
+
+  const [hostels, kitchens] = await Promise.all([
+    hostelIds.length ? HostelOwner.find({ _id: { $in: hostelIds } }, 'hostel_name') : [],
+    kitchenIds.length ? KitchenOwner.find({ _id: { $in: kitchenIds } }, 'kitchen_name') : [],
+  ]);
+
+  const nameMap = new Map();
+  hostels.forEach((h) => nameMap.set(String(h._id), h.hostel_name));
+  kitchens.forEach((k) => nameMap.set(String(k._id), k.kitchen_name));
+
+  return nameMap;
 }
 
 // GET /api/reviews/recent  (public) — feeds the home page carousel.
@@ -54,7 +76,11 @@ exports.getRecentReviews = async (req, res, next) => {
       .limit(12)
       .populate('student_id', 'first_name last_name profile_picture');
 
-    res.status(200).json(reviews.map(shapeForCard));
+    const nameMap = await attachTargetNames(reviews);
+
+    res.status(200).json(
+      reviews.map((r) => shapeForCard(r, nameMap.get(String(r.target_id))))
+    );
   } catch (error) {
     next(error);
   }
@@ -68,9 +94,16 @@ exports.getReviewsForTarget = async (req, res, next) => {
       return res.status(400).json({ message: 'Invalid target type' });
     }
 
-    const reviews = await Review.find({ target_type, target_id })
-      .sort({ createdAt: -1 })
-      .populate('student_id', 'first_name last_name profile_picture');
+    const [reviews, targetDoc] = await Promise.all([
+      Review.find({ target_type, target_id })
+        .sort({ createdAt: -1 })
+        .populate('student_id', 'first_name last_name profile_picture'),
+      target_type === 'hostel'
+        ? HostelOwner.findById(target_id, 'hostel_name')
+        : KitchenOwner.findById(target_id, 'kitchen_name'),
+    ]);
+
+    const targetName = targetDoc ? (targetDoc.hostel_name || targetDoc.kitchen_name) : '';
 
     const count = reviews.length;
     const average = count
@@ -80,7 +113,8 @@ exports.getReviewsForTarget = async (req, res, next) => {
     res.status(200).json({
       average,
       count,
-      reviews: reviews.map(shapeForCard),
+      targetName,
+      reviews: reviews.map((r) => shapeForCard(r, targetName)),
     });
   } catch (error) {
     next(error);

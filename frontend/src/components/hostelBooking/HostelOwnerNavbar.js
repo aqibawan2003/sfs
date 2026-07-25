@@ -47,6 +47,9 @@ const HostelNavbar = () => {
             <Link to="/hostel-owner-profile">Profile</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
+            <Link to="/hostel-owner-profile#personal-profile">Personal Profile</Link>
+          </li>
+          <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
             <Link to="/hostel-owner-profile/totalroom">Rooms</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">

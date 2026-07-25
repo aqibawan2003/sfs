@@ -6,8 +6,8 @@ const util = require('../../utils/Utils');  // Adjust the path according to your
 const allowedUpdates = {
     student: ['first_name', 'last_name', 'phone_number', 'address', 'profile_picture', 'gender'],
     admin: ['first_name', 'last_name', 'phone_number', 'address', 'profile_picture'],
-    hostelOwner: ['first_name', 'last_name', 'phone_number', 'address', 'profile_picture', 'hostel_name', 'hostel_description', 'hostel_address', 'gender'],
-    kitchenOwner: ['first_name', 'last_name', 'phone_number', 'address', 'profile_picture', 'kitchen_name', 'kitchen_description', 'gender']
+    hostelOwner: ['first_name', 'last_name', 'phone_number', 'address', 'profile_picture', 'hostel_name', 'hostel_description', 'hostel_address', 'hostel_picture', 'gender'],
+    kitchenOwner: ['first_name', 'last_name', 'phone_number', 'address', 'profile_picture', 'kitchen_name', 'kitchen_description', 'kitchen_picture', 'gender']
   };  
 
 // Update Profile

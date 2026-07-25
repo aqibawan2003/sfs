@@ -65,7 +65,7 @@ const TotalRoom = () => {
               <img
                 src={room.imageUrls[0]}
                 alt={room.name}
-                className="w-full object-cover"
+                className="w-full h-48 object-cover"
               />
               <h2 className="text-2xl font-bold text-center pt-3">
                 Room No: {room.name}

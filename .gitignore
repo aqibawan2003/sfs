@@ -36,3 +36,6 @@ Thumbs.db
 
 # ─── Test coverage ───────────────────────────────────────────────
 coverage/
+
+# ─── Personal/local docs (not for repo) ──────────────────────────
+SFS_Viva_FactCheck_and_PrepGuide.pdf

@@ -18,6 +18,7 @@ const Navbar = ({ module }) => {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
   const totalItems = useSelector((state) => state.cart.totalItems);
+  const authUser = useSelector((state) => state.auth.user);
 
   useEffect(() => {
     const { token, user } = readStoredAuth();
@@ -72,7 +73,17 @@ const Navbar = ({ module }) => {
   };
 
   const handleCancel = () => {
-    setShowLogoutModal(false); 
+    setShowLogoutModal(false);
+  };
+
+  const handleProfileClick = () => {
+    if (authUser?.role === 'hostelOwner') {
+      navigate('/hostel-owner-profile');
+    } else if (authUser?.role === 'kitchenOwner') {
+      navigate('/kitchen-owner-profile');
+    } else {
+      navigate('/StudentProfile');
+    }
   };
 
   return (
@@ -175,7 +186,7 @@ const Navbar = ({ module }) => {
                 <div className="bg-white rounded-lg inline-block">
                   <button
                     type="button"
-                    onClick={() => navigate('/StudentProfile')}
+                    onClick={handleProfileClick}
                     className="p-2 text-[#1E201E] hover:text-gray-700 focus:outline-none"
                     aria-label="Open profile"
                   >

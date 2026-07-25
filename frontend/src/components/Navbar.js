@@ -82,7 +82,7 @@ const Navbar = ({ module }) => {
     } else if (authUser?.role === 'kitchenOwner') {
       navigate('/kitchen-owner-profile');
     } else {
-      navigate('/StudentProfile');
+      navigate('/profile');
     }
   };
 

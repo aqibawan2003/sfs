@@ -49,7 +49,7 @@ const KitchenOwnerNavbar = () => {
             <Link to="/kitchen-owner-profile">Profile</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/kitchen-owner-profile#personal-profile">Personal Profile</Link>
+            <Link to="/profile">Personal Profile</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
             <Link to="/kitchen-owner-profile/dishes">Menu</Link>

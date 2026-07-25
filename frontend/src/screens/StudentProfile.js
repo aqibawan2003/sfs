@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { logout } from '../store/authSlice';
+import { logout, setCredentials } from '../store/authSlice';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import ImageUploadField from '../components/common/ImageUploadField';
+import { readStoredAuth } from '../utils/auth';
 import axios from 'axios';
 import {
   FaUser, FaEnvelope, FaPhone, FaVenusMars, FaMapMarkerAlt, FaIdCard,
@@ -30,8 +31,21 @@ const StudentProfile = () => {
   const [activeTab, setActiveTab] = useState('profile');
 
   useEffect(() => {
-    if (!user && !token) { navigate('/loginform'); return; }
+    if (!user && !token) {
+      // Owners reach this page straight from their own sidebar, which never
+      // renders the shared Navbar that normally rehydrates Redux auth state
+      // from cookies/sessionStorage. Rehydrate here too before assuming
+      // there's no active session and bouncing to the login form.
+      const stored = readStoredAuth();
+      if (stored.token && stored.user) {
+        dispatch(setCredentials({ token: stored.token, user: stored.user }));
+        return;
+      }
+      navigate('/loginform');
+      return;
+    }
     if (user) {
+      const role = user.role || 'student';
       setProfileData({
         name: `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.name || 'N/A',
         email: user.email || '',
@@ -41,23 +55,30 @@ const StudentProfile = () => {
         profilePicture: user.profile_picture || '',
         student_id: user.student_id || '',
         cnic: user.cnic || '',
+        role,
       });
       setEditData({ name: `${user.first_name||''} ${user.last_name||''}`.trim(), phone: user.phone_number||'', address: user.address||'', profilePicture: user.profile_picture||'' });
+
+      // Food orders / hostel bookings only apply to student accounts.
+      if (role === 'student') {
+        const authToken = token || localStorage.getItem('token');
+        const fetchAll = async () => {
+          try {
+            const [ordersRes, bookingsRes] = await Promise.allSettled([
+              axios.get(`${API_BASE_URL}/api/order/customer`, { headers: { Authorization: `Bearer ${authToken}` } }),
+              axios.get(`${API_BASE_URL}/api/bookings/booked-rooms`, { headers: { Authorization: `Bearer ${authToken}` } }),
+            ]);
+            setFoodOrders(ordersRes.status === 'fulfilled' ? (ordersRes.value.data?.orders || ordersRes.value.data || []) : []);
+            setBedBookings(bookingsRes.status === 'fulfilled' ? (bookingsRes.value.data?.data || bookingsRes.value.data || []) : []);
+          } catch (e) { console.error(e); }
+          setLoading(false);
+        };
+        fetchAll();
+      } else {
+        setLoading(false);
+      }
     }
-    const authToken = token || localStorage.getItem('token');
-    const fetchAll = async () => {
-      try {
-        const [ordersRes, bookingsRes] = await Promise.allSettled([
-          axios.get(`${API_BASE_URL}/api/order/customer`, { headers: { Authorization: `Bearer ${authToken}` } }),
-          axios.get(`${API_BASE_URL}/api/bookings/booked-rooms`, { headers: { Authorization: `Bearer ${authToken}` } }),
-        ]);
-        setFoodOrders(ordersRes.status === 'fulfilled' ? (ordersRes.value.data?.orders || ordersRes.value.data || []) : []);
-        setBedBookings(bookingsRes.status === 'fulfilled' ? (bookingsRes.value.data?.data || bookingsRes.value.data || []) : []);
-      } catch (e) { console.error(e); }
-      setLoading(false);
-    };
-    fetchAll();
-  }, [user, token, navigate]);
+  }, [user, token, navigate, dispatch]);
 
   const handleLogout = () => { dispatch(logout()); navigate('/loginform'); };
   const [savingProfile, setSavingProfile] = useState(false);
@@ -71,9 +92,13 @@ const StudentProfile = () => {
         first_name: firstName || '',
         last_name: rest.join(' ') || '',
         phone_number: editData.phone || '',
-        address: editData.address || '',
         profile_picture: editData.profilePicture || '',
       };
+      // For kitchen owners, `address` on the account record is the kitchen's
+      // own address, not the owner's personal one — never send it from here.
+      if (profileData?.role !== 'kitchenOwner') {
+        payload.address = editData.address || '';
+      }
       const res = await axios.put(`${API_BASE_URL}/profile/User`, payload, {
         headers: { Authorization: `Bearer ${authToken}` },
       });
@@ -101,7 +126,8 @@ const StudentProfile = () => {
     { label: 'Email',      value: profileData.email,            icon: <FaEnvelope /> },
     { label: 'Phone',      value: profileData.phone || 'N/A',   icon: <FaPhone /> },
     { label: 'Gender',     value: profileData.gender || 'N/A',  icon: <FaVenusMars /> },
-    { label: 'Address',    value: profileData.address || 'N/A', icon: <FaMapMarkerAlt /> },
+    // Kitchen owners' `address` field is their kitchen's address, not personal — don't show it here.
+    ...(profileData.role !== 'kitchenOwner' ? [{ label: 'Address', value: profileData.address || 'N/A', icon: <FaMapMarkerAlt /> }] : []),
     { label: 'CNIC',       value: profileData.cnic || 'N/A',    icon: <FaIdCard /> },
   ];
 
@@ -137,7 +163,7 @@ const StudentProfile = () => {
             <h2 className="text-xl font-bold mb-4">Edit Profile</h2>
             <form onSubmit={handleEditSave} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {[['Full Name','name','text'],['Phone Number','phone','tel'],['Address','address','text']].map(([label,key,type])=>(
+                {[['Full Name','name','text'],['Phone Number','phone','tel'], ...(profileData.role !== 'kitchenOwner' ? [['Address','address','text']] : [])].map(([label,key,type])=>(
                   <div key={key}>
                     <label className="block text-sm text-gray-400 mb-1">{label}</label>
                     <input type={type} value={editData[key]} onChange={e=>setEditData({...editData,[key]:e.target.value})} className={inputCls} />
@@ -175,7 +201,8 @@ const StudentProfile = () => {
           </div>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs — food orders / hostel bookings only apply to student accounts */}
+        {profileData.role === 'student' && (
         <div className="flex gap-4 mb-4">
           {[['orders','Food Orders',<FaUtensils />],['bookings','Hostel Bookings',<FaHome />]].map(([key,label,icon])=>(
             <button key={key} onClick={()=>setActiveTab(key)}
@@ -184,9 +211,10 @@ const StudentProfile = () => {
             </button>
           ))}
         </div>
+        )}
 
         {/* Food Orders */}
-        {activeTab === 'orders' && (
+        {profileData.role === 'student' && activeTab === 'orders' && (
           <div className="bg-[#25292e] rounded-2xl p-6 shadow-lg">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><FaUtensils /> Food Order History</h2>
             {foodOrders.length === 0
@@ -221,7 +249,7 @@ const StudentProfile = () => {
         )}
 
         {/* Hostel Bookings */}
-        {activeTab === 'bookings' && (
+        {profileData.role === 'student' && activeTab === 'bookings' && (
           <div className="bg-[#25292e] rounded-2xl p-6 shadow-lg">
             <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><FaHome /> Hostel Booking History</h2>
             {bedBookings.length === 0

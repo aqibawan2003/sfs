@@ -64,7 +64,7 @@ function App() {
        <Route path='/hostelownerdashboard' element={<HostelOwnerDashboard/>}/>
        <Route path='/Mission' element={<Mission/>}/>
        <Route path='/AboutUs' element={<AboutUs/>}/>
-       <Route path='/StudentProfile' element={<StudentProfile/>}/>
+       <Route path='/profile' element={<StudentProfile/>}/>
        <Route path='/booking' element={<HostelOwnerBookingBed/>}/>
        <Route path='/ContactUs' element={<ContactUs/>}/>
        <Route path='/kitchenownerdashboard' element={<KitchenOwnerDashboard/>}/>

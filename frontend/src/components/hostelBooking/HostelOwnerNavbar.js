@@ -21,6 +21,13 @@ const HostelNavbar = () => {
     }
   }, []);
 
+  // Lock background scroll while the mobile drawer is open, otherwise the
+  // page underneath the translucent backdrop can still be scrolled/swiped.
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isMenuOpen]);
+
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
   };

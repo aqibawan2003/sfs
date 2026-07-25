@@ -51,7 +51,7 @@ const HostelDetail = () => {
                       <img
                         src={room.imageUrls?.[0] || ''}
                         alt={`Room ${room.name}`}
-                        className={`w-[200px] h-[200px] object-cover mr-4 ${imageLoaded[room._id] ? 'block' : 'hidden'}`}
+                        className={`w-[200px] h-[200px] object-contain bg-[#1E201E] mr-4 ${imageLoaded[room._id] ? 'block' : 'hidden'}`}
                         onLoad={() => handleImageLoad(room._id)}
                       />
                       <div className="flex-1 p-6">

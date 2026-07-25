@@ -38,15 +38,22 @@ export const deleteRoom = createAsyncThunk('hostels/deleteRoom', async (id) => {
 
 // Inside hostelSlice.js
 
-export const fetchAllRooms = createAsyncThunk('hostels/fetchAllRooms', async () => {
+export const fetchAllRooms = createAsyncThunk('hostels/fetchAllRooms', async (_, { rejectWithValue }) => {
   const token = Cookies.get('token');
-  const response = await axios.get(`${API_BASE_URL}/api/rooms/getAllRooms`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  console.log('Get all rooms response:', response);
-  return response.data;
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/rooms/getAllRooms`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    console.log('Get all rooms response:', response);
+    return response.data;
+  } catch (error) {
+    return rejectWithValue({
+      message: error.response?.data?.message || error.message,
+      status: error.response?.status,
+    });
+  }
 });
 
 
@@ -66,7 +73,7 @@ const hostelSlice = createSlice({
       })
       .addCase(fetchAllRooms.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
       .addCase(addRoom.fulfilled, (state, action) => {
         state.rooms.push(action.payload);

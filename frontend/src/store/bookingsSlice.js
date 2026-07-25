@@ -34,7 +34,10 @@ export const fetchBookings = createAsyncThunk('bookings/fetchBookings', async (_
     console.log('fetchBookings for hostelowner:', response.data);
     return response.data; // Raw bookings data from the backend
   } catch (error) {
-    return rejectWithValue(error.response.data);
+    return rejectWithValue({
+      message: error.response?.data?.message || error.message,
+      status: error.response?.status,
+    });
   }
 });
 

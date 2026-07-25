@@ -3,14 +3,21 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import API_BASE_URL from '../utils/api';
 
-export const fetchAllDishes = createAsyncThunk('kitchens/fetchAllDishes', async () => {
+export const fetchAllDishes = createAsyncThunk('kitchens/fetchAllDishes', async (_, { rejectWithValue }) => {
   const token = Cookies.get('token');
-  const response = await axios.get(`${API_BASE_URL}/api/dishes/getAllDishes`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-  return response.data;
+  try {
+    const response = await axios.get(`${API_BASE_URL}/api/dishes/getAllDishes`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    return rejectWithValue({
+      message: error.response?.data?.message || error.message,
+      status: error.response?.status,
+    });
+  }
 });
 
 export const addItem = createAsyncThunk(
@@ -73,7 +80,7 @@ const kitchenSlice = createSlice({
       })
       .addCase(fetchAllDishes.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message;
+        state.error = action.payload || action.error.message;
       })
       .addCase(addItem.fulfilled, (state, action) => {
         state.dishes.push(action.payload);

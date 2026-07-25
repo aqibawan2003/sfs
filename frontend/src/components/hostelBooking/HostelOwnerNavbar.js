@@ -59,7 +59,7 @@ const HostelNavbar = () => {
         />
       )}
 
-      <nav className={`w-[180px] h-full p-4 flex-col justify-between fixed top-0 left-0 z-40 md:flex ${isMenuOpen ? 'flex' : 'hidden'}`}>
+      <nav className={`w-[180px] h-full p-4 flex-col justify-between fixed top-0 left-0 z-40 bg-gray-800 md:flex ${isMenuOpen ? 'flex' : 'hidden'}`}>
         <ul className="mt-20 space-y-4">
         <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
             <Link to="/hostelOwnerDashboard" onClick={closeMenu}>Dashboard</Link>

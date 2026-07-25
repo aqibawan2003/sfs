@@ -31,6 +31,7 @@ import Logout from './components/Logout';
 import HostelOwnerBookingBed from './components/hostelBooking/HostelOwnerbookingBed';
 import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
+import NotFound from './screens/NotFound';
 
 function App() {
   return (
@@ -72,6 +73,9 @@ function App() {
        {/* Admin Routes */}
        <Route path='/admin/login' element={<AdminLogin/>}/>
        <Route path='/admin/dashboard' element={<AdminDashboard/>}/>
+
+       {/* Catch-all: any unmatched URL */}
+       <Route path='*' element={<NotFound/>}/>
       </Routes>
     </Router>
     </div>

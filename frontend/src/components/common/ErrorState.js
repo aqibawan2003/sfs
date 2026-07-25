@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaGhost, FaRedo } from 'react-icons/fa';
+import { FaRedo } from 'react-icons/fa';
 
 /**
  * Friendly replacement for bare "Error: {message}" text. Detects auth
@@ -9,14 +9,22 @@ import { FaGhost, FaRedo } from 'react-icons/fa';
  */
 const ErrorState = ({ message, onRetry }) => {
   const navigate = useNavigate();
+  const [imageFailed, setImageFailed] = useState(false);
   const text = typeof message === 'string' ? message : (message?.message || '');
   const isAuthError = /401|unauthorized|token/i.test(text);
 
   return (
     <div className="flex flex-col items-center justify-center text-center py-20 px-6 text-white w-full">
-      <FaGhost className="text-6xl text-[#697565] mb-4" />
+      {!imageFailed && (
+        <img
+          src={isAuthError ? '/images/tom-and-jerry-1.png' : '/images/tom-and-jerry-2.png'}
+          alt=""
+          className="w-40 h-auto mb-4 select-none"
+          onError={() => setImageFailed(true)}
+        />
+      )}
       <h2 className="text-2xl font-bold mb-2">
-        {isAuthError ? 'Boo! Your session got spooked' : 'Whoops, something went sideways'}
+        {isAuthError ? "Tom chased your session away!" : 'Uh-oh, Jerry knocked something over'}
       </h2>
       <p className="text-gray-400 max-w-md mb-6">
         {isAuthError

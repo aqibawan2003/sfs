@@ -57,7 +57,7 @@ const HostelNavbar = () => {
 
         {/* "Visit Website" link at the bottom */}
         <div className="mb-4">
-          <Link to="/" className="text-white text-xl font-semibold  hover:bg-gray-900 px-3 py-2 rounded">
+          <Link to="/" target="_blank" rel="noopener noreferrer" className="text-white text-xl font-semibold  hover:bg-gray-900 px-3 py-2 rounded">
             Visit Website
           </Link>
           {isLoggedIn && (

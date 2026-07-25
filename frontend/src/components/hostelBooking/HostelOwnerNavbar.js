@@ -5,13 +5,14 @@ import Cookies from 'js-cookie';
 
 const HostelNavbar = () => {
   const navigate = useNavigate();
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get('token');
     const user = sessionStorage.getItem('user');
-  
+
     // Check if the user is logged in based on token and session
     if (token && user) {
       setIsLoggedIn(true);
@@ -21,7 +22,7 @@ const HostelNavbar = () => {
   }, []);
 
   const handleLogoutClick = () => {
-    setShowLogoutModal(true); 
+    setShowLogoutModal(true);
   };
 
   const handleLogoutConfirm = () => {
@@ -33,29 +34,49 @@ const HostelNavbar = () => {
   };
 
   const handleCancel = () => {
-    setShowLogoutModal(false); 
+    setShowLogoutModal(false);
   };
+
+  const closeMenu = () => setIsMenuOpen(false);
 
   return (
     <div className="h-screen bg-gray-800">
-      <nav className="w-[180px] h-full p-4 flex-col justify-between fixed hidden md:flex">
+      {/* Mobile menu toggle - the nav below is hidden by default under md: */}
+      <button
+        onClick={() => setIsMenuOpen(!isMenuOpen)}
+        className="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded"
+        aria-label="Toggle menu"
+      >
+        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+        </svg>
+      </button>
+
+      {isMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
+          onClick={closeMenu}
+        />
+      )}
+
+      <nav className={`w-[180px] h-full p-4 flex-col justify-between fixed top-0 left-0 z-40 md:flex ${isMenuOpen ? 'flex' : 'hidden'}`}>
         <ul className="mt-20 space-y-4">
         <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostelOwnerDashboard">Dashboard</Link>
+            <Link to="/hostelOwnerDashboard" onClick={closeMenu}>Dashboard</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostel-owner-profile">Profile</Link>
+            <Link to="/hostel-owner-profile" onClick={closeMenu}>Profile</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/profile">Personal Profile</Link>
+            <Link to="/profile" onClick={closeMenu}>Personal Profile</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostel-owner-profile/totalroom">Rooms</Link>
+            <Link to="/hostel-owner-profile/totalroom" onClick={closeMenu}>Rooms</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/booking">Booking</Link>
+            <Link to="/booking" onClick={closeMenu}>Booking</Link>
           </li>
-         
+
         </ul>
 
         {/* "Visit Website" link at the bottom */}
@@ -65,8 +86,8 @@ const HostelNavbar = () => {
           </Link>
           {isLoggedIn && (
             <div className="ml-4 mt-6">
-              <button 
-                onClick={handleLogoutClick} 
+              <button
+                onClick={handleLogoutClick}
                 className="bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg"
               >
                 Logout

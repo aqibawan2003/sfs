@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import HostelNavbar from "./HostelOwnerNavbar";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBookings, removeBookingFromHistory } from '../../store/bookingsSlice';
+import ErrorState from '../common/ErrorState';
 
 const HostelOwnerBookingBed = () => {
   const dispatch = useDispatch();
@@ -32,7 +33,7 @@ const HostelOwnerBookingBed = () => {
         {loading ? (
           <p className="text-white">Loading bookings...</p>
         ) : error ? (
-          <p className="text-red-500">Error: {typeof error === 'string' ? error : (error?.message || 'Failed to load bookings.')}</p>
+          <ErrorState message={error} onRetry={() => dispatch(fetchBookings())} />
         ) : !bookings || bookings.length === 0 ? (
           <p className="text-gray-400">No beds have been booked yet.</p>
         ) : (

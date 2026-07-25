@@ -8,6 +8,7 @@ import {
 } from "../../store/hostelSlice";
 import HostelNavbar from "./HostelOwnerNavbar";
 import { AddOrUpdateRoomModal } from "./AddOrUpdateRoomModal/AddOrUpdateRoomModal";
+import ErrorState from "../common/ErrorState";
 
 const TotalRoom = () => {
   const dispatch = useDispatch();
@@ -49,7 +50,14 @@ const TotalRoom = () => {
   };
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {typeof error === 'string' ? error : (error?.message || 'Failed to load rooms.')}</div>;
+  if (error) return (
+    <div className="flex bg-[#1E201E] min-h-screen">
+      <HostelNavbar />
+      <div className="flex-1 ml-0 md:ml-[180px]">
+        <ErrorState message={error} onRetry={() => dispatch(fetchAllRooms())} />
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex bg-[#1E201E]">

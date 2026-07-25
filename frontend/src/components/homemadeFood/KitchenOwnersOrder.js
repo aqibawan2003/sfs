@@ -7,6 +7,7 @@ import { jwtDecode } from 'jwt-decode';
 import Cookies from 'js-cookie';
 import ChatModule from './ChatModule';
 import API_BASE_URL from '../../utils/api';
+import ErrorState from '../common/ErrorState';
 
 const KitchenOwnerOrders = () => {
   const dispatch = useDispatch();
@@ -51,7 +52,14 @@ const KitchenOwnerOrders = () => {
   }, [dispatch]);
 
   if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return (
+    <div className="flex flex-col lg:flex-row bg-[#181C14] min-h-screen">
+      <KitchenOwnerNavbar />
+      <div className="flex-1">
+        <ErrorState message={error} onRetry={() => dispatch(getOrdersForKitchen())} />
+      </div>
+    </div>
+  );
   const handleStatusChange = (orderId, newStatus) => {
     dispatch(updateOrderStatus({ orderId, status: newStatus }));
     // Note: no need to also emit a socket event here - the backend's

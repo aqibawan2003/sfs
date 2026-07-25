@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchAllDishes, fetchItem, deleteItem } from '../../store/kitchenSlice';
 import KitchenOwnerNavbar from './KitchenOwnerNavbar';
 import { AddOrUpdateItemModal } from './AddOrUpdateItemModal';
+import ErrorState from '../common/ErrorState';
 
 const Shimmer = () => (
   <div className="animate-pulse border ml-4 h-[580px]  mt-8 bg-gray-700 text-white">
@@ -63,7 +64,14 @@ const Dishes = () => {
     );
   }
 
-  if (error) return <div>Error: {typeof error === 'string' ? error : (error?.message || 'Failed to load dishes.')}</div>;
+  if (error) return (
+    <div className="flex bg-black min-h-screen">
+      <KitchenOwnerNavbar />
+      <div className="flex-1">
+        <ErrorState message={error} onRetry={() => dispatch(fetchAllDishes())} />
+      </div>
+    </div>
+  );
 
   return (
     <div className="flex bg-black">

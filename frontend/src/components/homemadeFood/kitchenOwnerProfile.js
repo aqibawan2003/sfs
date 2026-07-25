@@ -32,7 +32,7 @@ const KitchenOwnerProfile = () => {
   return (
     <div className="flex ">
       <KitchenOwnerNavbar />
-      <div className="bg-black flex-1 flex flex-col items-center justify-center"> {/* Centering the content */}
+      <div className="bg-black flex-1 flex flex-col items-center justify-center ml-0 md:ml-[180px]"> {/* Centering the content */}
          {/* Centered text */}
         
         <Profile />

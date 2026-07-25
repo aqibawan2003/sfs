@@ -55,7 +55,7 @@ const KitchenOwnerOrders = () => {
   if (error) return (
     <div className="flex flex-col lg:flex-row bg-[#181C14] min-h-screen">
       <KitchenOwnerNavbar />
-      <div className="flex-1">
+      <div className="flex-1 ml-0 md:ml-[180px]">
         <ErrorState message={error} onRetry={() => dispatch(getOrdersForKitchen())} />
       </div>
     </div>
@@ -85,7 +85,7 @@ const KitchenOwnerOrders = () => {
   return (
     <div className="flex flex-col lg:flex-row">
       <KitchenOwnerNavbar />
-      <div className="flex-1 p-4 bg-[#181C14] text-white">
+      <div className="flex-1 p-4 bg-[#181C14] text-white ml-0 md:ml-[180px]">
         <h1 className="text-2xl font-bold mb-4">Confirmed Orders</h1>
         {orders.length > 0 ? orders.map(order => (
           <div key={order._id} className="border p-4 mb-4 rounded shadow-lg">

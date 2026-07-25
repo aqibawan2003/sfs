@@ -6,7 +6,7 @@ const KitchenOwnerDashboard = () => {
   return (
     <div className='flex'>
     <KitchenOwnerNavbar/>
-    <div className='mt-4 flex-1'>
+    <div className='mt-4 flex-1 ml-0 md:ml-[180px]'>
       <p className='mb-4 text-4xl ml-4 font-bold'>Ordering chart</p>
       <div className='h-[400px]'>
         <OrderChart />

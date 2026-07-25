@@ -55,7 +55,7 @@ const Dishes = () => {
     return (
       <div className="flex">
         <KitchenOwnerNavbar />
-        <div className="flex flex-wrap bg-black w-full">
+        <div className="flex flex-wrap bg-black w-full ml-0 md:ml-[180px]">
           {[...Array(4)].map((_, index) => (
             <Shimmer key={index} />
           ))}
@@ -67,7 +67,7 @@ const Dishes = () => {
   if (error) return (
     <div className="flex bg-black min-h-screen">
       <KitchenOwnerNavbar />
-      <div className="flex-1">
+      <div className="flex-1 ml-0 md:ml-[180px]">
         <ErrorState message={error} onRetry={() => dispatch(fetchAllDishes())} />
       </div>
     </div>
@@ -76,7 +76,7 @@ const Dishes = () => {
   return (
     <div className="flex bg-black">
       <KitchenOwnerNavbar />
-      <div className="flex flex-wrap w-full">
+      <div className="flex flex-wrap w-full ml-0 md:ml-[180px]">
         {dishes.map((item) => (
           <div key={item._id} className="border ml-4   flex-grow w-full sm:w-[45%] lg:w-1/4 mt-8 text-white">
             {item.imageUrls && item.imageUrls.length > 0 && (

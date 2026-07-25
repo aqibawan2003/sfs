@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Cookies from 'js-cookie';
 import {
   LineChart,
   Line,
@@ -11,23 +13,33 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
-// Data for each month with booking values
-const data = [
-  { month: 'January', bookings: 30 },
-  { month: 'February', bookings: 45 },
-  { month: 'March', bookings: 50 },
-  { month: 'April', bookings: 60 },
-  { month: 'May', bookings: 70 },
-  { month: 'June', bookings: 55 },
-  { month: 'July', bookings: 65 },
-  { month: 'August', bookings: 80 },
-  { month: 'September', bookings: 75 },
-  { month: 'October', bookings: 85 },
-  { month: 'November', bookings: 90 },
-  { month: 'December', bookings: 100 },
-];
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const BookingChart = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const token = Cookies.get('token');
+        const res = await axios.get(`${API_BASE_URL}/api/bookings/monthly-stats`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setData(res.data.data || []);
+      } catch (err) {
+        setError(err?.response?.data?.message || 'Failed to load booking stats.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchStats();
+  }, []);
+
+  if (loading) return <p className="text-white">Loading booking chart...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
+
   return (
     <div style={{ width: '100%', height: '400px' }}>
       <ResponsiveContainer width="100%" height={200}>
@@ -44,7 +56,7 @@ const BookingChart = () => {
           {/* Display month names on the X-axis */}
           <XAxis dataKey="month" />
           {/* Display bookings count on the Y-axis */}
-          <YAxis label={{ value: 'Bookings', angle: -90, position: 'insideLeft' }} />
+          <YAxis allowDecimals={false} label={{ value: 'Bookings', angle: -90, position: 'insideLeft' }} />
           <Tooltip />
           <Legend />
           {/* Line for booking data */}

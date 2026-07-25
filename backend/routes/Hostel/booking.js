@@ -14,6 +14,8 @@ router.get('/booked-rooms', authenticateToken, bookingController.getBookedRooms)
 
 router.get('/HostelOwnerBookedBeds', authenticateToken, bookingController.getHostelOwnerBookedBeds);
 
+router.get('/monthly-stats', authenticateToken, bookingController.getMonthlyBookingStats);
+
 // Regenerates and streams the receipt PDF for a booking (student who booked it, or the hostel owner)
 router.get('/receipt/:bookingId', authenticateToken, bookingController.getBookingReceipt);
 

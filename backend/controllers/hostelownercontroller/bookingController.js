@@ -246,6 +246,35 @@ exports.getBookedRooms = async (req, res, next) => {
     }
 };
 
+// Real per-month booking counts for this owner's hostel, current calendar year.
+exports.getMonthlyBookingStats = async (req, res, next) => {
+    try {
+        const hostelOwnerId = req.user.id;
+        const year = new Date().getFullYear();
+        const startOfYear = new Date(year, 0, 1);
+        const startOfNextYear = new Date(year + 1, 0, 1);
+
+        const bookings = await Booking.find({
+            hostel_id: hostelOwnerId,
+            status: { $ne: 'Cancelled' },
+            booking_date: { $gte: startOfYear, $lt: startOfNextYear },
+        }).select('booking_date').lean();
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const counts = new Array(12).fill(0);
+        bookings.forEach((booking) => {
+            const monthIndex = new Date(booking.booking_date).getMonth();
+            counts[monthIndex] += 1;
+        });
+
+        const data = monthNames.map((month, i) => ({ month, bookings: counts[i] }));
+
+        res.status(200).json({ success: true, year, data });
+    } catch (error) {
+        next(error);
+    }
+};
+
 exports.getHostelOwnerBookedBeds = async (req, res, next) => {
     try {
         const hostelOwnerId = req.user.id;

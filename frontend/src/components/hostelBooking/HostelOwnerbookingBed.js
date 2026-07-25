@@ -23,7 +23,7 @@ const HostelOwnerBookingBed = () => {
   };
 
   return (
-    <div className="bg-[#1E201E] min-h-screen">
+    <div className="bg-[#1E201E] min-h-screen flex">
       <HostelNavbar />
 
       <div className="p-8 ml-0 md:ml-[180px]">

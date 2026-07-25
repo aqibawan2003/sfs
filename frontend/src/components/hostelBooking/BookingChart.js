@@ -41,8 +41,8 @@ const BookingChart = () => {
   if (error) return <p className="text-red-500">{error}</p>;
 
   return (
-    <div style={{ width: '100%', height: '400px' }}>
-      <ResponsiveContainer width="100%" height={200}>
+    <div style={{ width: '100%', height: '100%' }}>
+      <ResponsiveContainer width="100%" height={420}>
         <LineChart
           data={data}
           margin={{

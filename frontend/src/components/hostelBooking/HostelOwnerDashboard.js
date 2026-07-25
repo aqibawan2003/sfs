@@ -10,9 +10,9 @@ const HostelOwnerDashboard = () => {
         <HostelNavbar />
       </div>
       
-      <div className=" mt-4 ml-6">
+      <div className="mt-4 ml-6 mr-6 flex-1">
         <p className="mb-4 text-4xl font-bold">Booking chart</p>
-        <div className="h-[400px] w-full max-w-[800px] overflow-x-auto">
+        <div className="h-[500px] w-full overflow-x-auto">
           <BookingChart />
         </div>
       </div>

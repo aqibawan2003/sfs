@@ -46,12 +46,12 @@ const HostelDetail = () => {
                   <p>No room found in this hostel.</p>
                 ) : (
                   (hostel.rooms || []).map((room) => (
-                    <div key={room._id} className="flex border border-[#59636e] mb-4 w-full sm:w-[480px]">
-                      {!imageLoaded[room._id] && <Shimmer width="200px" height="200px" />}
+                    <div key={room._id} className="flex flex-col sm:flex-row border border-[#59636e] mb-4 w-full sm:w-[480px]">
+                      {!imageLoaded[room._id] && <Shimmer className="w-full h-48 sm:w-[200px] sm:h-[200px] flex-shrink-0" />}
                       <img
                         src={room.imageUrls?.[0] || ''}
                         alt={`Room ${room.name}`}
-                        className={`w-[200px] h-[200px] object-cover mr-4 flex-shrink-0 ${imageLoaded[room._id] ? 'block' : 'hidden'}`}
+                        className={`w-full h-48 sm:w-[200px] sm:h-[200px] object-cover sm:mr-4 flex-shrink-0 ${imageLoaded[room._id] ? 'block' : 'hidden'}`}
                         onLoad={() => handleImageLoad(room._id)}
                       />
                       <div className="flex-1 min-w-0 p-6">

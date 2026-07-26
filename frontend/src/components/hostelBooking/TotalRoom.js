@@ -51,10 +51,19 @@ const TotalRoom = () => {
     setModalState({ isOpen: false, action: "", payload: {} });
   };
 
+  const ownerMobileLinks = [
+    { label: 'Dashboard', to: '/hostelOwnerDashboard' },
+    { label: 'Profile', to: '/hostel-owner-profile' },
+    { label: 'Personal Profile', to: '/profile' },
+    { label: 'Rooms', to: '/hostel-owner-profile/totalroom' },
+    { label: 'Booking', to: '/booking' },
+    { label: 'Visit Website', to: '/', target: '_blank' },
+  ];
+
   if (loading) return <div>Loading...</div>;
   if (error) return (
     <div className="bg-[#1E201E] min-h-screen flex flex-col">
-      <Navbar module="home" />
+      <Navbar module="home" mobileExtraLinks={ownerMobileLinks} />
       <div className="flex flex-1">
         <HostelNavbar />
         <div className="flex-1 pt-24 ml-0 md:ml-[180px]">
@@ -67,7 +76,7 @@ const TotalRoom = () => {
 
   return (
     <div className="bg-[#1E201E] min-h-screen flex flex-col">
-      <Navbar module="home" />
+      <Navbar module="home" mobileExtraLinks={ownerMobileLinks} />
       <div className="flex flex-1">
         <HostelNavbar />
         <div className="flex-1 p-6 pt-24 ml-0 md:ml-[180px] text-white">

@@ -5,9 +5,18 @@ import Navbar from '../Navbar';
 import Footer from '../Footer';
 
 const HostelOwnerDashboard = () => {
+  const ownerMobileLinks = [
+    { label: 'Dashboard', to: '/hostelOwnerDashboard' },
+    { label: 'Profile', to: '/hostel-owner-profile' },
+    { label: 'Personal Profile', to: '/profile' },
+    { label: 'Rooms', to: '/hostel-owner-profile/totalroom' },
+    { label: 'Booking', to: '/booking' },
+    { label: 'Visit Website', to: '/', target: '_blank' },
+  ];
+
   return (
     <div className="bg-[#1E201E] min-h-screen flex flex-col">
-      <Navbar module="home" />
+      <Navbar module="home" mobileExtraLinks={ownerMobileLinks} />
       <div className="flex flex-1">
         <HostelNavbar />
         <div className="mt-4 ml-6 mr-6 pt-24 flex-1 text-white">

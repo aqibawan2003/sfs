@@ -7,7 +7,6 @@ const HostelNavbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -20,13 +19,6 @@ const HostelNavbar = () => {
       setIsLoggedIn(false);
     }
   }, []);
-
-  // Lock background scroll while the mobile drawer is open, otherwise the
-  // page underneath the translucent backdrop can still be scrolled/swiped.
-  useEffect(() => {
-    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
-  }, [isMenuOpen]);
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
@@ -44,44 +36,26 @@ const HostelNavbar = () => {
     setShowLogoutModal(false);
   };
 
-  const closeMenu = () => setIsMenuOpen(false);
-
   return (
     <div className="h-screen bg-gray-800">
-      {/* Mobile menu toggle - the nav below is hidden by default under md: */}
-      <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="md:hidden fixed top-24 left-4 z-50 bg-gray-800 text-white p-2 rounded"
-        aria-label="Toggle menu"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-        </svg>
-      </button>
-
-      {isMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden"
-          onClick={closeMenu}
-        />
-      )}
-
-      <nav className={`w-[180px] h-[calc(100vh-6rem)] p-4 flex-col justify-between fixed top-24 left-0 z-40 bg-gray-800 md:flex ${isMenuOpen ? 'flex' : 'hidden'}`}>
+      {/* Desktop only - on mobile these same links are reachable via the
+          top Navbar's hamburger menu (see mobileExtraLinks) instead. */}
+      <nav className="w-[180px] h-[calc(100vh-6rem)] p-4 flex-col justify-between fixed top-24 left-0 z-40 bg-gray-800 hidden md:flex">
         <ul className="mt-20 space-y-4">
         <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostelOwnerDashboard" onClick={closeMenu}>Dashboard</Link>
+            <Link to="/hostelOwnerDashboard">Dashboard</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostel-owner-profile" onClick={closeMenu}>Profile</Link>
+            <Link to="/hostel-owner-profile">Profile</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/profile" onClick={closeMenu}>Personal Profile</Link>
+            <Link to="/profile">Personal Profile</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostel-owner-profile/totalroom" onClick={closeMenu}>Rooms</Link>
+            <Link to="/hostel-owner-profile/totalroom">Rooms</Link>
           </li>
           <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/booking" onClick={closeMenu}>Booking</Link>
+            <Link to="/booking">Booking</Link>
           </li>
 
         </ul>

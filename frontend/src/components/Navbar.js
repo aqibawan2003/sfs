@@ -10,7 +10,7 @@ import Cookies from 'js-cookie';
 import API_BASE_URL from '../utils/api';
 import { readStoredAuth } from '../utils/auth';
 
-const Navbar = ({ module }) => {
+const Navbar = ({ module, mobileExtraLinks }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -195,6 +195,27 @@ const Navbar = ({ module }) => {
                 </div>
               )}
             </>
+          )}
+
+          {/* Extra links (e.g. an owner dashboard's sidebar) merged into this
+              same mobile dropdown, so there's only one hamburger menu on
+              mobile instead of a separate one per component. Desktop still
+              shows these via whatever renders them normally (e.g. a sidebar). */}
+          {mobileExtraLinks && mobileExtraLinks.length > 0 && (
+            <div className="md:hidden border-t border-gray-700 mt-2 pt-2 flex flex-col">
+              {mobileExtraLinks.map((link) => (
+                <Link
+                  key={link.label}
+                  to={link.to}
+                  target={link.target}
+                  rel={link.target === '_blank' ? 'noopener noreferrer' : undefined}
+                  onClick={() => setIsOpen(false)}
+                  className="text-white hover:bg-gray-900 px-3 py-2 rounded"
+                >
+                  {link.label}
+                </Link>
+              ))}
+            </div>
           )}
         </div>
       </div>

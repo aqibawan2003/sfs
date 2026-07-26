@@ -24,9 +24,18 @@ const HostelOwnerProfile = () => {
     }, 3000);
   };
 
+  const ownerMobileLinks = [
+    { label: 'Dashboard', to: '/hostelOwnerDashboard' },
+    { label: 'Profile', to: '/hostel-owner-profile' },
+    { label: 'Personal Profile', to: '/profile' },
+    { label: 'Rooms', to: '/hostel-owner-profile/totalroom' },
+    { label: 'Booking', to: '/booking' },
+    { label: 'Visit Website', to: '/', target: '_blank' },
+  ];
+
   return (
     <div className="bg-[#1E201E] min-h-screen flex flex-col">
-      <Navbar module="home" />
+      <Navbar module="home" mobileExtraLinks={ownerMobileLinks} />
       <div className="flex flex-1">
         <HostelNavbar />
         <div className="flex flex-col p-6 pt-24 ml-0 md:ml-[180px] flex-1">

@@ -25,9 +25,18 @@ const HostelOwnerBookingBed = () => {
     setRemovingId(null);
   };
 
+  const ownerMobileLinks = [
+    { label: 'Dashboard', to: '/hostelOwnerDashboard' },
+    { label: 'Profile', to: '/hostel-owner-profile' },
+    { label: 'Personal Profile', to: '/profile' },
+    { label: 'Rooms', to: '/hostel-owner-profile/totalroom' },
+    { label: 'Booking', to: '/booking' },
+    { label: 'Visit Website', to: '/', target: '_blank' },
+  ];
+
   return (
     <div className="bg-[#1E201E] min-h-screen flex flex-col">
-      <Navbar module="home" />
+      <Navbar module="home" mobileExtraLinks={ownerMobileLinks} />
       <div className="flex flex-1">
       <HostelNavbar />
 

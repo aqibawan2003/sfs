@@ -3,6 +3,8 @@ import HostelNavbar from "./HostelOwnerNavbar";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBookings, removeBookingFromHistory } from '../../store/bookingsSlice';
 import ErrorState from '../common/ErrorState';
+import Navbar from '../Navbar';
+import Footer from '../Footer';
 
 const HostelOwnerBookingBed = () => {
   const dispatch = useDispatch();
@@ -24,10 +26,12 @@ const HostelOwnerBookingBed = () => {
   };
 
   return (
-    <div className="bg-[#1E201E] min-h-screen flex">
+    <div className="bg-[#1E201E] min-h-screen flex flex-col">
+      <Navbar module="home" />
+      <div className="flex flex-1">
       <HostelNavbar />
 
-      <div className="p-8 ml-0 md:ml-[180px]">
+      <div className="p-8 pt-24 ml-0 md:ml-[180px] flex-1">
         <h1 className="text-3xl text-white font-bold mb-6">Booked Beds</h1>
 
         {loading ? (
@@ -69,6 +73,8 @@ const HostelOwnerBookingBed = () => {
           </div>
         )}
       </div>
+      </div>
+      <Footer />
     </div>
   );
 };

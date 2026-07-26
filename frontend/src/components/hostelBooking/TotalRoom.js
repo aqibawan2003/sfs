@@ -9,6 +9,8 @@ import {
 import HostelNavbar from "./HostelOwnerNavbar";
 import { AddOrUpdateRoomModal } from "./AddOrUpdateRoomModal/AddOrUpdateRoomModal";
 import ErrorState from "../common/ErrorState";
+import Navbar from "../Navbar";
+import Footer from "../Footer";
 
 const TotalRoom = () => {
   const dispatch = useDispatch();
@@ -51,19 +53,25 @@ const TotalRoom = () => {
 
   if (loading) return <div>Loading...</div>;
   if (error) return (
-    <div className="flex bg-[#1E201E] min-h-screen">
-      <HostelNavbar />
-      <div className="flex-1 ml-0 md:ml-[180px]">
-        <ErrorState message={error} onRetry={() => dispatch(fetchAllRooms())} />
+    <div className="bg-[#1E201E] min-h-screen flex flex-col">
+      <Navbar module="home" />
+      <div className="flex flex-1">
+        <HostelNavbar />
+        <div className="flex-1 pt-24 ml-0 md:ml-[180px]">
+          <ErrorState message={error} onRetry={() => dispatch(fetchAllRooms())} />
+        </div>
       </div>
+      <Footer />
     </div>
   );
 
   return (
-    <div className="flex bg-[#1E201E]">
-      <HostelNavbar />
-      <div className="flex-1 p-6 ml-0 md:ml-[180px] text-white">
-       
+    <div className="bg-[#1E201E] min-h-screen flex flex-col">
+      <Navbar module="home" />
+      <div className="flex flex-1">
+        <HostelNavbar />
+        <div className="flex-1 p-6 pt-24 ml-0 md:ml-[180px] text-white">
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {rooms.map((room) => (
             <div
@@ -114,6 +122,8 @@ const TotalRoom = () => {
           handleClose={handleCloseModal}
         />
       )}
+      </div>
+      <Footer />
     </div>
   );
 };

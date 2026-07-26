@@ -51,7 +51,7 @@ const HostelNavbar = () => {
       {/* Mobile menu toggle - the nav below is hidden by default under md: */}
       <button
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="md:hidden fixed top-4 left-4 z-50 bg-gray-800 text-white p-2 rounded"
+        className="md:hidden fixed top-24 left-4 z-50 bg-gray-800 text-white p-2 rounded"
         aria-label="Toggle menu"
       >
         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -66,7 +66,7 @@ const HostelNavbar = () => {
         />
       )}
 
-      <nav className={`w-[180px] h-full p-4 flex-col justify-between fixed top-0 left-0 z-40 bg-gray-800 md:flex ${isMenuOpen ? 'flex' : 'hidden'}`}>
+      <nav className={`w-[180px] h-[calc(100vh-6rem)] p-4 flex-col justify-between fixed top-24 left-0 z-40 bg-gray-800 md:flex ${isMenuOpen ? 'flex' : 'hidden'}`}>
         <ul className="mt-20 space-y-4">
         <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
             <Link to="/hostelOwnerDashboard" onClick={closeMenu}>Dashboard</Link>

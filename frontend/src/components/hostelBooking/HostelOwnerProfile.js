@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import HostelNavbar from "./HostelOwnerNavbar";
 import { AddOrUpdateRoomModal } from "./AddOrUpdateRoomModal/AddOrUpdateRoomModal";
 import Profile from "./Profile";
+import Navbar from "../Navbar";
+import Footer from "../Footer";
 
 const HostelOwnerProfile = () => {
   const [modalState, setModalState] = useState({
@@ -23,9 +25,11 @@ const HostelOwnerProfile = () => {
   };
 
   return (
-    <div className="bg-[#1E201E] h-screen flex">
-      <HostelNavbar />
-      <div className="flex flex-col p-6 ml-0 md:ml-[180px] ">
+    <div className="bg-[#1E201E] min-h-screen flex flex-col">
+      <Navbar module="home" />
+      <div className="flex flex-1">
+        <HostelNavbar />
+        <div className="flex flex-col p-6 pt-24 ml-0 md:ml-[180px] flex-1">
         {/* Flex-grow ensures it takes the remaining space after navbar */}
         <Profile />
 
@@ -61,7 +65,9 @@ const HostelOwnerProfile = () => {
             {successMessage}
           </div>
         )}
+        </div>
       </div>
+      <Footer />
     </div>
   );
 };

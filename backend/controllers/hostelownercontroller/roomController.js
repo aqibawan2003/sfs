@@ -96,13 +96,16 @@ exports.getRooms = async (req, res, next) => {
 // Get a single room by its ID
 exports.getRoomById = async (req, res, next) => {
     try {
-        // Ensure the user is a hostel owner
-        if (req.user.role !== 'hostelOwner' && req.user.role !== 'hostelowner') {
-            return res.status(403).json({ message: 'Access denied' });
-        }
+        const isHostelOwner = req.user.role === 'hostelOwner' || req.user.role === 'hostelowner';
 
-        // Find the room by its ID and ensure it belongs to the hostel owner
-        const room = await Room.findOne({ _id: req.params.id, hostelId: req.user.id }).populate('beds');
+        // Hostel owners can only view/edit their own room (used by the
+        // owner's Edit-room flow); any other authenticated user (e.g. a
+        // student browsing to book a bed) can view any room's details.
+        const query = isHostelOwner
+            ? { _id: req.params.id, hostelId: req.user.id }
+            : { _id: req.params.id };
+
+        const room = await Room.findOne(query).populate('beds');
         if (!room) {
             return res.status(404).json({ message: 'Room not found' });
         }

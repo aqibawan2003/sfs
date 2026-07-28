@@ -11,11 +11,20 @@ const OWNER_LINKS = [
   { label: 'Booking', to: '/booking' },
 ];
 
+const MOBILE_BREAKPOINT = 768;
+
 const HostelNavbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // Desktop vs mobile is decided in JS, not via Tailwind's `md:` classes -
+  // the deployed CSS bundle was found to be missing `md:` responsive
+  // utilities (a Vercel build-cache issue), so this can't depend on CSS
+  // media queries to work correctly.
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < MOBILE_BREAKPOINT : false
+  );
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -26,6 +35,12 @@ const HostelNavbar = () => {
     } else {
       setIsLoggedIn(false);
     }
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // Lock background scroll while the mobile drawer is open, otherwise the
@@ -65,34 +80,62 @@ const HostelNavbar = () => {
 
   return (
     <>
-      {/* Mobile: slim top bar - hamburger only, no logo/title */}
-      <div className="md:hidden fixed top-0 left-0 w-full h-14 bg-gray-800 z-40 flex items-center px-4">
-        <button
-          onClick={() => setIsMenuOpen((v) => !v)}
-          className="text-white focus:outline-none"
-          aria-label="Toggle menu"
-        >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-          </svg>
-        </button>
-      </div>
+      {isMobile ? (
+        <>
+          {/* Mobile: slim top bar - hamburger only, no logo/title */}
+          <div className="fixed top-0 left-0 w-full h-14 bg-gray-800 z-40 flex items-center px-4">
+            <button
+              onClick={() => setIsMenuOpen((v) => !v)}
+              className="text-white focus:outline-none"
+              aria-label="Toggle menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+              </svg>
+            </button>
+          </div>
 
-      {/* Mobile: backdrop + dropdown drawer (the only hamburger menu on these pages) */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={closeMenu} />
-      )}
-      {isMenuOpen && (
-        <nav className="md:hidden fixed top-14 left-0 w-full max-h-[calc(100vh-3.5rem)] overflow-y-auto bg-gray-800 z-50 p-4 flex flex-col justify-between">
-          <ul className="space-y-2">
-            {renderLinks(closeMenu)}
+          {/* Mobile: backdrop + dropdown drawer (the only hamburger menu on these pages) */}
+          {isMenuOpen && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 z-40" onClick={closeMenu} />
+          )}
+          {isMenuOpen && (
+            <nav className="fixed top-14 left-0 w-full max-h-[calc(100vh-3.5rem)] overflow-y-auto bg-gray-800 z-50 p-4 flex flex-col justify-between">
+              <ul className="space-y-2">
+                {renderLinks(closeMenu)}
+              </ul>
+              <div className="mt-4">
+                <Link to="/" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="text-white text-xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
+                  Visit Website
+                </Link>
+                {isLoggedIn && (
+                  <div className="mt-4">
+                    <button
+                      onClick={handleLogoutClick}
+                      className="bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg"
+                    >
+                      Logout
+                    </button>
+                  </div>
+                )}
+              </div>
+            </nav>
+          )}
+        </>
+      ) : (
+        /* Desktop: traditional sidebar, sticky (not fixed) so it can't overlap
+           content that comes after it in the page (e.g. anything below the fold). */
+        <nav className="flex w-[180px] shrink-0 h-screen sticky top-0 self-start p-4 flex-col justify-between bg-gray-800 z-30">
+          <ul className="mt-20 space-y-4">
+            {renderLinks(undefined)}
           </ul>
-          <div className="mt-4">
-            <Link to="/" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="text-white text-xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
+
+          <div className="mb-4">
+            <Link to="/" target="_blank" rel="noopener noreferrer" className="text-white text-xl font-semibold  hover:bg-gray-900 px-3 py-2 rounded">
               Visit Website
             </Link>
             {isLoggedIn && (
-              <div className="mt-4">
+              <div className="ml-4 mt-6">
                 <button
                   onClick={handleLogoutClick}
                   className="bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg"
@@ -104,30 +147,6 @@ const HostelNavbar = () => {
           </div>
         </nav>
       )}
-
-      {/* Desktop: traditional sidebar, sticky (not fixed) so it can't overlap
-          content that comes after it in the page (e.g. anything below the fold). */}
-      <nav className="hidden md:flex w-[180px] shrink-0 h-screen sticky top-0 self-start p-4 flex-col justify-between bg-gray-800 z-30">
-        <ul className="mt-20 space-y-4">
-          {renderLinks(undefined)}
-        </ul>
-
-        <div className="mb-4">
-          <Link to="/" target="_blank" rel="noopener noreferrer" className="text-white text-xl font-semibold  hover:bg-gray-900 px-3 py-2 rounded">
-            Visit Website
-          </Link>
-          {isLoggedIn && (
-            <div className="ml-4 mt-6">
-              <button
-                onClick={handleLogoutClick}
-                className="bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg"
-              >
-                Logout
-              </button>
-            </div>
-          )}
-        </div>
-      </nav>
 
       {/* Logout Confirmation Modal */}
       {showLogoutModal && (

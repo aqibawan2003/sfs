@@ -18,7 +18,7 @@ export function AddOrUpdateRoomModal({ action, payload, handleClose }) {
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] w-full max-w-2xl overflow-y-auto">
+      <div className="bg-white p-6 rounded shadow-lg max-h-[80vh] w-full max-w-2xl overflow-y-auto text-black">
         <h2 className="text-xl font-bold mb-4 capitalize">
           {action} Room
         </h2>

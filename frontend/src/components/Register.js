@@ -772,88 +772,90 @@ const RegistrationForm = () => {
                   <label className="block text-lg font-medium text-gray-300">
                     Facilities
                   </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="Wi-Fi"
-                      checked={formik.values.facilities.includes("Wi-Fi")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">Wi-Fi</span>
-                  </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="Parking"
-                      checked={formik.values.facilities.includes("Parking")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">Parking</span>
-                  </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="AC"
-                      checked={formik.values.facilities.includes("AC")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">AC</span>
-                  </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="CCTV"
-                      checked={formik.values.facilities.includes("CCTV")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">CCTV</span>
-                  </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="Generator"
-                      checked={formik.values.facilities.includes("Generator")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">Generator</span>
-                  </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="Laundry"
-                      checked={formik.values.facilities.includes("Laundry")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">Laundry</span>
-                  </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="Water Cooler"
-                      checked={formik.values.facilities.includes("Water Cooler")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">Water Cooler</span>
-                  </label>
-                  <label className="inline-flex items-center mr-4">
-                    <input
-                      type="checkbox"
-                      name="Study Room"
-                      checked={formik.values.facilities.includes("Study Room")}
-                      onChange={handleCheckboxChange}
-                      className="form-checkbox h-5 w-5 text-indigo-600"
-                    />
-                    <span className="ml-2 text-gray-300">Study Room</span>
-                  </label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-x-4 gap-y-3 mt-3">
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="Wi-Fi"
+                        checked={formik.values.facilities.includes("Wi-Fi")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">Wi-Fi</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="Parking"
+                        checked={formik.values.facilities.includes("Parking")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">Parking</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="AC"
+                        checked={formik.values.facilities.includes("AC")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">AC</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="CCTV"
+                        checked={formik.values.facilities.includes("CCTV")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">CCTV</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="Generator"
+                        checked={formik.values.facilities.includes("Generator")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">Generator</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="Laundry"
+                        checked={formik.values.facilities.includes("Laundry")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">Laundry</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="Water Cooler"
+                        checked={formik.values.facilities.includes("Water Cooler")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">Water Cooler</span>
+                    </label>
+                    <label className="inline-flex items-center">
+                      <input
+                        type="checkbox"
+                        name="Study Room"
+                        checked={formik.values.facilities.includes("Study Room")}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-indigo-600 shrink-0"
+                      />
+                      <span className="ml-2 text-gray-300">Study Room</span>
+                    </label>
+                  </div>
                   {formik.touched.facilities && formik.errors.facilities ? (
-                    <div className="text-red-600 text-sm">
+                    <div className="text-red-600 text-sm mt-2">
                       {formik.errors.facilities}
                     </div>
                   ) : null}

@@ -686,7 +686,7 @@ const RegistrationForm = () => {
                     name="hostel_type"
                     onChange={formik.handleChange}
                     value={formik.values.hostel_type}
-                    className="mt-1 p-2 block w-full border border-gray-300 bg-[#25292e] rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 p-2 block w-full border border-gray-300 bg-[#25292e] text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   >
                     <option value="">Select Hostel Type</option>
                     <option value="male">Male</option>
@@ -713,7 +713,7 @@ const RegistrationForm = () => {
                     type="text"
                     onChange={formik.handleChange}
                     value={formik.values.hostel_address}
-                    className="mt-1 p-2 block w-full border bg-[#25292e] border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 p-2 block w-full border bg-[#25292e] text-white border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                   {formik.touched.hostel_address &&
                   formik.errors.hostel_address ? (
@@ -748,7 +748,7 @@ const RegistrationForm = () => {
                     name="hostel_description"
                     onChange={formik.handleChange}
                     value={formik.values.hostel_description}
-                    className="mt-1 p-2 block w-full border bg-[#25292e] border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                    className="mt-1 p-2 block w-full border bg-[#25292e] text-white border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                   />
                   {formik.touched.hostel_description &&
                   formik.errors.hostel_description ? (
@@ -882,7 +882,7 @@ const RegistrationForm = () => {
                           onChange={(e) =>
                             handleNearbyInstituteChange(index, e)
                           }
-                          className="mt-1 p-2 block w-full border border-gray-300 rounded-md bg-[#25292e] shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          className="mt-1 p-2 block w-full border border-gray-300 rounded-md bg-[#25292e] text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                         />
                         {formik.touched.nearby_institutes?.[index]?.university &&
                         formik.errors.nearby_institutes?.[index]?.university ? (
@@ -907,7 +907,7 @@ const RegistrationForm = () => {
                           onChange={(e) =>
                             handleNearbyInstituteChange(index, e)
                           }
-                          className="mt-1 p-2 block w-full border border-gray-300 rounded-md bg-[#25292e] shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                          className="mt-1 p-2 block w-full border border-gray-300 rounded-md bg-[#25292e] text-white shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                         />
                         {formik.touched.nearby_institutes?.[index]?.distance &&
                         formik.errors.nearby_institutes?.[index]?.distance ? (

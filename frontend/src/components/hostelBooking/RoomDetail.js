@@ -97,7 +97,16 @@ const RoomDetail = () => {
 
   const beds = Array.isArray(roomData.beds) ? roomData.beds : [];
 
-  const handleBookBedClick = (bed) => { setSelectedBed(bed); setIsCheckoutOpen(true); };
+  const handleBookBedClick = (bed) => {
+    const storedUser = sessionStorage.getItem('user');
+    const currentUser = storedUser ? JSON.parse(storedUser) : null;
+    if (currentUser?.role && currentUser.role !== 'student') {
+      alert('Only students can book beds. Please log in with a student account.');
+      return;
+    }
+    setSelectedBed(bed);
+    setIsCheckoutOpen(true);
+  };
 
   const handleCheckoutSuccess = async (paymentData) => {
     const updatedBed = { ...selectedBed, isBooked: true, paymentStatus: "completed" };

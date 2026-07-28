@@ -15,6 +15,10 @@ exports.bookBed = async (req, res) => {
     const { paymentMethodId } = req.body;
     const customerId = req.user.id;
 
+    if (req.user.role !== 'student') {
+        return res.status(403).json({ success: false, message: 'Only students can book beds.' });
+    }
+
     try {
         // Find hostel and related data
         const hostel = await HostelOwner.findById(hostelId);

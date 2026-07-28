@@ -29,6 +29,12 @@ const KitchenDetail = () => {
   }
 
   const handleAddToCart = async (dish) => {
+      const storedUser = sessionStorage.getItem('user');
+      const currentUser = storedUser ? JSON.parse(storedUser) : null;
+      if (currentUser?.role && currentUser.role !== 'student') {
+        toast.error('Only students can order food. Please log in with a student account.');
+        return;
+      }
       try {
         // Dispatch the action to add item to the cart in frontend state
         const resultAction = await dispatch(addToCartAPI({ kitchenId: kitchen._id, productId: dish._id, quantity: 1 }));

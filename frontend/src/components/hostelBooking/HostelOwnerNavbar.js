@@ -3,22 +3,39 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
+const OWNER_LINKS = [
+  { label: 'Dashboard', to: '/hostelOwnerDashboard' },
+  { label: 'Profile', to: '/hostel-owner-profile' },
+  { label: 'Personal Profile', to: '/profile' },
+  { label: 'Rooms', to: '/hostel-owner-profile/totalroom' },
+  { label: 'Booking', to: '/booking' },
+];
+
 const HostelNavbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get('token');
     const user = sessionStorage.getItem('user');
 
-    // Check if the user is logged in based on token and session
     if (token && user) {
       setIsLoggedIn(true);
     } else {
       setIsLoggedIn(false);
     }
   }, []);
+
+  // Lock background scroll while the mobile drawer is open, otherwise the
+  // page underneath the translucent backdrop can still be scrolled/swiped.
+  useEffect(() => {
+    document.body.style.overflow = isMenuOpen ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [isMenuOpen]);
+
+  const closeMenu = () => setIsMenuOpen(false);
 
   const handleLogoutClick = () => {
     setShowLogoutModal(true);
@@ -36,31 +53,65 @@ const HostelNavbar = () => {
     setShowLogoutModal(false);
   };
 
-  return (
-    <div className="h-screen bg-gray-800">
-      {/* Desktop only - on mobile these same links are reachable via the
-          top Navbar's hamburger menu (see mobileExtraLinks) instead. */}
-      <nav className="w-[180px] h-[calc(100vh-6rem)] p-4 flex-col justify-between fixed top-24 left-0 z-40 bg-gray-800 hidden md:flex">
-        <ul className="mt-20 space-y-4">
-        <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostelOwnerDashboard">Dashboard</Link>
-          </li>
-          <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostel-owner-profile">Profile</Link>
-          </li>
-          <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/profile">Personal Profile</Link>
-          </li>
-          <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/hostel-owner-profile/totalroom">Rooms</Link>
-          </li>
-          <li className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
-            <Link to="/booking">Booking</Link>
-          </li>
+  const renderLinks = (onLinkClick) => (
+    <>
+      {OWNER_LINKS.map((link) => (
+        <li key={link.label} className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
+          <Link to={link.to} onClick={onLinkClick}>{link.label}</Link>
+        </li>
+      ))}
+    </>
+  );
 
+  return (
+    <>
+      {/* Mobile: slim top bar - hamburger only, no logo/title */}
+      <div className="md:hidden fixed top-0 left-0 w-full h-14 bg-gray-800 z-40 flex items-center px-4">
+        <button
+          onClick={() => setIsMenuOpen((v) => !v)}
+          className="text-white focus:outline-none"
+          aria-label="Toggle menu"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Mobile: backdrop + dropdown drawer (the only hamburger menu on these pages) */}
+      {isMenuOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-40 md:hidden" onClick={closeMenu} />
+      )}
+      {isMenuOpen && (
+        <nav className="md:hidden fixed top-14 left-0 w-full max-h-[calc(100vh-3.5rem)] overflow-y-auto bg-gray-800 z-50 p-4 flex flex-col justify-between">
+          <ul className="space-y-2">
+            {renderLinks(closeMenu)}
+          </ul>
+          <div className="mt-4">
+            <Link to="/" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="text-white text-xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
+              Visit Website
+            </Link>
+            {isLoggedIn && (
+              <div className="mt-4">
+                <button
+                  onClick={handleLogoutClick}
+                  className="bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg"
+                >
+                  Logout
+                </button>
+              </div>
+            )}
+          </div>
+        </nav>
+      )}
+
+      {/* Desktop: traditional sidebar, sticky (not fixed) so it can't overlap
+          content that comes after it in the page (e.g. anything below the fold). */}
+      <nav className="hidden md:flex w-[180px] shrink-0 h-screen sticky top-0 self-start p-4 flex-col justify-between bg-gray-800 z-30">
+        <ul className="mt-20 space-y-4">
+          {renderLinks(undefined)}
         </ul>
 
-        {/* "Visit Website" link at the bottom */}
         <div className="mb-4">
           <Link to="/" target="_blank" rel="noopener noreferrer" className="text-white text-xl font-semibold  hover:bg-gray-900 px-3 py-2 rounded">
             Visit Website
@@ -100,7 +151,7 @@ const HostelNavbar = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

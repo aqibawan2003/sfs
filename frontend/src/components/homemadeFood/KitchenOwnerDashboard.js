@@ -4,9 +4,9 @@ import OrderChart from './OrderChart'
 
 const KitchenOwnerDashboard = () => {
   return (
-    <div className='flex'>
+    <div className='flex min-h-screen'>
     <KitchenOwnerNavbar/>
-    <div className='mt-4 flex-1 ml-0 md:ml-[180px]'>
+    <div className='mt-4 flex-1 pt-20 md:pt-0'>
       <p className='mb-4 text-4xl ml-4 font-bold'>Ordering chart</p>
       <div className='h-[400px]'>
         <OrderChart />

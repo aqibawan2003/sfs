@@ -53,9 +53,9 @@ const Dishes = () => {
   if (loading) {
     // Show shimmer effect while data is loading
     return (
-      <div className="flex">
+      <div className="flex min-h-screen">
         <KitchenOwnerNavbar />
-        <div className="flex flex-wrap bg-black w-full ml-0 md:ml-[180px]">
+        <div className="flex flex-wrap bg-black w-full pt-20 md:pt-0">
           {[...Array(4)].map((_, index) => (
             <Shimmer key={index} />
           ))}
@@ -67,16 +67,16 @@ const Dishes = () => {
   if (error) return (
     <div className="flex bg-black min-h-screen">
       <KitchenOwnerNavbar />
-      <div className="flex-1 ml-0 md:ml-[180px]">
+      <div className="flex-1 pt-20 md:pt-0">
         <ErrorState message={error} onRetry={() => dispatch(fetchAllDishes())} />
       </div>
     </div>
   );
 
   return (
-    <div className="flex bg-black">
+    <div className="flex bg-black min-h-screen">
       <KitchenOwnerNavbar />
-      <div className="flex flex-wrap w-full ml-0 md:ml-[180px]">
+      <div className="flex flex-wrap w-full pt-20 md:pt-0">
         {dishes.map((item) => (
           <div key={item._id} className="border ml-4   flex-grow w-full sm:w-[45%] lg:w-1/4 mt-8 text-white">
             {item.imageUrls && item.imageUrls.length > 0 && (

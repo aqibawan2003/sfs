@@ -3,8 +3,6 @@ import HostelNavbar from "./HostelOwnerNavbar";
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchBookings, removeBookingFromHistory } from '../../store/bookingsSlice';
 import ErrorState from '../common/ErrorState';
-import Navbar from '../Navbar';
-import Footer from '../Footer';
 
 const HostelOwnerBookingBed = () => {
   const dispatch = useDispatch();
@@ -25,22 +23,11 @@ const HostelOwnerBookingBed = () => {
     setRemovingId(null);
   };
 
-  const ownerMobileLinks = [
-    { label: 'Dashboard', to: '/hostelOwnerDashboard' },
-    { label: 'Profile', to: '/hostel-owner-profile' },
-    { label: 'Personal Profile', to: '/profile' },
-    { label: 'Rooms', to: '/hostel-owner-profile/totalroom' },
-    { label: 'Booking', to: '/booking' },
-    { label: 'Visit Website', to: '/', target: '_blank' },
-  ];
-
   return (
-    <div className="bg-[#1E201E] min-h-screen flex flex-col">
-      <Navbar module="home" mobileExtraLinks={ownerMobileLinks} />
-      <div className="flex flex-1">
+    <div className="bg-[#1E201E] min-h-screen flex">
       <HostelNavbar />
 
-      <div className="p-8 pt-24 ml-0 md:ml-[180px] flex-1">
+      <main className="p-8 pt-20 md:pt-8 flex-1">
         <h1 className="text-3xl text-white font-bold mb-6">Booked Beds</h1>
 
         {loading ? (
@@ -81,9 +68,7 @@ const HostelOwnerBookingBed = () => {
             ))}
           </div>
         )}
-      </div>
-      </div>
-      <Footer />
+      </main>
     </div>
   );
 };

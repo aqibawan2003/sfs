@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import HostelNavbar from "./HostelOwnerNavbar";
 import { AddOrUpdateRoomModal } from "./AddOrUpdateRoomModal/AddOrUpdateRoomModal";
 import Profile from "./Profile";
-import Navbar from "../Navbar";
-import Footer from "../Footer";
 
 const HostelOwnerProfile = () => {
   const [modalState, setModalState] = useState({
@@ -24,22 +22,10 @@ const HostelOwnerProfile = () => {
     }, 3000);
   };
 
-  const ownerMobileLinks = [
-    { label: 'Dashboard', to: '/hostelOwnerDashboard' },
-    { label: 'Profile', to: '/hostel-owner-profile' },
-    { label: 'Personal Profile', to: '/profile' },
-    { label: 'Rooms', to: '/hostel-owner-profile/totalroom' },
-    { label: 'Booking', to: '/booking' },
-    { label: 'Visit Website', to: '/', target: '_blank' },
-  ];
-
   return (
-    <div className="bg-[#1E201E] min-h-screen flex flex-col">
-      <Navbar module="home" mobileExtraLinks={ownerMobileLinks} />
-      <div className="flex flex-1">
-        <HostelNavbar />
-        <div className="flex flex-col p-6 pt-24 ml-0 md:ml-[180px] flex-1">
-        {/* Flex-grow ensures it takes the remaining space after navbar */}
+    <div className="bg-[#1E201E] min-h-screen flex">
+      <HostelNavbar />
+      <main className="flex-1 flex flex-col p-6 pt-20 md:pt-6">
         <Profile />
 
         <button
@@ -74,9 +60,7 @@ const HostelOwnerProfile = () => {
             {successMessage}
           </div>
         )}
-        </div>
-      </div>
-      <Footer />
+      </main>
     </div>
   );
 };

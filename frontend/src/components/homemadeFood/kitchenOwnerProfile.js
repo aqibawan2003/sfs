@@ -30,9 +30,9 @@ const KitchenOwnerProfile = () => {
   }, [dispatch]);
 
   return (
-    <div className="flex ">
+    <div className="flex min-h-screen">
       <KitchenOwnerNavbar />
-      <div className="bg-black flex-1 flex flex-col items-center justify-center ml-0 md:ml-[180px]"> {/* Centering the content */}
+      <div className="bg-black flex-1 flex flex-col items-center justify-center pt-20 md:pt-0"> {/* Centering the content */}
          {/* Centered text */}
         
         <Profile />

@@ -190,7 +190,7 @@ const RegistrationForm = () => {
               .filter(inst => inst.university && inst.university.trim() !== "")
               .map(inst => ({
                 university: inst.university.trim(),
-                distance: inst.distance ? inst.distance.trim() : "1 km",
+                distance: inst.distance ? inst.distance.trim() : "Distance not provided",
               }))
           };
         } else if (normalizedRole === 'student') {
@@ -314,7 +314,7 @@ const RegistrationForm = () => {
             .filter(inst => inst.university && inst.university.trim() !== "")
             .map(inst => ({
               university: inst.university.trim(),
-              distance: inst.distance ? inst.distance.trim() : "1 km",
+              distance: inst.distance ? inst.distance.trim() : "Distance not provided",
             })),
           // Only sent if the owner used the map picker — backend falls back
           // to geocoding hostel_address when these are absent.

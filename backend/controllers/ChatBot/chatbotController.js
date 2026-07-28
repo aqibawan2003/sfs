@@ -23,9 +23,81 @@ function ratingText(ratingsMap, id) {
     return r ? `Rating: ${r.avg.toFixed(1)}/5 (${r.count} review${r.count === 1 ? '' : 's'})` : 'No reviews yet';
 }
 
+// ─── Typo Tolerance ─────────────────────────────────────────────────────────
+// Students type fast and informally ("hostal", "pyament", "avelable"). This
+// corrects near-miss spellings of the keywords the intent regexes below key
+// off of, so small typos still route to the right intent — no external
+// fuzzy-matching library needed.
+function levenshtein(a, b) {
+    const m = a.length, n = b.length;
+    if (m === 0) return n;
+    if (n === 0) return m;
+    let prev = Array.from({ length: n + 1 }, (_, j) => j);
+    for (let i = 1; i <= m; i++) {
+        const curr = [i];
+        for (let j = 1; j <= n; j++) {
+            const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+            curr[j] = Math.min(
+                prev[j] + 1,       // deletion
+                curr[j - 1] + 1,   // insertion
+                prev[j - 1] + cost // substitution
+            );
+        }
+        prev = curr;
+    }
+    return prev[n];
+}
+
+// Canonical spellings of the keywords used by the intent regexes further
+// below. Any message word that's a close-but-not-exact match to one of these
+// gets corrected before intent detection runs.
+const KNOWN_KEYWORDS = [
+    'hostel', 'hostels', 'room', 'rooms', 'bed', 'beds', 'stay', 'accommodation', 'rent',
+    'booking', 'bookings', 'facility', 'facilities',
+    'cheap', 'affordable', 'budget', 'inexpensive', 'expensive',
+    'near', 'nearby', 'nearest', 'closest',
+    'available', 'availability', 'vacant',
+    'university', 'universities', 'college', 'colleges',
+    'food', 'foods', 'meal', 'meals', 'dish', 'dishes', 'kitchen', 'kitchens',
+    'menu', 'menus', 'order', 'orders', 'lunch', 'dinner', 'breakfast', 'biryani', 'karahi',
+    'price', 'prices', 'cost', 'fee', 'rate', 'charge', 'rupee',
+    'contact', 'phone', 'email', 'reach', 'number', 'support',
+    'register', 'signup', 'login',
+    'payment', 'stripe', 'jazzcash', 'easypaisa', 'card', 'transaction',
+    'reserve', 'confirm', 'booked',
+    'cancel', 'unbook', 'refund',
+    'wifi', 'generator', 'laundry', 'parking',
+];
+
+function correctTypos(message) {
+    return message.split(/(\s+)/).map((token) => {
+        const word = token.toLowerCase();
+        // Skip punctuation, short words, and already-correct/known words —
+        // only worth correcting content words long enough that a typo is
+        // distinguishable from a different real word.
+        if (!/^[a-z]+$/.test(word) || word.length < 4 || KNOWN_KEYWORDS.includes(word)) {
+            return token;
+        }
+
+        let best = null;
+        let bestDist = Infinity;
+        for (const keyword of KNOWN_KEYWORDS) {
+            if (Math.abs(keyword.length - word.length) > 2) continue; // quick prune
+            const dist = levenshtein(word, keyword);
+            if (dist < bestDist) {
+                bestDist = dist;
+                best = keyword;
+            }
+        }
+
+        const threshold = word.length <= 5 ? 1 : 2;
+        return best && bestDist <= threshold ? best : token;
+    }).join('');
+}
+
 // ─── Intent Detection ──────────────────────────────────────────────────────────
 function detectIntent(msg) {
-    const m = msg.toLowerCase();
+    const m = correctTypos(msg.toLowerCase());
 
     if (/\b(hi|hello|hey|salaam|assalam|salam|good morning|good evening|howdy|aoa)\b/.test(m)) return 'greeting';
     if (/\b(bye|goodbye|thanks|thank you|shukriya|ok done|khuda hafiz)\b/.test(m)) return 'farewell';

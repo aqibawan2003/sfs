@@ -74,6 +74,7 @@ export const useAddOrUpdateRoom = (action, payload, handleClose) => {
   };
 
   const handleBedChange = (index, value) => {
+    if (roomDetails.beds[index]?.isBooked) return; // renumbering would orphan the student's booking
     const newBeds = [...roomDetails.beds];
     newBeds[index].bed_number = value;
     setRoomDetails({
@@ -93,6 +94,7 @@ export const useAddOrUpdateRoom = (action, payload, handleClose) => {
   };
 
   const handleRemoveBed = (index) => {
+    if (roomDetails.beds[index]?.isBooked) return; // can't remove a bed a student is currently occupying
     const newBeds = roomDetails.beds.filter((_, i) => i !== index);
     setRoomDetails({
       ...roomDetails,

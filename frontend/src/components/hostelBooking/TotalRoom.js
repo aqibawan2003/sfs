@@ -87,7 +87,9 @@ const TotalRoom = () => {
                 Availability:{" "}
                 {room.availability ? "Available" : "Not Available"}
               </p>
-              <p>Beds: {room.beds.length}</p>
+              <p>
+                Beds: {room.beds.filter((b) => b.isBooked).length} of {room.beds.length} occupied
+              </p>
               <div className="flex mt-2 mb-2 justify-center">
                 <button
                   onClick={() => handleEdit(room._id)}

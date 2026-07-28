@@ -129,13 +129,23 @@ export function AddOrUpdateRoomModal({ action, payload, handleClose }) {
                 type="number"
                 value={bed.bed_number || ""}
                 onChange={(e) => handleBedChange(index, e.target.value)}
-                className="w-full p-2 border border-gray-300 rounded"
+                className="w-full p-2 border border-gray-300 rounded disabled:bg-gray-100 disabled:text-gray-500"
+                disabled={bed.isBooked}
                 required
               />
+              <span
+                className={`ml-2 px-2 py-1 rounded text-xs font-semibold whitespace-nowrap ${
+                  bed.isBooked ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'
+                }`}
+              >
+                {bed.isBooked ? 'Occupied' : 'Available'}
+              </span>
               <button
                 type="button"
                 onClick={() => handleRemoveBed(index)}
-                className="ml-2 bg-red-500 text-white px-2 py-1 rounded"
+                disabled={bed.isBooked}
+                title={bed.isBooked ? "Can't remove an occupied bed" : undefined}
+                className="ml-2 bg-red-500 text-white px-2 py-1 rounded disabled:bg-gray-300 disabled:cursor-not-allowed"
               >
                 Remove
               </button>

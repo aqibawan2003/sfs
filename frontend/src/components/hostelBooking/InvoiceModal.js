@@ -8,16 +8,24 @@ Modal.setAppElement('#root');
 // can either save (download a freshly generated PDF) or dismiss.
 const InvoiceModal = ({ data, onClose }) => {
   const [downloading, setDownloading] = useState(false);
+  const [downloadError, setDownloadError] = useState('');
   if (!data) return null;
 
   const { bed, booking, room, hostel, student } = data;
 
   const handleSave = async () => {
     setDownloading(true);
+    setDownloadError('');
     try {
       await downloadReceipt(booking._id);
     } catch (err) {
       console.error('Failed to download receipt:', err);
+      const status = err?.response?.status;
+      setDownloadError(
+        status === 401 || status === 403
+          ? "You're not authorized to download this receipt. Please log in again."
+          : "Couldn't generate the receipt right now. If the server was recently idle, please try again in a moment."
+      );
     } finally {
       setDownloading(false);
     }
@@ -70,6 +78,10 @@ const InvoiceModal = ({ data, onClose }) => {
             <p className="text-gray-800">Reference: <span className="font-medium break-all">{booking?._id}</span></p>
           </div>
         </div>
+
+        {downloadError && (
+          <p className="mt-4 text-sm text-red-600 text-center">{downloadError}</p>
+        )}
 
         <div className="flex items-center justify-between mt-6 gap-3">
           <button

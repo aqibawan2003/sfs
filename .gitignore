@@ -28,6 +28,9 @@ Thumbs.db
 .vscode/
 .idea/
 
+# ─── MS Word lock/temp files (created while a .docx is open) ─────
+~$*
+
 # ─── Vercel CLI local config ─────────────────────────────────────
 .vercel/
 

@@ -31,14 +31,22 @@ export const useAddOrUpdateItem = (action, payload, handleClose) => {
   const handleSubmit = async () => {
     if (!validate()) {
       return alert("Please fill all the credentials.");
-    } else {
-      if (action === 'Add') {
-        dispatch(addItem(itemDetails));
-      } else {
-        dispatch(updateItem({ id: payload._id, itemDetails }));
-      }
+    }
 
+    const detailsToSend = { ...itemDetails, price: Number(itemDetails.price) };
+
+    const resultAction = action === 'Add'
+      ? await dispatch(addItem(detailsToSend))
+      : await dispatch(updateItem({ id: payload._id, itemDetails: detailsToSend }));
+
+    const succeeded = action === 'Add'
+      ? addItem.fulfilled.match(resultAction)
+      : updateItem.fulfilled.match(resultAction);
+
+    if (succeeded) {
       handleClose();
+    } else {
+      alert(resultAction.payload?.message || 'Failed to save item. Please check the details and try again.');
     }
   };
 

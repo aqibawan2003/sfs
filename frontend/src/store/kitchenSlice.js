@@ -22,23 +22,37 @@ export const fetchAllDishes = createAsyncThunk('kitchens/fetchAllDishes', async 
 
 export const addItem = createAsyncThunk(
   'kitchens/addItem',
-  async (itemDetails) => {
+  async (itemDetails, { rejectWithValue }) => {
     const token = Cookies.get('token');
-    const response = await axios.post(`${API_BASE_URL}/api/dishes/createDish`, itemDetails, {
-      headers: { Authorization: `Bearer ${token}` },  
-    });
-    return response.data;
+    try {
+      const response = await axios.post(`${API_BASE_URL}/api/dishes/createDish`, itemDetails, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue({
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status,
+      });
+    }
   }
 );
 
 export const updateItem = createAsyncThunk(
   'kitchens/updateItem',
-  async ({ id, itemDetails }) => {
+  async ({ id, itemDetails }, { rejectWithValue }) => {
     const token = Cookies.get('token');
-    const response = await axios.put(`${API_BASE_URL}/api/dishes/updateDish/${id}`, itemDetails, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    return response.data;
+    try {
+      const response = await axios.put(`${API_BASE_URL}/api/dishes/updateDish/${id}`, itemDetails, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      return response.data;
+    } catch (error) {
+      return rejectWithValue({
+        message: error.response?.data?.message || error.message,
+        status: error.response?.status,
+      });
+    }
   }
 );
 

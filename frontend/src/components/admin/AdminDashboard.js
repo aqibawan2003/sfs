@@ -635,7 +635,7 @@ const AdminDashboard = () => {
                       {(() => { const rows = filterRows(students, ['first_name','last_name','email']); return rows.length===0 ? <EmptyRow cols={6} message="No matching students"/> : rows.map((s,i)=>(
                         <tr key={s._id} className={`transition-colors duration-150 ${i%2===1 ? 'bg-[#F5F7F1]' : ''} hover:bg-[#EBEFE6]`} style={{ borderBottom: `1px solid ${ink.lineSoft}` }}>
                           <td className={tdCls} style={{ ...body, color: ink.faint }}>{s.student_id}</td>
-                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={s.first_name}/><span className="font-semibold" style={{ color: ink.text }}>{s.first_name} {s.last_name}</span></span></td>
+                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={s.first_name} src={s.profile_picture}/><span className="font-semibold" style={{ color: ink.text }}>{s.first_name} {s.last_name}</span></span></td>
                           <td className={tdCls} style={{ color: ink.sub }}>{s.email}</td>
                           <td className={tdCls} style={{ color: ink.sub, ...body }}>{s.phone_number}</td>
                           <td className={tdCls}><StatusPill status={s.isBanned?'banned':'active'}/></td>
@@ -663,7 +663,7 @@ const AdminDashboard = () => {
                       {(() => { const rows = sortPendingFirst(filterRows(hostelOwners, ['owner_id','first_name','last_name','email','hostel_name',ownerStatus])); return rows.length===0 ? <EmptyRow cols={6} message="No matching hostel owners"/> : rows.map((o,i)=>(
                         <tr key={o._id} className={`transition-colors duration-150 ${i%2===1 ? 'bg-[#F5F7F1]' : ''} hover:bg-[#EBEFE6]`} style={{ borderBottom: `1px solid ${ink.lineSoft}` }}>
                           <td className={tdCls} style={{ ...body, color: ink.faint }}>{o.owner_id}</td>
-                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={o.first_name}/><span className="font-semibold" style={{ color: ink.text }}>{o.first_name} {o.last_name}</span></span></td>
+                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={o.first_name} src={o.profile_picture}/><span className="font-semibold" style={{ color: ink.text }}>{o.first_name} {o.last_name}</span></span></td>
                           <td className={tdCls} style={{ color: ink.brandDark, fontWeight: 600 }}>{o.hostel_name}</td>
                           <td className={tdCls} style={{ color: ink.sub }}>{o.email}</td>
                           <td className={tdCls}><span className="flex items-center gap-2 flex-wrap"><StatusPill status={o.isBanned?'banned':o.isApproved?'approved':'pending'}/>{!o.isApproved && !o.isBanned && <PendingAge createdAt={o.createdAt}/>}</span></td>
@@ -691,7 +691,7 @@ const AdminDashboard = () => {
                       {(() => { const rows = sortPendingFirst(filterRows(kitchenOwners, ['provider_id','first_name','last_name','email','kitchen_name',ownerStatus])); return rows.length===0 ? <EmptyRow cols={6} message="No matching kitchen owners"/> : rows.map((o,i)=>(
                         <tr key={o._id} className={`transition-colors duration-150 ${i%2===1 ? 'bg-[#F5F7F1]' : ''} hover:bg-[#EBEFE6]`} style={{ borderBottom: `1px solid ${ink.lineSoft}` }}>
                           <td className={tdCls} style={{ ...body, color: ink.faint }}>{o.provider_id}</td>
-                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={o.first_name}/><span className="font-semibold" style={{ color: ink.text }}>{o.first_name} {o.last_name}</span></span></td>
+                          <td className={tdCls}><span className="flex items-center gap-3"><Avatar name={o.first_name} src={o.profile_picture}/><span className="font-semibold" style={{ color: ink.text }}>{o.first_name} {o.last_name}</span></span></td>
                           <td className={tdCls} style={{ color: ink.brandDark, fontWeight: 600 }}>{o.kitchen_name}</td>
                           <td className={tdCls} style={{ color: ink.sub }}>{o.email}</td>
                           <td className={tdCls}><span className="flex items-center gap-2 flex-wrap"><StatusPill status={o.isBanned?'banned':o.isApproved?'approved':'pending'}/>{!o.isApproved && !o.isBanned && <PendingAge createdAt={o.createdAt}/>}</span></td>

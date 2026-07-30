@@ -58,36 +58,17 @@ export const useAddOrUpdateItem = (action, payload, handleClose) => {
     });
   };
 
-  const handleImageUrlChange = (index, value) => {
-    const newImageUrls = [...itemDetails.imageUrls];
-    newImageUrls[index] = value;
+  const handleImageUrlChange = (value) => {
     setItemDetails({
       ...itemDetails,
-      imageUrls: newImageUrls,
-    });
-  };
-
-  const handleAddImageUrl = () => {
-    setItemDetails({
-      ...itemDetails,
-      imageUrls: [...itemDetails.imageUrls, ""],
-    });
-  };
-
-  const handleRemoveImageUrl = (index) => {
-    const newImageUrls = itemDetails.imageUrls.filter((_, i) => i !== index);
-    setItemDetails({
-      ...itemDetails,
-      imageUrls: newImageUrls,
+      imageUrls: [value],
     });
   };
 
   const state = { itemDetails };
   const handlers = {
-    handleAddImageUrl,
     handleChange,
     handleImageUrlChange,
-    handleRemoveImageUrl,
     handleSubmit
   };
 

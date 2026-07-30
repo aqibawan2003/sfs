@@ -194,15 +194,12 @@ function paymentResponse() {
     return `*Payment Options*
 
 Stripe (active):
-- Accepts all major credit and debit cards
-- Test card: 4242 4242 4242 4242
-- Expiry: any future date, CVC: any 3 digits
-- All amounts charged in PKR (Pakistani Rupees)
+- Pay securely by credit or debit card
+- All amounts are charged in PKR (Pakistani Rupees)
+- Your card details are handled directly by Stripe — SFS never sees or stores them
 
 JazzCash — coming soon
-EasyPaisa — coming soon
-
-Payments are processed securely through Stripe.`;
+EasyPaisa — coming soon`;
 }
 
 function farewellResponse() {

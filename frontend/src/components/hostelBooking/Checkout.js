@@ -237,7 +237,6 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
                 className="w-full"
               />
             </div>
-            <p className="text-xs text-gray-400 mt-1">Test card: 4242 4242 4242 4242 · any future expiry · any CVC</p>
           </div>
 
           {paymentError && (

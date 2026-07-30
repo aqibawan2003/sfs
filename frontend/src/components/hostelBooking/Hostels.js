@@ -7,6 +7,7 @@ import axios from 'axios';
 import HostelMap from './HostelMap';
 import API_BASE_URL from '../../utils/api';
 import InstituteAutocomplete from '../common/InstituteAutocomplete';
+import SEO from '../common/SEO';
 
 const ALL_FACILITIES = [
   'Wi-Fi',
@@ -172,6 +173,10 @@ const HostelList = () => {
 
   return (
     <>
+      <SEO
+        title="Hostel Booking"
+        description="Find and book student hostels in Lahore near your university, filtered by facilities, distance, and budget."
+      />
       <Navbar module={'hostel'} />
       <div className="p-4 bg-[#697565] w-full pt-28">
         <div className="flex flex-col md:flex-row md:justify-between items-center mb-4">

@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { Provider } from 'react-redux';
+import { HelmetProvider } from 'react-helmet-async';
 import { Elements } from '@stripe/react-stripe-js';
 import { loadStripe } from '@stripe/stripe-js';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,8 +18,9 @@ const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || '');
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <Provider store={store}>
+   <HelmetProvider>
     <Elements stripe={stripePromise}>
-    <ToastContainer  
+    <ToastContainer
         position="bottom-right" // This will fix it at the bottom right
         autoClose={5000} // Auto-close after 5 seconds
         hideProgressBar={false} // Show the progress bar
@@ -32,5 +34,6 @@ root.render(
         />
       <App />
     </Elements>
+   </HelmetProvider>
   </Provider>
 );

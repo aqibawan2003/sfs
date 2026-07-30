@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import Navbar from '../Navbar';
 import axios from 'axios';
 import Footer from '../Footer';
+import SEO from '../common/SEO';
 import API_BASE_URL from '../../utils/api';
 
 // Skeleton component for shimmer effect
@@ -53,6 +54,10 @@ const Kitchens = () => {
 
   return (
     <>
+      <SEO
+        title="Homemade Food Kitchens"
+        description="Browse homemade food kitchens across Lahore and order affordable, home-cooked meals for students."
+      />
       <Navbar module={'food'} />
       <div className='bg-[#697565] border-b border-gray-500 pb-8 pt-32 text-white'>
         <div className="container mx-auto">

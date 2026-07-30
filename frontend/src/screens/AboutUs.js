@@ -5,10 +5,15 @@ import Mission from "../components/Mission";
 import Reviews from "../components/reviews";
 import HeroSection from "../components/Hero";
 import Navbar from "../components/Navbar";
+import SEO from "../components/common/SEO";
 
 const AboutUs = () => {
   return (
     <div className="bg-[#1E201E]">
+      <SEO
+        title="About Us"
+        description="Learn about Student Facility System, a platform connecting students in Lahore with hostels and homemade food kitchens."
+      />
       <Navbar module={"home"} />
       {/* Background Image with Text */}
       <div

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaClock, FaPaperPlane } from 'react-icons/fa';
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import SEO from "../components/common/SEO";
 import API_BASE_URL from "../utils/api";
 
 const ContactUs = () => {
@@ -42,6 +43,10 @@ const ContactUs = () => {
 
   return (
     <div className="bg-[#1E201E] min-h-screen">
+      <SEO
+        title="Contact Us"
+        description="Get in touch with Student Facility System for questions about hostel bookings, food orders, or account support."
+      />
       <Navbar module="home" />
       <div className="relative bg-cover bg-center" style={{ backgroundImage:`url('https://images.unsplash.com/photo-1556911220-bff31c812dba?w=800&auto=format&fit=crop&q=60')`, height:'350px' }}>
         <div className="absolute inset-0 bg-black opacity-60"></div>

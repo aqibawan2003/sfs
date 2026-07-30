@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import SEO from '../components/common/SEO';
 import Navbar from '../components/Navbar';
 import HeroSection from '../components/Hero';
 import Mission from '../components/Mission';
@@ -34,6 +35,10 @@ const Home = () => {
 
   return (
     <div className='bg-[#697565] border border-[#59636e] min-h-screen flex flex-col'>
+      <SEO
+        title="Hostel Booking & Homemade Food for Students in Lahore"
+        description="Student Facility System connects students in Lahore with quality hostel accommodations and homemade food from local kitchens."
+      />
       <Navbar module={'home'} setShowCart={setShowCart} />
       <div className='container rounded-lg mx-auto flex flex-col'>
         <HeroSection />

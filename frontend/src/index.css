@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Pages only paint their own dark backgrounds via wrapper divs, so when
+   rendered content is shorter than the viewport (e.g. mobile "Desktop site"
+   mode, which reflows pages shorter) the browser's default white shows
+   through below. Match the Footer's color so that gap is invisible. */
+html, body {
+  background-color: #1E201E;
+}
+
 /* Browsers (esp. Chrome on mobile) force their own light background + black
    text on autofilled inputs, ignoring our dark theme's bg-[#25292e]/text-white
    classes — this makes autofilled/suggested text unreadable. Force it back to

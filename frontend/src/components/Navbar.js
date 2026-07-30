@@ -174,20 +174,20 @@ const Navbar = ({ module }) => {
                   </Link>
                 </>
               ) : (
-                <button 
-                  onClick={handleLogoutClick} 
-                  className="block text-black bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md md:inline-block"
+                <button
+                  onClick={handleLogoutClick}
+                  className="block w-28 text-center text-black bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md md:inline-block"
                 >
                   Logout
                 </button>
               )}
 
               {isLoggedIn && (
-                <div className="mt-3 md:mt-0 md:ml-3 bg-white rounded-lg inline-block">
+                <div className="mt-3 md:mt-0 md:ml-3 w-28 bg-white rounded-lg inline-block">
                   <button
                     type="button"
                     onClick={handleProfileClick}
-                    className="block px-4 py-2 text-[#1E201E] hover:text-gray-700 focus:outline-none md:inline-block"
+                    className="w-full flex items-center justify-center px-4 py-2 text-[#1E201E] hover:text-gray-700 focus:outline-none"
                     aria-label="Open profile"
                   >
                     <FontAwesomeIcon icon={faUser} />

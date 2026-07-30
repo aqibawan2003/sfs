@@ -183,11 +183,11 @@ const Navbar = ({ module }) => {
               )}
 
               {isLoggedIn && (
-                <div className="bg-white rounded-lg inline-block">
+                <div className="mt-3 md:mt-0 md:ml-3 bg-white rounded-lg inline-block">
                   <button
                     type="button"
                     onClick={handleProfileClick}
-                    className="p-2 text-[#1E201E] hover:text-gray-700 focus:outline-none"
+                    className="block px-4 py-2 text-[#1E201E] hover:text-gray-700 focus:outline-none md:inline-block"
                     aria-label="Open profile"
                   >
                     <FontAwesomeIcon icon={faUser} />

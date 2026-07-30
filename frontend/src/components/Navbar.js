@@ -14,8 +14,9 @@ const Navbar = ({ module }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false); 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [profilePicFailed, setProfilePicFailed] = useState(false);
 
   const totalItems = useSelector((state) => state.cart.totalItems);
   const authUser = useSelector((state) => state.auth.user);
@@ -190,7 +191,16 @@ const Navbar = ({ module }) => {
                     className="w-full flex items-center justify-center px-4 py-2 text-[#1E201E] hover:text-gray-700 focus:outline-none"
                     aria-label="Open profile"
                   >
-                    <FontAwesomeIcon icon={faUser} />
+                    {authUser?.profile_picture && !profilePicFailed ? (
+                      <img
+                        src={authUser.profile_picture}
+                        alt=""
+                        className="w-6 h-6 rounded-full object-cover"
+                        onError={() => setProfilePicFailed(true)}
+                      />
+                    ) : (
+                      <FontAwesomeIcon icon={faUser} />
+                    )}
                   </button>
                 </div>
               )}

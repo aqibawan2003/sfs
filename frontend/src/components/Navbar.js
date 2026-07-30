@@ -177,18 +177,18 @@ const Navbar = ({ module }) => {
               ) : (
                 <button
                   onClick={handleLogoutClick}
-                  className="block w-28 text-center text-black bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md md:inline-block"
+                  className="block w-28 md:w-auto text-center text-black bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg font-semibold transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-md md:inline-block"
                 >
                   Logout
                 </button>
               )}
 
               {isLoggedIn && (
-                <div className="mt-3 md:mt-0 md:ml-3 w-28 bg-white rounded-lg inline-block">
+                <div className="mt-3 md:mt-0 md:ml-3 w-28 md:w-auto bg-white rounded-lg inline-block">
                   <button
                     type="button"
                     onClick={handleProfileClick}
-                    className="w-full flex items-center justify-center px-4 py-2 text-[#1E201E] hover:text-gray-700 focus:outline-none"
+                    className="w-full md:w-auto flex items-center justify-center px-4 py-2 md:p-2 text-[#1E201E] hover:text-gray-700 focus:outline-none"
                     aria-label="Open profile"
                   >
                     {authUser?.profile_picture && !profilePicFailed ? (

@@ -79,16 +79,16 @@ const Cart = () => {
                       item.productId ? (
                         <div key={item.productId._id} className="flex mb-4 bg-[#25292e] border border-[#59636e] text-white shadow rounded overflow-hidden relative">
                           <img src={item.productId.imageUrls ? item.productId.imageUrls[0] : '/placeholder.png'} alt={item.productId.name} className="w-36 h-36 object-cover" />
-                          <div className="px-4 flex flex-col justify-between flex-1">
+                          <div className="px-4 py-3 flex flex-col justify-between flex-1 min-w-0">
                             {loadingItems[item.productId._id] ? (
                               renderShimmer() // Show shimmer effect while loading
                             ) : (
                               <>
                                 <h4 className="text-xl font-bold">{item.productId.name}</h4>
                                 <p className="line-clamp-2">{item.productId.description}</p>
-                                <div className="flex items-center justify-between mt-3 mb-3">
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-3 mb-3">
                                   <p className="text-lg font-semibold">Price: PKR {item.productId.price}</p>
-                                  <div className="flex items-center justify-center">
+                                  <div className="flex items-center">
                                     <p className="text-lg font-semibold mr-4">Quantity</p>
                                     <button onClick={() => handleDecrement(kitchenId, item.productId._id, item.quantity)} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-l">-</button>
                                     <span className="mx-2">{item.quantity}</span>

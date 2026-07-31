@@ -78,7 +78,7 @@ const OrderPage = () => {
             <div className="mb-4 rounded text-white" key={order._id}>
               <div className="p-4 rounded flex flex-col md:flex-row justify-between gap-4">
                 <div className="w-full md:w-1/2 p-2 rounded md:pr-8 md:mr-2 border border-[#59636e]">
-                  <h2 className="text-2xl font-bold mb-2">Order ID: {order._id}</h2>
+                  <h2 className="text-xl font-bold mb-2">Order #{order._id.slice(-6).toUpperCase()}</h2>
                   <OrderDetails details={order} />
                   <OrderList items={order.dishes} />
                 </div>
@@ -143,31 +143,50 @@ const OrderDetails = ({ details }) => {
 const OrderTracker = ({ status, orderPlaced }) => {
   const steps = ["Order Placed", "Confirm Order", "Preparing Order", "Delivered", "Completed"];
   const currentStep = steps.indexOf(status);
+  const isActive = (index) => (orderPlaced && index === 0) || currentStep >= index;
 
   return (
-    <div className="flex justify-between items-center w-full px-4">
-      {steps.map((step, index) => (
-        <React.Fragment key={index}>
-          <div className="flex flex-col items-center">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white 
-              ${(orderPlaced && index === 0) || currentStep >= index ? 'bg-green-500' : 'bg-gray-300'} 
+    <>
+      {/* Mobile: wrapping grid, no connector lines — a single cramped row has no
+          room for two-word labels next to 5 circles, so they overlap. */}
+      <div className="grid grid-cols-3 gap-y-4 justify-items-center w-full px-4 sm:hidden">
+        {steps.map((step, index) => (
+          <div key={index} className="flex flex-col items-center px-1">
+            <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white
+              ${isActive(index) ? 'bg-green-500' : 'bg-gray-300'}
               transition-all duration-700 ease-in-out`} style={{ transitionDelay: '0.5s' }}>
               {index + 1}
             </div>
-            <span className="mt-2 text-center text-white">{step}</span>
+            <span className="mt-2 text-center text-white text-sm">{step}</span>
           </div>
-          {index < steps.length - 1 && (
-            <div className="h-0.5 bg-gray-300 flex-grow relative my-2" style={{ margin: '0 6px' }}>
-              <div className={`absolute left-0 right-0 bg-green-500 h-0.5 
-                ${currentStep > index ? 'w-full' : 'w-0'} 
-                transition-all duration-700 ease-in-out`} 
-                style={{ transitionDelay: '0.1s' }}>
+        ))}
+      </div>
+
+      {/* Desktop/tablet: original horizontal line-connected stepper */}
+      <div className="hidden sm:flex justify-between items-center w-full px-4">
+        {steps.map((step, index) => (
+          <React.Fragment key={index}>
+            <div className="flex flex-col items-center">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white
+                ${isActive(index) ? 'bg-green-500' : 'bg-gray-300'}
+                transition-all duration-700 ease-in-out`} style={{ transitionDelay: '0.5s' }}>
+                {index + 1}
               </div>
+              <span className="mt-2 text-center text-white">{step}</span>
             </div>
-          )}
-        </React.Fragment>
-      ))}
-    </div>
+            {index < steps.length - 1 && (
+              <div className="h-0.5 bg-gray-300 flex-grow relative my-2" style={{ margin: '0 6px' }}>
+                <div className={`absolute left-0 right-0 bg-green-500 h-0.5
+                  ${currentStep > index ? 'w-full' : 'w-0'}
+                  transition-all duration-700 ease-in-out`}
+                  style={{ transitionDelay: '0.1s' }}>
+                </div>
+              </div>
+            )}
+          </React.Fragment>
+        ))}
+      </div>
+    </>
   );
 };
 

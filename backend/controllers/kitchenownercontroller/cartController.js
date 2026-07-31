@@ -38,6 +38,9 @@ exports.addToCart = async (req, res, next) => {
         if (!dish) {
             return res.status(404).json({ message: 'Dish not found' });
         }
+        if (!dish.availability) {
+            return res.status(400).json({ message: 'This dish is currently not available' });
+        }
 
         // Check if the dish is already in the cart
         const existingItem = cart.items.find(item => item.productId.equals(productId));

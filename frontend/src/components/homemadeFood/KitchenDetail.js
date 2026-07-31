@@ -79,17 +79,21 @@ const KitchenDetail = () => {
             <h2 className="text-4xl text-center font-bold mb-4 pt-4 ">Menu</h2>
             <div className="mt-6 gap-6 pb-8 flex flex-wrap justify-center items-center ">
               {kitchen.dishes.map((dish) => (
-                <div key={dish._id} className="w-52 rounded mt-6 shadow-lg border border-[#59636e] ml-4">
+                <div key={dish._id} className={`w-52 rounded mt-6 shadow-lg border border-[#59636e] ml-4 ${dish.availability === false ? 'opacity-50' : ''}`}>
                   <img className="w-52 h-48" src={dish.imageUrls && dish.imageUrls[0]} alt={dish.name} />
                   <div className="text-center p-2 bg-[#25292e]">
                     <p className="text-xl font-bold mb-2">{dish.name}</p>
                     <p className="text-base">Price: {dish.price}</p>
-                    <button
-                      onClick={() => handleAddToCart(dish)}
-                      className="bg-black hover:bg-[#3C3D37] mt-4 text-white text-nowrap px-2 rounded"
-                    >
-                      Add to Cart
-                    </button>
+                    {dish.availability === false ? (
+                      <p className="mt-4 text-red-400 text-sm font-semibold">Not Available</p>
+                    ) : (
+                      <button
+                        onClick={() => handleAddToCart(dish)}
+                        className="bg-black hover:bg-[#3C3D37] mt-4 text-white text-nowrap px-2 rounded"
+                      >
+                        Add to Cart
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}

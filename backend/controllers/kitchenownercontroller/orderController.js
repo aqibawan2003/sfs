@@ -233,6 +233,37 @@ exports.getOrdersForCustomer = async (req, res, next) => {
   }
 };
 
+// Mirrors getMonthlyBookingStats on the hostel side: always returns all 12
+// months of the current year (zero-filled), not just months that had
+// orders, so the chart shows the same full-year shape on both dashboards.
+exports.getMonthlyOrderStats = async (req, res, next) => {
+    try {
+        const kitchenOwnerId = req.user.id;
+        const year = new Date().getFullYear();
+        const startOfYear = new Date(year, 0, 1);
+        const startOfNextYear = new Date(year + 1, 0, 1);
+
+        const orders = await Order.find({
+            kitchenOwnerId,
+            status: 'Completed',
+            orderPlacedAt: { $gte: startOfYear, $lt: startOfNextYear },
+        }).select('orderPlacedAt').lean();
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const counts = new Array(12).fill(0);
+        orders.forEach((order) => {
+            const monthIndex = new Date(order.orderPlacedAt).getMonth();
+            counts[monthIndex] += 1;
+        });
+
+        const data = monthNames.map((month, i) => ({ month, orders: counts[i] }));
+
+        res.status(200).json({ success: true, year, data });
+    } catch (error) {
+        next(error);
+    }
+};
+
 exports.deleteOrder = async (req, res, next) => {
   try {
     const order = await Order.findById(req.params.orderId);

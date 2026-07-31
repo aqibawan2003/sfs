@@ -14,6 +14,7 @@ router.post('/confirm-payment', authenticateToken, orderController.confirmOrderP
 
 // GET request to retrieve orders for a kitchen owner
 router.get('/kitchen',authenticateToken, orderController.getOrdersForKitchen);
+router.get('/monthly-stats', authenticateToken, orderController.getMonthlyOrderStats);
 router.patch('/update/:orderId', authenticateToken, orderController.updateOrderStatus);
 
 // GET request to retrieve orders for a customer

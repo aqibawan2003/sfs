@@ -1,6 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Cookies from 'js-cookie';
+import io from 'socket.io-client';
+import { jwtDecode } from 'jwt-decode';
+import { toast } from 'react-toastify';
+import API_BASE_URL from '../../utils/api';
+import { playNotificationSound } from '../../utils/playNotificationSound';
 
 const OWNER_LINKS = [
   { label: 'Dashboard', to: '/kitchenownerdashboard' },
@@ -41,6 +46,34 @@ const KitchenOwnerNavbar = () => {
     const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Alerts the kitchen owner to new orders on every page they're on (not
+  // just the Orders page, which has its own separate socket connection for
+  // keeping its order list in sync) — a toast + sound instead of them having
+  // to keep the Orders tab open and watched to notice anything came in.
+  useEffect(() => {
+    const token = Cookies.get('token');
+    if (!token) return;
+
+    const kitchenId = jwtDecode(token).id;
+    const socket = io(API_BASE_URL, {
+      transports: ['websocket'],
+      withCredentials: true,
+      auth: { token },
+    });
+
+    socket.emit('joinKitchenRoom', kitchenId);
+
+    socket.on('newOrder', (order) => {
+      toast.success(`New order from ${order.customerName || 'a customer'}!`);
+      playNotificationSound();
+    });
+
+    return () => {
+      socket.emit('leaveKitchenRoom', kitchenId);
+      socket.disconnect();
+    };
   }, []);
 
   // Lock background scroll while the mobile drawer is open, otherwise the

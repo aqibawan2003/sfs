@@ -95,6 +95,8 @@ const KitchenOwnerOrders = () => {
                 <div className="border p-4 mt-4">
                   <h4 className="font-bold mb-2">Summary</h4>
                   <p>Customer Name: {order.customerName}</p>
+                  <p>Phone: {order.customerId?.phone_number || 'Not available'}</p>
+                  <p>Delivery Address: {order.deliveryAddress}</p>
                   <p>Payment Method: {order.paymentMethod}</p>
                   <p>Payment Status: {order.paymentStatus}</p>
                 </div>

@@ -128,7 +128,13 @@ exports.createOrder = async (req, res, next) => {
     await newOrder.save();
 
     const io = req.app.get('io');
-    io.to(`room-kitchen${kitchenOwnerId}`).emit('newOrder', newOrder);
+    // Shape customerId the same way getOrdersForKitchen's populate does, so
+    // the kitchen owner's UI can read order.customerId.phone_number whether
+    // the order arrived via a page load or this live socket event.
+    io.to(`room-kitchen${kitchenOwnerId}`).emit('newOrder', {
+      ...newOrder.toObject(),
+      customerId: { _id: customerId, phone_number: student.phone_number },
+    });
 
     res.status(201).json({ success: true, requiresAction: false, order: newOrder });
   } catch (error) {
@@ -161,7 +167,11 @@ exports.confirmOrderPayment = async (req, res, next) => {
     await order.save();
 
     const io = req.app.get('io');
-    io.to(`room-kitchen${order.kitchenOwnerId}`).emit('newOrder', order);
+    const student = await Student.findById(order.customerId, 'phone_number');
+    io.to(`room-kitchen${order.kitchenOwnerId}`).emit('newOrder', {
+      ...order.toObject(),
+      customerId: { _id: order.customerId, phone_number: student?.phone_number },
+    });
 
     res.status(200).json({ success: true, order });
   } catch (error) {
@@ -200,7 +210,8 @@ exports.getOrdersForKitchen = async (req, res, next) => {
     if (req.user.role !== 'kitchenOwner') {
       return res.status(403).json({ message: 'Access denied' });
     }
-    const orders = await Order.find({ kitchenOwnerId: req.user.id });
+    const orders = await Order.find({ kitchenOwnerId: req.user.id })
+      .populate('customerId', 'phone_number');
     res.status(200).send(orders);
   } catch (error) {
     next(error); // Use next to handle errors

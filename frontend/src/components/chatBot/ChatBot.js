@@ -3,11 +3,17 @@ import './ChatBot.css';
 
 const SUGGESTIONS = [
   'Show Hostels',
+  'Cheap Hostels Near Me',
   'Show Food Kitchens',
+  'Cheap Food Options',
   'Check Prices',
-  'Contact Info',
-  'How Does It Work?',
+  'Available Beds?',
+  'Hostel Facilities',
+  'My Booking Status',
+  'Cancel a Booking',
   'Payment Options',
+  'How Does It Work?',
+  'Contact Info',
 ];
 
 function ChatBot() {

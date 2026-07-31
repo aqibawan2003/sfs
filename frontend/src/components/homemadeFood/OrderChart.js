@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Brush, ResponsiveContainer } from 'recharts';
 import { useSelector, useDispatch } from 'react-redux';
 import { getOrdersForKitchen } from '../../store/orderSlice';
 
@@ -47,23 +47,27 @@ const OrderChart = () => {
   }
 
   return (
-    <div style={{ width: '100%', height: '400px' }}>
-      <ResponsiveContainer width="100%" height={400}>
+    <div style={{ width: '100%', height: '100%' }}>
+      <ResponsiveContainer width="100%" height={420}>
         <LineChart
           data={formattedData}
-          margin={{ top: 10, right: 30, left: 20, bottom: 30 }} // Adjust margins
+          margin={{
+            top: 10,
+            right: 30,
+            left: 0,
+            bottom: 0,
+          }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis 
-            dataKey="name" 
-            label={{ value: "Months", position: "insideBottomRight", offset: -5 }} 
-          />
-          <YAxis 
-            label={{ value: "Orders", angle: -90, position: 'insideLeft' }} 
-            allowDecimals={false} // Ensures the order count is displayed as whole numbers
-          />
+          {/* Display month names on the X-axis */}
+          <XAxis dataKey="name" />
+          {/* Display order count on the Y-axis */}
+          <YAxis allowDecimals={false} label={{ value: 'Orders', angle: -90, position: 'insideLeft' }} />
           <Tooltip />
-          <Line type="monotone" dataKey="orderCount" stroke="#82ca9d" strokeWidth={2} />
+          <Legend />
+          {/* Line for order data */}
+          <Line type="monotone" dataKey="orderCount" stroke="#82ca9d" fill="#82ca9d" />
+          <Brush />
         </LineChart>
       </ResponsiveContainer>
     </div>

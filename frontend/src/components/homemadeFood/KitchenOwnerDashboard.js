@@ -4,14 +4,14 @@ import OrderChart from './OrderChart'
 
 const KitchenOwnerDashboard = () => {
   return (
-    <div className='flex min-h-screen'>
-    <KitchenOwnerNavbar/>
-    <div className='mt-4 flex-1 pt-20 md:pt-0'>
-      <p className='mb-4 text-4xl ml-4 font-bold'>Ordering chart</p>
-      <div className='h-[400px]'>
-        <OrderChart />
-      </div>
-    </div>
+    <div className="bg-[#1E201E] min-h-screen flex">
+      <KitchenOwnerNavbar/>
+      <main className="mt-4 ml-6 mr-6 pt-20 md:pt-4 flex-1 text-white">
+        <p className="mb-4 text-4xl font-bold">Ordering chart</p>
+        <div className="h-[500px] w-full overflow-x-auto">
+          <OrderChart />
+        </div>
+      </main>
     </div>
   )
 }

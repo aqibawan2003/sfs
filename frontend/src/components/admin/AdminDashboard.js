@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ImageUploadField from '../common/ImageUploadField';
 import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
 } from 'recharts';
 import {
   FaUsers, FaHome, FaUtensils, FaBuilding, FaList, FaChartBar,
@@ -54,6 +54,11 @@ const ink = {
   rustDim:   '#FBEAE6',
   rustLine:  '#F0C7BC',
 };
+
+// Fixed-order categorical hues for multi-series charts (colorblind-safe, validated
+// against this dashboard's white chart surface — see dataviz skill palette check).
+// Never reassign per-filter; the order is what keeps the CVD separation valid.
+const series = { blue: '#2a78d6', orange: '#eb6834', aqua: '#1baf7a' };
 
 const thCls = 'px-5 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.08em]';
 const tdCls = 'px-5 py-4 text-[13.5px]';
@@ -182,14 +187,19 @@ const EmptyRow = ({ cols, message }) => (
   </td></tr>
 );
 
-// Single-hue bar chart tooltip; matches the card surface instead of recharts' default.
-const OverviewTooltip = ({ active, payload }) => {
+// Multi-series line-chart tooltip; matches the card surface instead of recharts' default.
+const GrowthTooltip = ({ active, payload, label }) => {
   if (!active || !payload || !payload.length) return null;
-  const { name, value } = payload[0].payload;
   return (
     <div className="rounded-lg px-3.5 py-2.5" style={{ background: ink.surface, border: `1px solid ${ink.line}`, boxShadow: '0 8px 24px rgba(26,26,26,0.12)' }}>
-      <p style={{ ...body, color: ink.sub }} className="text-[11px] font-semibold uppercase tracking-[0.06em] mb-0.5">{name}</p>
-      <p style={{ ...sans, color: ink.text }} className="text-[16px] font-bold leading-none">{value.toLocaleString()}</p>
+      <p style={{ ...body, color: ink.sub }} className="text-[11px] font-semibold uppercase tracking-[0.06em] mb-1.5">{label}</p>
+      {payload.map(p => (
+        <div key={p.dataKey} className="flex items-center gap-2 mb-0.5 last:mb-0">
+          <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: p.color }}/>
+          <span style={{ ...body, color: ink.sub }} className="text-[11.5px]">{p.name}</span>
+          <span style={{ ...sans, color: ink.text }} className="text-[12.5px] font-bold ml-auto">{p.value.toLocaleString()}</span>
+        </div>
+      ))}
     </div>
   );
 };
@@ -261,6 +271,7 @@ const AdminDashboard = () => {
   const isSuperAdmin = adminData.role === 'super_admin';
 
   const [stats,        setStats]        = useState({});
+  const [growth,       setGrowth]       = useState([]);
   const [activeTab,    setActiveTab]    = useState('overview');
   const [students,     setStudents]     = useState([]);
   const [hostelOwners, setHostelOwners] = useState([]);
@@ -307,7 +318,7 @@ const AdminDashboard = () => {
   const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
 
   useEffect(() => { if (!token) navigate('/admin/login'); }, [token, navigate]);
-  useEffect(() => { if (token) { fetchStats(); fetchMessages(); if (isSuperAdmin) fetchMiniAdmins(); } }, [token]);
+  useEffect(() => { if (token) { fetchStats(); fetchGrowth(); fetchMessages(); if (isSuperAdmin) fetchMiniAdmins(); } }, [token]);
   useEffect(() => {
     if (!token) return;
     setSearch('');
@@ -321,6 +332,7 @@ const AdminDashboard = () => {
   }, [activeTab]);
 
   const fetchStats        = async () => { try { const r = await axios.get(`${API_BASE_URL}/api/admin/stats`, authHeaders); setStats(r.data); } catch(e){} };
+  const fetchGrowth       = async () => { try { const r = await axios.get(`${API_BASE_URL}/api/admin/growth-stats`, authHeaders); setGrowth(r.data.data||[]); } catch(e){} };
   const fetchMiniAdmins   = async () => { try { const r = await axios.get(`${API_BASE_URL}/api/admin/list`, authHeaders); setMiniAdmins((r.data||[]).filter(a=>a.role==='admin')); } catch(e){} };
   const fetchStudents     = async () => { setLoading(true); try { const r = await axios.get(`${API_BASE_URL}/api/admin/students`, authHeaders); setStudents(r.data); } catch(e){} setLoading(false); };
   const fetchHostelOwners = async () => { setLoading(true); try { const r = await axios.get(`${API_BASE_URL}/api/admin/hostel-owners`, authHeaders); setHostelOwners(r.data); } catch(e){} setLoading(false); };
@@ -423,15 +435,6 @@ const AdminDashboard = () => {
   ];
 
   const newMessageCount = messages.filter(m=>m.status==='new').length;
-  const overviewChartData = [
-    { name: 'Students',       value: stats.totalStudents||0 },
-    { name: 'Hostel Owners',  value: stats.totalHostelOwners||0 },
-    { name: 'Kitchen Owners', value: stats.totalKitchenOwners||0 },
-    { name: 'Hostels',        value: stats.totalHostels||0 },
-    { name: 'Kitchens',       value: stats.totalKitchens||0 },
-    { name: 'Bookings',       value: stats.totalBookings||0 },
-    { name: 'Orders',         value: stats.totalOrders||0 },
-  ];
 
   const UserActions = ({ item, type }) => (
     <div className="flex gap-4 flex-wrap items-center">
@@ -592,18 +595,40 @@ const AdminDashboard = () => {
                 ))}
               </div>
 
-              <div className="rounded-xl overflow-hidden mb-6" style={{ border: `1px solid ${ink.line}`, background: ink.surface, boxShadow: '0 1px 3px rgba(26,26,26,0.05)' }}>
-                <PanelHeader title="Platform totals" />
-                <div className="px-2 md:px-4 pt-4 pb-2">
-                  <ResponsiveContainer width="100%" height={280}>
-                    <BarChart data={overviewChartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
-                      <CartesianGrid vertical={false} stroke={ink.line} strokeDasharray="0" />
-                      <XAxis dataKey="name" tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={{ stroke: ink.line }} tickLine={false} interval={0} angle={-20} textAnchor="end" height={50} />
-                      <YAxis allowDecimals={false} tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={false} tickLine={false} width={40} />
-                      <Tooltip cursor={{ fill: ink.brandDim }} content={<OverviewTooltip />} />
-                      <Bar dataKey="value" fill={ink.brand} radius={[4, 4, 0, 0]} maxBarSize={40} />
-                    </BarChart>
-                  </ResponsiveContainer>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${ink.line}`, background: ink.surface, boxShadow: '0 1px 3px rgba(26,26,26,0.05)' }}>
+                  <PanelHeader title="User growth" />
+                  <div className="px-2 md:px-4 pt-4 pb-2">
+                    <ResponsiveContainer width="100%" height={260}>
+                      <LineChart data={growth} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                        <CartesianGrid vertical={false} stroke={ink.line} strokeDasharray="0" />
+                        <XAxis dataKey="month" tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={{ stroke: ink.line }} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={false} tickLine={false} width={30} />
+                        <Tooltip content={<GrowthTooltip />} />
+                        <Legend wrapperStyle={{ fontSize: 12, color: ink.sub }} iconType="circle" iconSize={8} />
+                        <Line type="monotone" dataKey="students" name="Students" stroke={series.blue} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 5, stroke: ink.surface, strokeWidth: 2 }} />
+                        <Line type="monotone" dataKey="hostelOwners" name="Hostel Owners" stroke={series.orange} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 5, stroke: ink.surface, strokeWidth: 2 }} />
+                        <Line type="monotone" dataKey="kitchenOwners" name="Kitchen Owners" stroke={series.aqua} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 5, stroke: ink.surface, strokeWidth: 2 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                </div>
+
+                <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${ink.line}`, background: ink.surface, boxShadow: '0 1px 3px rgba(26,26,26,0.05)' }}>
+                  <PanelHeader title="Bookings & orders" />
+                  <div className="px-2 md:px-4 pt-4 pb-2">
+                    <ResponsiveContainer width="100%" height={260}>
+                      <LineChart data={growth} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                        <CartesianGrid vertical={false} stroke={ink.line} strokeDasharray="0" />
+                        <XAxis dataKey="month" tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={{ stroke: ink.line }} tickLine={false} />
+                        <YAxis allowDecimals={false} tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={false} tickLine={false} width={30} />
+                        <Tooltip content={<GrowthTooltip />} />
+                        <Legend wrapperStyle={{ fontSize: 12, color: ink.sub }} iconType="circle" iconSize={8} />
+                        <Line type="monotone" dataKey="bookings" name="Bookings" stroke={series.blue} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 5, stroke: ink.surface, strokeWidth: 2 }} />
+                        <Line type="monotone" dataKey="orders" name="Orders" stroke={series.orange} strokeWidth={2} dot={{ r: 4 }} activeDot={{ r: 5, stroke: ink.surface, strokeWidth: 2 }} />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
                 </div>
               </div>
 

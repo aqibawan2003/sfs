@@ -18,6 +18,7 @@ router.patch('/profile-picture', ctrl.updateOwnProfilePicture);
 
 // Dashboard statistics
 router.get('/stats', ctrl.getDashboardStats);
+router.get('/growth-stats', ctrl.getMonthlyGrowthStats);
 
 // Student management
 router.get('/students', ctrl.getStudents);

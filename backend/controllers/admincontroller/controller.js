@@ -528,6 +528,54 @@ exports.getDashboardStats = async (req, res) => {
     }
 };
 
+// Platform-wide signups/bookings/orders, bucketed by calendar month, for the
+// last 6 months (current month inclusive) — powers the overview growth chart.
+exports.getMonthlyGrowthStats = async (req, res) => {
+    try {
+        const Hostelowner = require('../../models/hostelowner/Hostelowner');
+        const Kitchenowner = require('../../models/kitchenowner/Kitchenowner');
+        const Booking = require('../../models/student/Booking');
+        const Order = require('../../models/student/Order');
+
+        const MONTHS_BACK = 5; // + current month = 6 buckets
+        const now = new Date();
+        const rangeStart = new Date(now.getFullYear(), now.getMonth() - MONTHS_BACK, 1);
+
+        const [students, hostelOwners, kitchenOwners, bookings, orders] = await Promise.all([
+            Student.find({ createdAt: { $gte: rangeStart } }).select('createdAt').lean(),
+            Hostelowner.find({ createdAt: { $gte: rangeStart } }).select('createdAt').lean(),
+            Kitchenowner.find({ createdAt: { $gte: rangeStart } }).select('createdAt').lean(),
+            Booking.find({ booking_date: { $gte: rangeStart } }).select('booking_date').lean(),
+            Order.find({ orderPlacedAt: { $gte: rangeStart } }).select('orderPlacedAt').lean(),
+        ]);
+
+        const buckets = [];
+        for (let i = MONTHS_BACK; i >= 0; i--) {
+            const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+            buckets.push({
+                key: `${d.getFullYear()}-${d.getMonth()}`,
+                month: d.toLocaleString('en-US', { month: 'short', year: 'numeric' }),
+                students: 0, hostelOwners: 0, kitchenOwners: 0, bookings: 0, orders: 0,
+            });
+        }
+        const bucketByKey = new Map(buckets.map(b => [b.key, b]));
+        const tally = (docs, dateField, statKey) => docs.forEach(doc => {
+            const d = new Date(doc[dateField]);
+            const bucket = bucketByKey.get(`${d.getFullYear()}-${d.getMonth()}`);
+            if (bucket) bucket[statKey] += 1;
+        });
+        tally(students, 'createdAt', 'students');
+        tally(hostelOwners, 'createdAt', 'hostelOwners');
+        tally(kitchenOwners, 'createdAt', 'kitchenOwners');
+        tally(bookings, 'booking_date', 'bookings');
+        tally(orders, 'orderPlacedAt', 'orders');
+
+        res.status(200).json({ data: buckets.map(({ key, ...rest }) => rest) });
+    } catch (error) {
+        res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
 // Delete a student
 exports.deleteStudent = async (req, res) => {
     try {

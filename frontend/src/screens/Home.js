@@ -7,6 +7,7 @@ import Reviews from '../components/reviews';
 import Footer from '../components/Footer';
 import ChatBot from '../components/chatBot/ChatBot';
 import SplashScreen from '../components/splashScreen/SplashScreen';
+import Marquee from '../components/common/Marquee';
 
 const Home = () => {
   const [showCart, setShowCart] = useState(false);
@@ -40,6 +41,7 @@ const Home = () => {
         description="Student Facility System connects students in Lahore with quality hostel accommodations and homemade food from local kitchens."
       />
       <Navbar module={'home'} setShowCart={setShowCart} />
+      <Marquee text="⚠️ Note: Our OTP verification emails sometimes land in your Spam/Junk folder — please check there if you don't see it in your inbox." />
       <div className='container rounded-lg mx-auto flex flex-col'>
         <HeroSection />
         <Mission />

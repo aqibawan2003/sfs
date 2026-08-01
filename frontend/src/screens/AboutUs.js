@@ -25,24 +25,24 @@ const AboutUs = () => {
         }}
       >
         <div className="absolute inset-0 bg-black opacity-50"></div>
-        <div className="relative z-10 flex flex-col items-center justify-center h-full">
-          <h1 className="text-white text-5xl font-bold">About Us</h1>
-          <div className="text-white pt-4">
-            <p className="text-white   text-center">
+        <div className="relative z-10 flex flex-col items-center justify-center h-full px-4 text-center">
+          <h1 className="text-white text-3xl sm:text-4xl md:text-5xl font-bold">About Us</h1>
+          <div className="text-white pt-4 max-w-2xl">
+            <p className="text-white text-center">
               At our core, we provide students with everything they need to thrive,
             </p>
-            <p>
+            <p className="text-center">
                offering comfortable accommodations near universities and
               fresh,
             </p>
-            <p>homemade meals to support their health and success</p>
+            <p className="text-center">homemade meals to support their health and success</p>
           </div>
         </div>
       </div>
 
       {/* Mission Component */}
       <div className="bg-[#1E201E]">
-      <div className='container mt-24  bg-[#25292e] border border-[#59636e]  rounded-lg mx-auto flex flex-col '>
+      <div className='container mt-8 md:mt-24  bg-[#25292e] border border-[#59636e]  rounded-lg mx-auto flex flex-col '>
         
         <HeroSection />
         

@@ -4,7 +4,7 @@ import '../../src/animation.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
-const HeroSection = () => {
+const HeroSection = ({ topMarginClass = "mt-32" }) => {
   const [swap, setSwap] = useState(false);
   const [animationKey, setAnimationKey] = useState(0);
 
@@ -19,7 +19,7 @@ const HeroSection = () => {
 
   return (
     // Main div with border added
-    <div className="  rounded-lg shadow-lg bg-[#25292e] mt-32 border border-[#59636e]"> 
+    <div className={`  rounded-lg shadow-lg bg-[#25292e] ${topMarginClass} border border-[#59636e]`}>
       <section className="hero-section mb-4">
         {/* First Div */}
         <div

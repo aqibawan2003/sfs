@@ -41,9 +41,12 @@ const Home = () => {
         description="Student Facility System connects students in Lahore with quality hostel accommodations and homemade food from local kitchens."
       />
       <Navbar module={'home'} setShowCart={setShowCart} />
-      <Marquee text="⚠️ Note: Our OTP verification emails sometimes land in your Spam/Junk folder — please check there if you don't see it in your inbox." />
+      <Marquee
+        className="mt-28"
+        text="⚠️ Note: Our OTP verification emails sometimes land in your Spam/Junk folder — please check there if you don't see it in your inbox."
+      />
       <div className='container rounded-lg mx-auto flex flex-col'>
-        <HeroSection />
+        <HeroSection topMarginClass="mt-8" />
         <Mission />
         <Reviews /> 
         <div style={{ position: 'fixed', bottom: 0, right: 0, margin: '10px' }}>

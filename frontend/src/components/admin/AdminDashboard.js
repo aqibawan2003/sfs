@@ -4,6 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ImageUploadField from '../common/ImageUploadField';
 import {
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+} from 'recharts';
+import {
   FaUsers, FaHome, FaUtensils, FaBuilding, FaList, FaChartBar,
   FaSignOutAlt, FaBan, FaTrash, FaCheck, FaTimes,
   FaUnlock, FaUserPlus, FaUserShield,
@@ -178,6 +181,18 @@ const EmptyRow = ({ cols, message }) => (
     <p className="text-sm" style={body}>{message}</p>
   </td></tr>
 );
+
+// Single-hue bar chart tooltip; matches the card surface instead of recharts' default.
+const OverviewTooltip = ({ active, payload }) => {
+  if (!active || !payload || !payload.length) return null;
+  const { name, value } = payload[0].payload;
+  return (
+    <div className="rounded-lg px-3.5 py-2.5" style={{ background: ink.surface, border: `1px solid ${ink.line}`, boxShadow: '0 8px 24px rgba(26,26,26,0.12)' }}>
+      <p style={{ ...body, color: ink.sub }} className="text-[11px] font-semibold uppercase tracking-[0.06em] mb-0.5">{name}</p>
+      <p style={{ ...sans, color: ink.text }} className="text-[16px] font-bold leading-none">{value.toLocaleString()}</p>
+    </div>
+  );
+};
 
 const Modal = ({ onClose, title, icon, children }) => (
   <div className="fixed inset-0 flex items-center justify-center z-50 px-4" style={{ background: 'rgba(26,26,26,0.45)', backdropFilter: 'blur(2px)' }}>
@@ -408,6 +423,15 @@ const AdminDashboard = () => {
   ];
 
   const newMessageCount = messages.filter(m=>m.status==='new').length;
+  const overviewChartData = [
+    { name: 'Students',       value: stats.totalStudents||0 },
+    { name: 'Hostel Owners',  value: stats.totalHostelOwners||0 },
+    { name: 'Kitchen Owners', value: stats.totalKitchenOwners||0 },
+    { name: 'Hostels',        value: stats.totalHostels||0 },
+    { name: 'Kitchens',       value: stats.totalKitchens||0 },
+    { name: 'Bookings',       value: stats.totalBookings||0 },
+    { name: 'Orders',         value: stats.totalOrders||0 },
+  ];
 
   const UserActions = ({ item, type }) => (
     <div className="flex gap-4 flex-wrap items-center">
@@ -566,6 +590,21 @@ const AdminDashboard = () => {
                     <h3 className="text-[11px] font-semibold uppercase tracking-[0.06em]" style={{ color: ink.faint }}>{s.label}</h3>
                   </div>
                 ))}
+              </div>
+
+              <div className="rounded-xl overflow-hidden mb-6" style={{ border: `1px solid ${ink.line}`, background: ink.surface, boxShadow: '0 1px 3px rgba(26,26,26,0.05)' }}>
+                <PanelHeader title="Platform totals" />
+                <div className="px-2 md:px-4 pt-4 pb-2">
+                  <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={overviewChartData} margin={{ top: 8, right: 16, left: 0, bottom: 0 }}>
+                      <CartesianGrid vertical={false} stroke={ink.line} strokeDasharray="0" />
+                      <XAxis dataKey="name" tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={{ stroke: ink.line }} tickLine={false} interval={0} angle={-20} textAnchor="end" height={50} />
+                      <YAxis allowDecimals={false} tick={{ fill: ink.sub, fontSize: 11.5 }} axisLine={false} tickLine={false} width={40} />
+                      <Tooltip cursor={{ fill: ink.brandDim }} content={<OverviewTooltip />} />
+                      <Bar dataKey="value" fill={ink.brand} radius={[4, 4, 0, 0]} maxBarSize={40} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
               </div>
 
               {((stats.pendingHostelOwners||0) + (stats.pendingKitchenOwners||0) + newMessageCount) > 0 ? (

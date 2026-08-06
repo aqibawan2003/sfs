@@ -1,5 +1,6 @@
 import './index.css';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import Home from './screens/Home';
 import Kitchens from './components/homemadeFood/Kitchens';
 import RegistrationForm from './components/Register';
@@ -33,11 +34,22 @@ import AdminLogin from './components/admin/AdminLogin';
 import AdminDashboard from './components/admin/AdminDashboard';
 import NotFound from './screens/NotFound';
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+}
+
 function App() {
   return (
     <div className="">
    
      <Router>
+      <ScrollToTop />
       <Routes>
         <Route path="/" exact element={<Home/>} />
         <Route path="/otp" element={<OtpScreen/>} />

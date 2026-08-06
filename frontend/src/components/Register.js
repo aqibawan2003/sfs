@@ -610,14 +610,23 @@ const RegistrationForm = () => {
               >
                 Phone Number
               </label>
-              <input
-                id="phone_number"
-                name="phone_number"
-                type="text"
-                onChange={formik.handleChange}
-                value={formik.values.phone_number}
-                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
-              />
+              <div className="mt-1 flex rounded-md shadow-sm">
+                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-700 text-gray-200">+92</span>
+                <input
+                  id="phone_number"
+                  name="phone_number_local"
+                  type="tel"
+                  inputMode="numeric"
+                  maxLength={10}
+                  onChange={(e) => {
+                    const digits = (e.target.value || '').replace(/\D/g, '').slice(0, 10);
+                    formik.setFieldValue('phone_number', digits ? `+92${digits}` : '');
+                  }}
+                  onBlur={() => formik.setFieldTouched('phone_number', true)}
+                  value={(formik.values.phone_number || '').replace(/^\+92/, '')}
+                  className="p-2 block w-full border border-gray-300 rounded-r-md focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
+                />
+              </div>
               {formik.touched.phone_number && formik.errors.phone_number ? (
                 <div className="text-red-600 text-sm">
                   {formik.errors.phone_number}
@@ -1082,8 +1091,14 @@ const RegistrationForm = () => {
               <input
                 id="cnic"
                 name="cnic"
-                type="text"
-                onChange={formik.handleChange}
+                type="tel"
+                inputMode="numeric"
+                maxLength={13}
+                onChange={(e) => {
+                  const digits = (e.target.value || '').replace(/\D/g, '').slice(0, 13);
+                  formik.setFieldValue('cnic', digits);
+                }}
+                onBlur={() => formik.setFieldTouched('cnic', true)}
                 value={formik.values.cnic}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
                 placeholder="13-digit CNIC without dashes"

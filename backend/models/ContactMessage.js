@@ -2,6 +2,11 @@ const mongoose = require('mongoose');
 
 const contactMessageSchema = new mongoose.Schema(
   {
+    userId: { type: mongoose.Schema.Types.ObjectId, required: true },
+    userRole: { type: String, required: true, trim: true },
+    userName: { type: String, trim: true },
+    userEmail: { type: String, trim: true, lowercase: true },
+    userPhone: { type: String, trim: true },
     name: { type: String, required: true, trim: true },
     phone: { type: String, required: true, trim: true },
     email: { type: String, required: true, trim: true, lowercase: true },

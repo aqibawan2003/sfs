@@ -17,6 +17,8 @@ exports.getUserModel = (role) => {
         return HostelOwner;
     } else if (normalizedRole === 'kitchenowner') {
         return KitchenOwner;
+    } else if (normalizedRole === 'admin' || normalizedRole === 'super_admin') {
+        return Admin;
     } else {
         console.error('Invalid role:', role);
         return null;

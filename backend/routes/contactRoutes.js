@@ -6,11 +6,12 @@ const {
   updateContactMessageStatus,
   deleteContactMessage,
 } = require('../controllers/contactController');
+const verifyJWT = require('../middlewares/AuthToken');
 const { adminAuth } = require('../middlewares/adminAuth');
 const { validateContactMessage } = require('../validators/requestValidators');
 
-// Public — anyone can submit the contact form
-router.post('/submit', validateContactMessage, submitContactMessage);
+// Authenticated users only — only registered users may submit complaints
+router.post('/submit', verifyJWT, validateContactMessage, submitContactMessage);
 
 // Admin only — view, update, delete contact messages
 router.get('/all', adminAuth, getAllContactMessages);

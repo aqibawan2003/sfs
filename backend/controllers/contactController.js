@@ -1,10 +1,29 @@
 const ContactMessage = require('../models/ContactMessage');
+const { getUserModel } = require('../utils/Utils');
 const sendEmail = require('../utils/emailService');
 
 // Submit a contact form message — saves to DB and emails the site owner
 exports.submitContactMessage = async (req, res) => {
   try {
-    const { name, phone, email, subject, message } = req.body;
+    const { subject, message } = req.body;
+    const { id: userId, role: userRole } = req.user || {};
+
+    let name = req.body.name;
+    let phone = req.body.phone;
+    let email = req.body.email;
+
+    if (userId && userRole) {
+      const UserModel = getUserModel(userRole);
+      if (UserModel) {
+        const user = await UserModel.findById(userId).lean();
+        if (user) {
+          const fullName = `${user.first_name || user.firstName || ''} ${user.last_name || user.lastName || ''}`.trim();
+          name = fullName || name;
+          phone = user.phone_number || user.phone || phone;
+          email = user.email || email;
+        }
+      }
+    }
 
     if (!name || !phone || !email || !message) {
       return res.status(400).json({ message: 'All fields are required.' });
@@ -17,6 +36,11 @@ exports.submitContactMessage = async (req, res) => {
       email,
       subject: subject || 'General Inquiry',
       message,
+      userId,
+      userRole,
+      userName: name,
+      userEmail: email,
+      userPhone: phone,
     });
 
     // Try to email the site owner — failure here should not fail the request,

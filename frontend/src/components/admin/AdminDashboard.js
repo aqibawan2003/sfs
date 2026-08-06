@@ -872,6 +872,12 @@ const AdminDashboard = () => {
                           </div>
                           <div>
                             <p className="font-semibold text-[14px]" style={{ color: ink.text }}>{m.name}</p>
+                            {m.userRole && (
+                              <p className="text-[11px] mb-1" style={{ color: ink.faint }}>
+                                Registered {m.userRole.replace(/([A-Z])/g, ' $1').trim()}
+                                {m.userId ? ` • ${m.userId}` : ''}
+                              </p>
+                            )}
                             <p style={{ ...body, color: ink.faint }} className="text-[11px]">{new Date(m.createdAt).toLocaleString('en-PK',{ timeZone:'Asia/Karachi', dateStyle:'medium', timeStyle:'short' })}</p>
                           </div>
                         </div>

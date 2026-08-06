@@ -54,9 +54,7 @@ const validateForgotPassword = [
 ];
 
 const validateContactMessage = [
-  body('name').trim().notEmpty().withMessage('Name is required'),
-  body('phone').trim().notEmpty().withMessage('Phone number is required'),
-  body('email').trim().isEmail().withMessage('A valid email address is required'),
+  body('subject').optional().trim(),
   body('message').trim().notEmpty().withMessage('Message is required'),
   handleValidationErrors,
 ];

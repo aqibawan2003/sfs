@@ -1106,6 +1106,11 @@ const RegistrationForm = () => {
               <p className="mt-1 text-sm text-gray-500">
                 Enter your 13-digit CNIC number without any dashes or spaces.
               </p>
+              <div aria-live="polite" className="mt-1">
+                <span className={`text-sm ${formik.values.cnic && formik.values.cnic.length === 13 ? 'text-green-400' : 'text-gray-400'}`}>
+                  {formik.values.cnic ? `${formik.values.cnic.length}/13` : '0/13'}
+                </span>
+              </div>
               {formik.touched.cnic && formik.errors.cnic ? (
                 <div className="text-red-600 text-sm">
                   {formik.errors.cnic}

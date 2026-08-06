@@ -17,20 +17,51 @@ import LocationPicker from './common/LocationPicker';
 import InstituteAutocomplete from './common/InstituteAutocomplete';
 
 // Validation schemas
+// Explicit allowed addresses and allowed domains for registration
+const EXPLICIT_ALLOWED_EMAILS = [
+  'user@gmail.com',
+  'john.doe@yahoo.com',
+  'alice@outlook.com',
+  'bob@hotmail.com',
+  'professor@harvard.edu',
+  'student@mit.edu',
+  'admin@ucla.edu',
+  'support@microsoft.com',
+  'info@amazon.com',
+  'contact@bbc.co.uk',
+];
+
+const ALLOWED_DOMAINS = [
+  'gmail.com','googlemail.com','yahoo.com','yahoo.co.uk','yahoo.fr','yahoo.de','outlook.com','hotmail.com','live.com','msn.com','aol.com','mail.com','protonmail.com','protonmail.ch','icloud.com','me.com','mac.com','zoho.com','yandex.com','yandex.ru','gmx.com','gmx.net','web.de','t-online.de','comcast.net','sbcglobal.net','att.net','verizon.net','cox.net','charter.net','bellsouth.net','earthlink.net','juno.com','netzero.com','optimum.net','frontier.com','spectrum.net'
+];
+
+const isAllowedEmail = (email) => {
+  if (!email || typeof email !== 'string') return false;
+  const normalized = email.trim().toLowerCase();
+  if (EXPLICIT_ALLOWED_EMAILS.includes(normalized)) return true;
+  const parts = normalized.split('@');
+  if (parts.length !== 2) return false;
+  const domain = parts[1];
+  return ALLOWED_DOMAINS.includes(domain);
+};
+
 const validationSchemas = {
   student: Yup.object({
     first_name: Yup.string().required("First name is required"),
     last_name: Yup.string().required("Last name is required"),
     email: Yup.string()
       .email("Invalid email address")
-      .required("Email is required"),
+      .required("Email is required")
+      .test('allowed-email', 'Email is not allowed for registration', (value) => isAllowedEmail(value)),
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
-    phone_number: Yup.string().required("Phone number is required"),
+    phone_number: Yup.string()
+      .matches(/^\+92[0-9]{10}$/, 'Phone number must start with +92 followed by 10 digits')
+      .required("Phone number is required"),
     address: Yup.string().required("Address is required"),
     gender: Yup.string().required("Gender is required"),
     profile_picture: Yup.string()
@@ -45,14 +76,17 @@ const validationSchemas = {
     last_name: Yup.string().required("Last name is required"),
     email: Yup.string()
       .email("Invalid email address")
-      .required("Email is required"),
+      .required("Email is required")
+      .test('allowed-email', 'Email is not allowed for registration', (value) => isAllowedEmail(value)),
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
-    phone_number: Yup.string().required("Phone number is required"),
+    phone_number: Yup.string()
+      .matches(/^\+92[0-9]{10}$/, 'Phone number must start with +92 followed by 10 digits')
+      .required("Phone number is required"),
     address: Yup.string().required("Address is required"),
     hostel_name: Yup.string().required("Hostel name is required"),
     hostel_type: Yup.string().required("Hostel type is required"),
@@ -81,14 +115,17 @@ const validationSchemas = {
     last_name: Yup.string().required("Last name is required"),
     email: Yup.string()
       .email("Invalid email address")
-      .required("Email is required"),
+      .required("Email is required")
+      .test('allowed-email', 'Email is not allowed for registration', (value) => isAllowedEmail(value)),
     password: Yup.string()
       .required("Password is required")
       .min(6, "Password must be at least 6 characters"),
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
-    phone_number: Yup.string().required("Phone number is required"),
+    phone_number: Yup.string()
+      .matches(/^\+92[0-9]{10}$/, 'Phone number must start with +92 followed by 10 digits')
+      .required("Phone number is required"),
     address: Yup.string().required("Address is required"),
     kitchen_name: Yup.string().required("Kitchen name is required"),
     kitchen_address: Yup.string().required("Kitchen address is required"),
@@ -110,7 +147,7 @@ const RegistrationForm = () => {
   const [role, setRole] = useState("student");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [error, setError] = useState("");
+  const [, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const toggleShowPassword = () => setShowPassword(!showPassword);

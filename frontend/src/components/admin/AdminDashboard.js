@@ -1025,7 +1025,7 @@ const AdminDashboard = () => {
             </div>
             <div className="flex flex-col gap-2">
               <p style={{ ...sans, color: '#FFFFFF' }} className="font-semibold text-[12.5px] uppercase tracking-wide">Developer</p>
-              <p style={{ ...body, color: '#9CA3A0' }} className="text-[12.5px]">Aqib Awan (Aqib Ejaz)</p>
+              <a href="https://aqibawan2003.netlify.app/" target="_blank" rel="noopener noreferrer" style={{ ...body, color: '#9CA3A0' }} className="text-[12.5px] transition hover:opacity-70">Aqib Awan (Aqib Ejaz)</a>
               <a href="tel:+923104693600" style={{ ...body, color: '#9CA3A0' }} className="text-[12.5px] transition hover:opacity-70">+92-310-4693600</a>
             </div>
           </div>

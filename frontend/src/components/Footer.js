@@ -27,7 +27,17 @@ const Footer = () => {
             <p className="flex items-center gap-2"><FaMapMarkerAlt /> Shalimar College, Lahore, Pakistan</p>
             <p className="flex items-center gap-2"><FaEnvelope /><a href="mailto:aqibawan0102@gmail.com" className="hover:text-white transition">aqibawan0102@gmail.com</a></p>
             <p className="flex items-center gap-2"><FaPhone /><a href="tel:+923104693600" className="hover:text-white transition">+92-310-4693600</a></p>
-            <p className="mt-2 font-medium text-white flex items-center gap-2"><FaUser /> Aqib Awan (Aqib Ejaz)</p>
+            <p className="mt-2 font-medium text-white flex items-center gap-2">
+              <FaUser />
+              <a
+                href="https://aqibawan2003.netlify.app/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gray-300 transition"
+              >
+                Aqib Awan (Aqib Ejaz)
+              </a>
+            </p>
           </div>
         </div>
       </div>

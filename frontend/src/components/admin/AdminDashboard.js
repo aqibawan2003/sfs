@@ -280,6 +280,7 @@ const AdminDashboard = () => {
   const [kitchens,     setKitchens]     = useState([]);
   const [miniAdmins,   setMiniAdmins]   = useState([]);
   const [messages,     setMessages]     = useState([]);
+  const [subjectFilter, setSubjectFilter] = useState('');
   const [loading,      setLoading]      = useState(false);
   const [sidebarOpen,  setSidebarOpen]  = useState(false);
   const [confirmBox,   setConfirmBox]   = useState(null);
@@ -321,7 +322,7 @@ const AdminDashboard = () => {
   useEffect(() => { if (token) { fetchStats(); fetchGrowth(); fetchMessages(); if (isSuperAdmin) fetchMiniAdmins(); } }, [token]);
   useEffect(() => {
     if (!token) return;
-    setSearch('');
+    setSubjectFilter('');
     if (activeTab === 'students')      fetchStudents();
     else if (activeTab === 'hostelOwners')  fetchHostelOwners();
     else if (activeTab === 'kitchenOwners') fetchKitchenOwners();
@@ -863,7 +864,23 @@ const AdminDashboard = () => {
 
           {activeTab === 'messages' && (
             <div>
-              <p style={{ ...body, color: ink.faint }} className="text-[12.5px] mb-5">Contact Us submissions</p>
+              <div className="flex items-center justify-between mb-5">
+                <p style={{ ...body, color: ink.faint }} className="text-[12.5px]">Contact Us submissions</p>
+                <div className="flex items-center gap-3">
+                  <label className="text-sm font-medium" style={{ color: ink.text }}>Filter by Subject:</label>
+                  <select
+                    value={subjectFilter}
+                    onChange={(e) => setSubjectFilter(e.target.value)}
+                    style={{ ...inputStyle }}
+                    className="px-3 py-2 rounded-lg text-sm"
+                  >
+                    <option value="">All Subjects</option>
+                    {[...new Set(messages.map(m => m.subject || 'General Inquiry'))].sort().map(subject => (
+                      <option key={subject} value={subject}>{subject}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
 
               {loading ? (
                 <div className="space-y-2">{Array(4).fill(0).map((_,i)=><div key={i} className="h-24 rounded-xl animate-pulse" style={{ background: ink.surface, border: `1px solid ${ink.line}` }}/>)}</div>
@@ -873,7 +890,7 @@ const AdminDashboard = () => {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {messages.map(m => {
+                  {messages.filter(m => subjectFilter === '' || (m.subject || 'General Inquiry') === subjectFilter).map(m => {
                     const digitsOnly = (m.phone || '').replace(/\D/g, '');
                     const whatsappNumber = digitsOnly.startsWith('92') ? digitsOnly : digitsOnly.startsWith('0') ? '92' + digitsOnly.slice(1) : digitsOnly;
                     const whatsappText = encodeURIComponent(`Hi ${m.name}, this is the SFS support team replying to your message about "${m.subject || 'your inquiry'}".`);

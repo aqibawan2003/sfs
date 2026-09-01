@@ -167,7 +167,7 @@ const HostelList = () => {
 
   const facilityLabel =
     filters.facilities.length === 0
-      ? 'All Facilities'
+      ? 'No Facilities selected'
       : filters.facilities.length === ALL_FACILITIES.length
       ? 'All Selected'
       : `${filters.facilities.length} Selected`;

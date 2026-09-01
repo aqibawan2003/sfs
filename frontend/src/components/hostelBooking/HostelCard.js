@@ -3,19 +3,19 @@ import { Link } from 'react-router-dom';
 
 const HostelCard = ({ hostel }) => {
   return (
-    <div className="max-w-sm rounded overflow-hidden shadow-lg mx-auto bg-[#25292e] border-2 border-[#4a5568] h-full flex flex-col">
+    <div className="rounded overflow-hidden shadow-lg bg-[#25292e] border-2 border-[#4a5568] h-full flex flex-col">
       <img className="w-full h-48 object-cover" src={hostel.hostel_picture} alt={hostel.hostel_name} />
-      <div className="px-6 py-4 text-white flex-grow">
-        <p className="text-xl mb-2 line-clamp-2">{hostel.hostel_name}</p>
-        <p className="text-base line-clamp-1">Address: {hostel.hostel_address}</p>
-        <p className="text-base line-clamp-2">Facilities: {(hostel.facilities || []).join(', ')}</p>
+      <div className="px-6 py-4 text-white flex-grow overflow-hidden">
+        <p className="text-xl mb-2 line-clamp-2 font-semibold">{hostel.hostel_name}</p>
+        <p className="text-sm line-clamp-1 text-gray-300">Address: {hostel.hostel_address}</p>
+        <p className="text-sm line-clamp-2 text-gray-400 mt-1">Facilities: {(hostel.facilities || []).join(', ')}</p>
         {hostel.calculated_distance != null && (
-          <p className="text-base text-[#a5b68d] font-semibold mt-1">
+          <p className="text-sm text-[#a5b68d] font-semibold mt-2">
             {hostel.calculated_distance} km away
           </p>
         )}
       </div>
-      <div className="px-6 py-4 mt-auto">
+      <div className="px-6 py-4">
         <Link
           to={`/hostels/${hostel._id}`}
           state={{ hostel }} // Passing hostel data as state

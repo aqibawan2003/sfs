@@ -10,6 +10,7 @@ import InstituteAutocomplete from '../common/InstituteAutocomplete';
 import SEO from '../common/SEO';
 
 const ALL_FACILITIES = [
+  'No Facility',
   'Wi-Fi',
   'AC',
   'CCTV',

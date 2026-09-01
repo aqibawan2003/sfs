@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { processPayment } from '../../store/paymentSlice';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import Modal from 'react-modal';
@@ -20,6 +20,17 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [stripeCardElement, setStripeCardElement] = useState(null);
   const dispatch = useDispatch();
+  const { user } = useSelector((state) => state.auth);
+
+  // Auto-populate user information when modal opens
+  useEffect(() => {
+    if (isOpen && user) {
+      setStudentName(user.name || '');
+      setStudentEmail(user.email || '');
+      setPhoneNumber(user.phone_number || '');
+      setIdCard(user.id_card_number || '');
+    }
+  }, [isOpen, user]);
 
   const stripe = useStripe();
   const elements = useElements();

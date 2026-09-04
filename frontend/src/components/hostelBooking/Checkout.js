@@ -180,8 +180,8 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
             <input
               type="text"
               value={studentName}
-              onChange={(e) => setStudentName(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+              readOnly
               required
             />
           </div>
@@ -190,8 +190,8 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
             <input
               type="email"
               value={studentEmail}
-              onChange={(e) => setStudentEmail(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+              readOnly
               required
             />
           </div>
@@ -200,8 +200,8 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
             <input
               type="tel"
               value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+              readOnly
               required
             />
           </div>
@@ -210,8 +210,8 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
             <input
               type="text"
               value={idCard}
-              onChange={(e) => validateIdCard(e.target.value)}
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight"
+              readOnly
               required
             />
             {idCardError && <p className="text-red-500 text-xs italic">{idCardError}</p>}

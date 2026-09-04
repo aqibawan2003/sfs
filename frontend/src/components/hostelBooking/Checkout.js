@@ -25,10 +25,11 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
   // Auto-populate user information when modal opens
   useEffect(() => {
     if (isOpen && user) {
-      setStudentName(user.name || '');
+      const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
+      setStudentName(fullName || user.name || '');
       setStudentEmail(user.email || '');
       setPhoneNumber(user.phone_number || '');
-      setIdCard(user.id_card_number || '');
+      setIdCard(user.cnic || user.id_card_number || '');
     }
   }, [isOpen, user]);
 

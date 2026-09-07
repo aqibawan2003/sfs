@@ -69,3 +69,14 @@ root.render(
    </HelmetProvider>
   </Provider>
 );
+
+// Cache the compiled application shell for repeat visits on weak or offline
+// connections. Dynamic API requests are deliberately not cached because bed
+// availability, bookings, orders, and payments must always be current.
+if (process.env.NODE_ENV === 'production' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js').catch(error => {
+      console.error('Offline support could not be enabled:', error);
+    });
+  });
+}

@@ -18,7 +18,11 @@ export const bookRoom = createAsyncThunk('bookings/bookRoom', async ({ hostelId,
     });
     return { roomId, bed: response.data };
   } catch (error) {
-    return rejectWithValue(error.response.data);
+    return rejectWithValue(error.response?.data || {
+      message: error.request
+        ? 'Unable to reach the booking server. Please check your connection and try again.'
+        : (error.message || 'Booking failed. Please try again.')
+    });
   }
 });
 
@@ -105,7 +109,11 @@ export const fetchBookedRooms = createAsyncThunk(
       console.log('fetch Bookings:', response.data);
       return response.data.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      return rejectWithValue(error.response?.data || {
+        message: error.request
+          ? 'Unable to reach the booking server. Please check your connection and try again.'
+          : (error.message || 'Failed to fetch booked rooms')
+      });
     }
   }
 );

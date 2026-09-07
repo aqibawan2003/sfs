@@ -186,11 +186,12 @@ const bookingsSlice = createSlice({
       })
       .addCase(decideBooking.fulfilled, (state, action) => {
         const { bookingId, status } = action.payload;
-        if (status === 'Rejected') {
-          state.bookings = state.bookings.filter(b => b.bookingId?.toString() !== bookingId);
-        } else {
-          const booking = state.bookings.find(b => b.bookingId?.toString() === bookingId);
-          if (booking) booking.status = status;
+        const booking = state.bookings.find(b => b.bookingId?.toString() === bookingId);
+        if (booking) {
+          booking.status = status;
+          if (status === 'Rejected' && booking.paymentStatus === 'completed') {
+            booking.paymentStatus = 'refunded';
+          }
         }
       })
       .addCase(decideBooking.rejected, (state, action) => {

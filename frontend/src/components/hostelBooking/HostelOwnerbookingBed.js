@@ -11,6 +11,7 @@ const statusClass = {
   Approved: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
   Booked: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
   Completed: 'border-blue-400/30 bg-blue-400/10 text-blue-300',
+  Rejected: 'border-red-400/30 bg-red-400/10 text-red-300',
 };
 
 const Detail = ({ label, value, mono }) => (
@@ -126,7 +127,7 @@ const HostelOwnerBookingBed = () => {
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, CNIC, email or ID" className="h-11 w-full rounded-xl border border-slate-700 bg-slate-950 pl-11 pr-4 text-sm text-white outline-none placeholder:text-slate-600 focus:border-amber-400" />
               </label>
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={controlClass} aria-label="Filter by status">
-                <option value="All">All statuses</option><option value="Pending">Pending</option><option value="Approved">Approved</option>
+                <option value="All">All statuses</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option>
               </select>
               <select value={paymentFilter} onChange={e => setPaymentFilter(e.target.value)} className={controlClass} aria-label="Filter by payment">
                 <option value="All">All payments</option><option value="completed">Paid</option><option value="pending">Payment pending</option><option value="refunded">Refunded</option>

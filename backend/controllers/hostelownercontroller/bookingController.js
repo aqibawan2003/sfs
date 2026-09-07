@@ -294,7 +294,7 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
 
         const bookings = await Booking.find({
             hostel_id: hostelOwnerId,
-            status: { $nin: ['Cancelled', 'Rejected'] }
+            status: { $ne: 'Cancelled' }
         })
             .populate('student_id', 'first_name last_name cnic email phone_number')
             .lean();
@@ -303,50 +303,54 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
             return res.status(200).json({ success: true, data: [] });
         }
 
-        const flatBookings = [];
+        const roomById = new Map(rooms.map(room => [room._id.toString(), room]));
+        const allBeds = rooms.flatMap(room => room.beds.map(bed => ({ bed, room })));
+        const usedBedIds = new Set();
 
-        rooms.forEach(room => {
-            const roomBookings = bookings.filter(
-                booking => booking.room_id.toString() === room._id.toString()
-            );
-            const usedBookingIds = new Set();
+        // Build rows from booking history, not only from currently occupied
+        // beds. This keeps rejected/refunded records available to real UI
+        // filters and gives every booking exactly one row.
+        const flatBookings = bookings.map(booking => {
+            const room = roomById.get(booking.room_id.toString());
+            let match = booking.bed_id
+                ? allBeds.find(({ bed }) => bed._id.toString() === booking.bed_id.toString())
+                : null;
 
-            room.beds.forEach(bed => {
-                if (!bed.isBooked || !bed.bookedBy) return;
+            if (!match && booking.status === 'Rejected') {
+                match = allBeds.find(({ bed, room: bedRoom }) =>
+                    bedRoom._id.toString() === booking.room_id.toString()
+                    && bed.paymentStatus === 'refunded'
+                    && !usedBedIds.has(bed._id.toString()));
+            }
 
-                // New records match by the exact bed. For bookings created
-                // before bed_id existed, pair each booking to only one bed,
-                // choosing the closest booking timestamp.
-                let booking = roomBookings.find(b =>
-                    b.bed_id && b.bed_id.toString() === bed._id.toString()
-                );
-                if (!booking) {
-                    booking = roomBookings
-                        .filter(b => !b.bed_id
-                            && !usedBookingIds.has(b._id.toString())
-                            && b.student_id
-                            && b.student_id._id.toString() === bed.bookedBy.toString())
-                        .sort((a, b) => Math.abs(new Date(a.booking_date) - new Date(bed.bookingDate || 0))
-                            - Math.abs(new Date(b.booking_date) - new Date(bed.bookingDate || 0)))[0];
-                }
-                if (!booking) return;
-                usedBookingIds.add(booking._id.toString());
+            if (!match && booking.student_id) {
+                const candidates = allBeds.filter(({ bed, room: bedRoom }) =>
+                    bedRoom._id.toString() === booking.room_id.toString()
+                    && bed.bookedBy
+                    && bed.bookedBy.toString() === booking.student_id._id.toString()
+                    && !usedBedIds.has(bed._id.toString()));
+                candidates.sort((a, b) =>
+                    Math.abs(new Date(a.bed.bookingDate || 0) - new Date(booking.booking_date))
+                    - Math.abs(new Date(b.bed.bookingDate || 0) - new Date(booking.booking_date)));
+                match = candidates[0];
+            }
 
-                const student = booking.student_id;
-                flatBookings.push({
-                    bookingId: booking._id,
-                    roomId: room._id,
-                    roomNumber: room.name,
-                    bedNumber: bed.bed_number,
-                    bookingDate: booking.booking_date,
-                    status: booking.status,
-                    paymentStatus: bed.paymentStatus,
-                    studentName: student ? `${student.first_name} ${student.last_name}` : 'N/A',
-                    cnic: student ? student.cnic : 'N/A',
-                    email: student ? student.email : 'N/A',
-                    phoneNumber: student ? student.phone_number : 'N/A'
-                });
-            });
+            const bed = match?.bed;
+            if (bed) usedBedIds.add(bed._id.toString());
+            const student = booking.student_id;
+            return {
+                bookingId: booking._id,
+                roomId: room?._id || booking.room_id,
+                roomNumber: room?.name || 'N/A',
+                bedNumber: bed?.bed_number || 'N/A',
+                bookingDate: booking.booking_date,
+                status: booking.status,
+                paymentStatus: bed?.paymentStatus || (booking.status === 'Rejected' ? 'refunded' : 'unknown'),
+                studentName: student ? `${student.first_name} ${student.last_name}` : 'N/A',
+                cnic: student?.cnic || 'N/A',
+                email: student?.email || 'N/A',
+                phoneNumber: student?.phone_number || 'N/A'
+            };
         });
 
         res.status(200).json({ success: true, data: flatBookings });
@@ -424,7 +428,8 @@ const decideBooking = async (req, res, decision) => {
             bed.isBooked = false;
             bed.bookingStatus = null;
             bed.bookedBy = null;
-            bed.bookingDate = null;
+            // Keep bookingDate as audit metadata so legacy rejected bookings
+            // can still be paired with their exact bed in booking history.
             await bed.save();
         } else {
             bed.bookingStatus = 'Approved';

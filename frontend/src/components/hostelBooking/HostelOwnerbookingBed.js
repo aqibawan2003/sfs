@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FaBed, FaCheckCircle, FaSearch, FaSortAmountDown, FaUserClock, FaWallet } from 'react-icons/fa';
+import { FaBed, FaCheckCircle, FaSearch, FaSortAmountDown, FaTrashAlt, FaUserClock, FaWallet } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import HostelNavbar from './HostelOwnerNavbar';
 import { archiveBooking, completeBooking, decideBooking, fetchBookings } from '../../store/bookingsSlice';
@@ -54,6 +54,8 @@ const HostelOwnerBookingBed = () => {
   const [sortBy, setSortBy] = useState('date');
   const [direction, setDirection] = useState('desc');
   const [busyId, setBusyId] = useState(null);
+  const [selectedIds, setSelectedIds] = useState([]);
+  const [bulkRemoving, setBulkRemoving] = useState(false);
 
   useEffect(() => { dispatch(fetchBookings()); }, [dispatch]);
 
@@ -120,9 +122,44 @@ const HostelOwnerBookingBed = () => {
     try {
       const result = await dispatch(archiveBooking(bookingId)).unwrap();
       toast.success(result.message);
+      setSelectedIds(ids => ids.filter(id => id !== bookingId));
     } catch (err) {
       toast.error(err?.message || 'Could not remove this history record.');
     } finally { setBusyId(null); }
+  };
+
+  const removableBookings = filteredBookings.filter(booking =>
+    ['Completed', 'Rejected', 'Cancelled'].includes(booking.status)
+  );
+  const allVisibleSelected = removableBookings.length > 0
+    && removableBookings.every(booking => selectedIds.includes(booking.bookingId));
+
+  const toggleSelection = bookingId => {
+    setSelectedIds(ids => ids.includes(bookingId)
+      ? ids.filter(id => id !== bookingId)
+      : [...ids, bookingId]);
+  };
+
+  const toggleAllVisible = () => {
+    const visibleIds = removableBookings.map(booking => booking.bookingId);
+    setSelectedIds(ids => allVisibleSelected
+      ? ids.filter(id => !visibleIds.includes(id))
+      : [...new Set([...ids, ...visibleIds])]);
+  };
+
+  const handleBulkArchive = async () => {
+    if (selectedIds.length === 0) return;
+    if (!window.confirm(`Remove ${selectedIds.length} selected history record${selectedIds.length === 1 ? '' : 's'} from this view? Beds and audit records will not be affected.`)) return;
+    setBulkRemoving(true);
+    const results = await Promise.allSettled(
+      selectedIds.map(bookingId => dispatch(archiveBooking(bookingId)).unwrap())
+    );
+    const failedIds = selectedIds.filter((_, index) => results[index].status === 'rejected');
+    const removedCount = selectedIds.length - failedIds.length;
+    setSelectedIds(failedIds);
+    setBulkRemoving(false);
+    if (removedCount) toast.success(`${removedCount} history record${removedCount === 1 ? '' : 's'} removed from view.`);
+    if (failedIds.length) toast.error(`${failedIds.length} record${failedIds.length === 1 ? '' : 's'} could not be removed.`);
   };
 
   const clearFilters = () => { setSearch(''); setStatusFilter('All'); setPaymentFilter('All'); };
@@ -179,6 +216,30 @@ const HostelOwnerBookingBed = () => {
             </div>
           </section>
 
+          {!loading && removableBookings.length > 0 && (
+            <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+              <label className="flex cursor-pointer items-center gap-3 text-sm text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={allVisibleSelected}
+                  onChange={toggleAllVisible}
+                  className="h-4 w-4 cursor-pointer accent-amber-400"
+                />
+                Select all visible history ({removableBookings.length})
+              </label>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-slate-500">{selectedIds.length} selected</span>
+                <button
+                  disabled={selectedIds.length === 0 || bulkRemoving}
+                  onClick={handleBulkArchive}
+                  className="flex items-center gap-2 rounded-lg border border-red-500/40 bg-red-500/5 px-4 py-2 text-sm font-semibold text-red-300 transition hover:bg-red-500 hover:text-white disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <FaTrashAlt /> {bulkRemoving ? 'Removing...' : 'Remove selected'}
+                </button>
+              </div>
+            </div>
+          )}
+
           {loading ? (
             <div className="grid gap-4">{[1, 2, 3].map(i => <div key={i} className="h-52 animate-pulse rounded-2xl border border-slate-800 bg-slate-900/70" />)}</div>
           ) : error && bookings.length === 0 ? (
@@ -194,10 +255,21 @@ const HostelOwnerBookingBed = () => {
               {filteredBookings.map(booking => {
                 const pending = booking.status === 'Pending';
                 const busy = busyId === booking.bookingId;
+                const removable = ['Completed', 'Rejected', 'Cancelled'].includes(booking.status);
+                const selected = selectedIds.includes(booking.bookingId);
                 return (
-                  <article key={`${booking.bookingId}-${booking.bedNumber}`} className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 shadow-xl shadow-black/10 transition hover:border-slate-700">
+                  <article key={`${booking.bookingId}-${booking.bedNumber}`} className={`overflow-hidden rounded-2xl border bg-slate-900/80 shadow-xl shadow-black/10 transition ${selected ? 'border-amber-400/60 ring-1 ring-amber-400/20' : 'border-slate-800 hover:border-slate-700'}`}>
                     <div className="flex flex-col gap-4 border-b border-slate-800 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex min-w-0 items-center gap-3">
+                        {removable && (
+                          <input
+                            type="checkbox"
+                            checked={selected}
+                            onChange={() => toggleSelection(booking.bookingId)}
+                            className="h-4 w-4 shrink-0 cursor-pointer accent-amber-400"
+                            aria-label={`Select ${booking.studentName} booking history`}
+                          />
+                        )}
                         <StudentAvatar name={booking.studentName} src={booking.profilePicture} />
                         <div className="min-w-0"><h2 className="truncate text-lg font-bold text-white">{booking.studentName}</h2><p className="text-xs text-slate-500">Requested {booking.bookingDate ? new Date(booking.bookingDate).toLocaleString() : 'recently'}</p></div>
                       </div>

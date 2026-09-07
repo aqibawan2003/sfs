@@ -29,6 +29,20 @@ const Detail = ({ label, value, mono }) => (
   </div>
 );
 
+const StudentAvatar = ({ name, src }) => (
+  <div className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-amber-400 font-bold text-slate-950 ring-2 ring-slate-700">
+    <span>{(name || '?')[0].toUpperCase()}</span>
+    {src && (
+      <img
+        src={src}
+        alt={`${name || 'Student'} profile`}
+        className="absolute inset-0 h-full w-full object-cover"
+        onError={event => { event.currentTarget.style.display = 'none'; }}
+      />
+    )}
+  </div>
+);
+
 const HostelOwnerBookingBed = () => {
   const dispatch = useDispatch();
   const { bookings = [], loading, error } = useSelector(state => state.bookings);
@@ -171,7 +185,7 @@ const HostelOwnerBookingBed = () => {
                   <article key={`${booking.bookingId}-${booking.bedNumber}`} className="overflow-hidden rounded-2xl border border-slate-800 bg-slate-900/80 shadow-xl shadow-black/10 transition hover:border-slate-700">
                     <div className="flex flex-col gap-4 border-b border-slate-800 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex min-w-0 items-center gap-3">
-                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-amber-400 font-bold text-slate-950">{(booking.studentName || '?')[0].toUpperCase()}</div>
+                        <StudentAvatar name={booking.studentName} src={booking.profilePicture} />
                         <div className="min-w-0"><h2 className="truncate text-lg font-bold text-white">{booking.studentName}</h2><p className="text-xs text-slate-500">Requested {booking.bookingDate ? new Date(booking.bookingDate).toLocaleString() : 'recently'}</p></div>
                       </div>
                       <div className="flex flex-wrap gap-2">

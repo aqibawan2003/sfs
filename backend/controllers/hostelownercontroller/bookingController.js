@@ -305,7 +305,7 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
             hostel_id: hostelOwnerId,
             status: { $ne: 'Cancelled' }
         })
-            .populate('student_id', 'first_name last_name cnic email phone_number')
+            .populate('student_id', 'first_name last_name cnic email phone_number profile_picture')
             .lean();
 
         if (rooms.length === 0) {
@@ -358,7 +358,8 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
                 studentName: student ? `${student.first_name} ${student.last_name}` : 'N/A',
                 cnic: student?.cnic || 'N/A',
                 email: student?.email || 'N/A',
-                phoneNumber: student?.phone_number || 'N/A'
+                phoneNumber: student?.phone_number || 'N/A',
+                profilePicture: student?.profile_picture || ''
             };
         });
 

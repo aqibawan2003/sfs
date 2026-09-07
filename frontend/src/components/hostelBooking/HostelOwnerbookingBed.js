@@ -45,6 +45,19 @@ const StudentAvatar = ({ name, src }) => (
   </div>
 );
 
+const SelectionCircle = ({ checked, onChange, label }) => (
+  <button
+    type="button"
+    role="checkbox"
+    aria-checked={checked}
+    aria-label={label}
+    onClick={onChange}
+    className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition ${checked ? 'border-[#c8aa5a] bg-[#29271f]' : 'border-slate-600 bg-[#111827] hover:border-slate-400'}`}
+  >
+    <span className={`h-2.5 w-2.5 rounded-full transition ${checked ? 'bg-[#c8aa5a]' : 'bg-transparent'}`} />
+  </button>
+);
+
 const HostelOwnerBookingBed = () => {
   const dispatch = useDispatch();
   const { bookings = [], loading, error } = useSelector(state => state.bookings);
@@ -218,15 +231,10 @@ const HostelOwnerBookingBed = () => {
 
           {!loading && removableBookings.length > 0 && (
             <div className="mb-4 flex flex-col gap-3 rounded-xl border border-slate-800 bg-slate-900/50 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-              <label className="flex cursor-pointer items-center gap-3 text-sm text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={allVisibleSelected}
-                  onChange={toggleAllVisible}
-                  className="h-4 w-4 cursor-pointer accent-amber-400"
-                />
-                Select all visible history ({removableBookings.length})
-              </label>
+              <div className="flex items-center gap-3 text-sm text-slate-300">
+                <SelectionCircle checked={allVisibleSelected} onChange={toggleAllVisible} label="Select all visible history" />
+                <button type="button" onClick={toggleAllVisible} className="text-left hover:text-white">Select all visible history ({removableBookings.length})</button>
+              </div>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-slate-500">{selectedIds.length} selected</span>
                 <button
@@ -262,12 +270,10 @@ const HostelOwnerBookingBed = () => {
                     <div className="flex flex-col gap-4 border-b border-slate-800 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                       <div className="flex min-w-0 items-center gap-3">
                         {removable && (
-                          <input
-                            type="checkbox"
+                          <SelectionCircle
                             checked={selected}
                             onChange={() => toggleSelection(booking.bookingId)}
-                            className="h-4 w-4 shrink-0 cursor-pointer accent-amber-400"
-                            aria-label={`Select ${booking.studentName} booking history`}
+                            label={`Select ${booking.studentName} booking history`}
                           />
                         )}
                         <StudentAvatar name={booking.studentName} src={booking.profilePicture} />

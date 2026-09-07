@@ -7,11 +7,19 @@ import { decideBooking, fetchBookings, removeBookingFromHistory } from '../../st
 import ErrorState from '../common/ErrorState';
 
 const statusClass = {
-  Pending: 'border-amber-400/30 bg-amber-400/10 text-amber-300',
-  Approved: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
-  Booked: 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300',
-  Completed: 'border-blue-400/30 bg-blue-400/10 text-blue-300',
-  Rejected: 'border-red-400/30 bg-red-400/10 text-red-300',
+  Pending: 'border-[#5a5548] bg-[#292820] text-[#d4c99d]',
+  Approved: 'border-[#43534a] bg-[#222c27] text-[#adc0b5]',
+  Booked: 'border-[#43534a] bg-[#222c27] text-[#adc0b5]',
+  Completed: 'border-[#46515d] bg-[#252c34] text-[#b5c0cb]',
+  Rejected: 'border-[#60494b] bg-[#302426] text-[#d1aaad]',
+};
+
+const statusLabel = {
+  Pending: 'Awaiting review',
+  Approved: 'Approved',
+  Booked: 'Confirmed',
+  Completed: 'Completed',
+  Rejected: 'Rejected',
 };
 
 const Detail = ({ label, value, mono }) => (
@@ -164,8 +172,10 @@ const HostelOwnerBookingBed = () => {
                         <div className="min-w-0"><h2 className="truncate text-lg font-bold text-white">{booking.studentName}</h2><p className="text-xs text-slate-500">Requested {booking.bookingDate ? new Date(booking.bookingDate).toLocaleString() : 'recently'}</p></div>
                       </div>
                       <div className="flex flex-wrap gap-2">
-                        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${statusClass[booking.status] || 'border-slate-600 text-slate-300'}`}>{booking.status || 'Unknown'}</span>
-                        <span className={`rounded-full border px-3 py-1 text-xs font-semibold ${booking.paymentStatus === 'completed' ? 'border-emerald-400/30 bg-emerald-400/10 text-emerald-300' : 'border-slate-600 text-slate-300'}`}>Payment: {booking.paymentStatus || 'unknown'}</span>
+                        <span className={`rounded-full border px-3 py-1 text-xs font-medium ${statusClass[booking.status] || 'border-slate-600 bg-slate-800 text-slate-300'}`}>{statusLabel[booking.status] || 'Unknown'}</span>
+                        <span className={`rounded-full border px-3 py-1 text-xs font-medium ${booking.paymentStatus === 'completed' ? 'border-[#46515d] bg-[#252c34] text-[#b5c0cb]' : booking.paymentStatus === 'refunded' ? 'border-[#5b5364] bg-[#2b2730] text-[#c0b3c9]' : 'border-slate-600 bg-slate-800 text-slate-300'}`}>
+                          {booking.paymentStatus === 'completed' ? 'Paid' : booking.paymentStatus === 'refunded' ? 'Refunded' : 'Payment pending'}
+                        </span>
                       </div>
                     </div>
                     <div className="grid gap-5 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6">

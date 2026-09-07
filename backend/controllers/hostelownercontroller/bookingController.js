@@ -83,6 +83,7 @@ exports.bookBed = async (req, res) => {
             const newBooking = new Booking({
                 student_id: customerId,
                 room_id: roomId,
+                bed_id: bedToBook._id,
                 hostel_id: hostelId,
                 booking_date: bedToBook.bookingDate,
                 status: 'Pending',
@@ -111,6 +112,7 @@ exports.bookBed = async (req, res) => {
         const newBooking = new Booking({
             student_id: customerId,
             room_id: roomId,
+            bed_id: bedToBook._id,
             hostel_id: hostelId,
             booking_date: bedToBook.bookingDate,
             status: 'Pending',
@@ -290,7 +292,10 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
 
         const rooms = await Room.find({ hostelId: hostelOwnerId }).populate('beds');
 
-        const bookings = await Booking.find({ hostel_id: hostelOwnerId, status: { $ne: 'Cancelled' } })
+        const bookings = await Booking.find({
+            hostel_id: hostelOwnerId,
+            status: { $nin: ['Cancelled', 'Rejected'] }
+        })
             .populate('student_id', 'first_name last_name cnic email phone_number')
             .lean();
 
@@ -304,14 +309,28 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
             const roomBookings = bookings.filter(
                 booking => booking.room_id.toString() === room._id.toString()
             );
+            const usedBookingIds = new Set();
 
             room.beds.forEach(bed => {
                 if (!bed.isBooked || !bed.bookedBy) return;
 
-                const booking = roomBookings.find(
-                    b => b.student_id && b.student_id._id.toString() === bed.bookedBy.toString()
+                // New records match by the exact bed. For bookings created
+                // before bed_id existed, pair each booking to only one bed,
+                // choosing the closest booking timestamp.
+                let booking = roomBookings.find(b =>
+                    b.bed_id && b.bed_id.toString() === bed._id.toString()
                 );
+                if (!booking) {
+                    booking = roomBookings
+                        .filter(b => !b.bed_id
+                            && !usedBookingIds.has(b._id.toString())
+                            && b.student_id
+                            && b.student_id._id.toString() === bed.bookedBy.toString())
+                        .sort((a, b) => Math.abs(new Date(a.booking_date) - new Date(bed.bookingDate || 0))
+                            - Math.abs(new Date(b.booking_date) - new Date(bed.bookingDate || 0)))[0];
+                }
                 if (!booking) return;
+                usedBookingIds.add(booking._id.toString());
 
                 const student = booking.student_id;
                 flatBookings.push({
@@ -334,6 +353,25 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};
+
+const findBedForBooking = async booking => {
+    if (booking.bed_id) {
+        return Bed.findOne({ _id: booking.bed_id, roomId: booking.room_id });
+    }
+
+    // Compatibility for records made before bookings stored bed_id. This is
+    // safe for the remaining reservation after another bed has been rejected,
+    // because rejected beds are no longer booked by the student.
+    const candidates = await Bed.find({
+        roomId: booking.room_id,
+        bookedBy: booking.student_id._id || booking.student_id,
+        isBooked: true,
+    });
+    return candidates.sort((a, b) =>
+        Math.abs(new Date(a.bookingDate || 0) - new Date(booking.booking_date))
+        - Math.abs(new Date(b.bookingDate || 0) - new Date(booking.booking_date))
+    )[0] || null;
 };
 
 // Shared UC-07 decision handler. It validates the actor, booking identifier,
@@ -363,7 +401,7 @@ const decideBooking = async (req, res, decision) => {
             });
         }
 
-        const bed = await Bed.findOne({ roomId: booking.room_id, bookedBy: booking.student_id._id });
+        const bed = await findBedForBooking(booking);
         if (!bed) {
             return res.status(409).json({ success: false, message: 'The bed assigned to this booking could not be found.' });
         }
@@ -450,7 +488,7 @@ exports.getBookingReceipt = async (req, res) => {
             return res.status(403).json({ success: false, message: 'Unauthorized to view this receipt' });
         }
 
-        const bed = await Bed.findOne({ roomId: booking.room_id._id, bookedBy: booking.student_id._id });
+        const bed = await findBedForBooking(booking);
 
         const pdfBuffer = await generateInvoicePdf({
             student: booking.student_id,
@@ -496,7 +534,7 @@ exports.unbookRoom = async (req, res) => {
         // Find the bed associated with the booking and update its booking status.
         // Match on the student who actually holds the bed, not on whoever is
         // making the request (the hostel owner's own ID would never match here).
-        const bedToUnbook = await Bed.findOne({ roomId: booking.room_id, bookedBy: booking.student_id });
+        const bedToUnbook = await findBedForBooking(booking);
 
         if (!bedToUnbook) {
             return res.status(404).json({ error: 'Bed not found in the room for unbooking' });

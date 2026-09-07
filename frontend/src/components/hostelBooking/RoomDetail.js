@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import Navbar from "../Navbar";
-import { bookRoom } from "../../store/bookingsSlice";
 import CheckoutModal from "./Checkout";
 import InvoiceModal from "./InvoiceModal";
 import Footer from "../Footer";
@@ -14,12 +12,10 @@ import API_BASE_URL from "../../utils/api";
 const RoomDetail = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { id: roomId } = useParams(); // Get roomId from URL
 
   const locationState = location.state || {};
   const initialRoom = locationState.room || null;
-  const hostelId = locationState.hostelId || null;
 
   const [selectedBed, setSelectedBed] = useState(null);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
@@ -27,6 +23,12 @@ const RoomDetail = () => {
   const [roomData, setRoomData] = useState(initialRoom);
   const [loading, setLoading] = useState(!initialRoom && !!roomId); // Load only if no location state but roomId exists
   const [error, setError] = useState(null);
+  // Router state disappears after a refresh/direct URL visit. The room API
+  // always returns hostelId, so use it as the durable source of truth.
+  const hostelId = locationState.hostelId
+    || roomData?.hostelId?._id
+    || roomData?.hostelId
+    || null;
 
   // Fetch room data from backend on mount (if roomId exists)
   useEffect(() => {
@@ -110,8 +112,9 @@ const RoomDetail = () => {
 
   const handleCheckoutSuccess = async (paymentData) => {
     const updatedBed = { ...selectedBed, isBooked: true, bookingStatus: "Pending", paymentStatus: "completed" };
-    await dispatch(bookRoom({ hostelId, roomId: roomData._id, bed: updatedBed, paymentData }));
-    
+    // Checkout already created the booking through processPayment. Do not
+    // dispatch a second booking request here.
+
     // Refetch room data from backend to ensure UI shows current bed status
     // (in case another user booked a bed or the DB state changed)
     try {

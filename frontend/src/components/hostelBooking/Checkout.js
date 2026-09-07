@@ -51,6 +51,11 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
     e.preventDefault();
     setPaymentError('');
 
+    if (!hostelOwnerId || hostelOwnerId === 'null') {
+        setPaymentError('Hostel information could not be loaded. Please close checkout, refresh the page, and try again.');
+        return;
+    }
+
     // Ensure the user has provided a valid ID card number
     if (!idCard || idCardError) {
         setPaymentError('Please enter a valid 13-digit ID card number');

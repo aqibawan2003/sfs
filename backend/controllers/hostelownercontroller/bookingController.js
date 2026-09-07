@@ -20,6 +20,15 @@ exports.bookBed = async (req, res) => {
         return res.status(403).json({ success: false, message: 'Only students can book beds.' });
     }
 
+    if (!mongoose.Types.ObjectId.isValid(hostelId)
+        || !mongoose.Types.ObjectId.isValid(roomId)
+        || !Number.isInteger(Number(bedId))) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid hostel, room, or bed information. Please refresh the room page and try again.'
+        });
+    }
+
     try {
         // Find hostel and related data
         const hostel = await HostelOwner.findById(hostelId);

@@ -26,6 +26,7 @@ router.post('/book/:hostelId/:roomId/:bedId',authenticateToken, bookingControlle
 router.patch('/:bookingId/approve', authenticateToken, bookingController.approveBooking);
 router.patch('/:bookingId/reject', authenticateToken, bookingController.rejectBooking);
 router.patch('/:bookingId/complete', authenticateToken, bookingController.completeBooking);
+router.patch('/:bookingId/archive', authenticateToken, bookingController.archiveBooking);
 
 // Route to unbook a room
 router.delete('/unbookBed/:bookingId', authenticateToken, bookingController.unbookRoom);

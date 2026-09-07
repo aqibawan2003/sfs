@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaBed, FaCheckCircle, FaSearch, FaSortAmountDown, FaUserClock, FaWallet } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import HostelNavbar from './HostelOwnerNavbar';
-import { completeBooking, decideBooking, fetchBookings } from '../../store/bookingsSlice';
+import { archiveBooking, completeBooking, decideBooking, fetchBookings } from '../../store/bookingsSlice';
 import ErrorState from '../common/ErrorState';
 
 const statusClass = {
@@ -114,6 +114,17 @@ const HostelOwnerBookingBed = () => {
     } finally { setBusyId(null); }
   };
 
+  const handleArchive = async bookingId => {
+    if (!window.confirm('Remove this item from your history view? The booking record will remain safely stored and no bed will be affected.')) return;
+    setBusyId(bookingId);
+    try {
+      const result = await dispatch(archiveBooking(bookingId)).unwrap();
+      toast.success(result.message);
+    } catch (err) {
+      toast.error(err?.message || 'Could not remove this history record.');
+    } finally { setBusyId(null); }
+  };
+
   const clearFilters = () => { setSearch(''); setStatusFilter('All'); setPaymentFilter('All'); };
   const controlClass = 'h-11 rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm text-slate-200 outline-none transition focus:border-amber-400';
 
@@ -207,7 +218,9 @@ const HostelOwnerBookingBed = () => {
                         <button disabled={busy} onClick={() => handleDecision(booking.bookingId, 'reject')} className="rounded-lg border border-red-500/50 bg-red-500/10 px-5 py-2.5 text-sm font-bold text-red-300 hover:bg-red-500 hover:text-white disabled:opacity-50">{busy ? 'Updating...' : 'Reject'}</button>
                       </div> : ['Approved', 'Booked'].includes(booking.status) ? (
                         <button disabled={busy} onClick={() => handleCheckout(booking.bookingId)} className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200 hover:border-amber-400/60 hover:text-amber-200 disabled:opacity-50">{busy ? 'Updating...' : 'Mark as checked out'}</button>
-                      ) : <span className="text-xs font-medium uppercase tracking-wider text-slate-600">History record</span>}
+                      ) : (
+                        <button disabled={busy} onClick={() => handleArchive(booking.bookingId)} className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-400 hover:border-red-500/50 hover:text-red-300 disabled:opacity-50">{busy ? 'Removing...' : 'Remove from history'}</button>
+                      )}
                     </div>
                   </article>
                 );

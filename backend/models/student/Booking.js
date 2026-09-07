@@ -15,7 +15,8 @@ const bookingSchema = new mongoose.Schema({
         default: 'Pending'
     },
     decided_at: { type: Date, default: null },
-    completed_at: { type: Date, default: null }
+    completed_at: { type: Date, default: null },
+    owner_hidden: { type: Boolean, default: false }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

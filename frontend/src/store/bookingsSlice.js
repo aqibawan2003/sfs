@@ -85,6 +85,23 @@ export const completeBooking = createAsyncThunk(
   }
 );
 
+export const archiveBooking = createAsyncThunk(
+  'bookings/archiveBooking',
+  async (bookingId, { rejectWithValue }) => {
+    const token = Cookies.get('token');
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/api/bookings/${bookingId}/archive`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return { bookingId, message: response.data.message };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Failed to remove history record' });
+    }
+  }
+);
+
 // Thunk to unbook a bed
 export const unbookRoom = createAsyncThunk('bookings/unbookRoom', async ({ roomId, bedId }, { rejectWithValue }) => {
   const token = Cookies.get('token');
@@ -234,6 +251,14 @@ const bookingsSlice = createSlice({
       })
       .addCase(completeBooking.rejected, (state, action) => {
         state.error = action.payload?.message || 'Failed to complete booking';
+      })
+      .addCase(archiveBooking.fulfilled, (state, action) => {
+        state.bookings = state.bookings.filter(
+          booking => booking.bookingId?.toString() !== action.payload.bookingId
+        );
+      })
+      .addCase(archiveBooking.rejected, (state, action) => {
+        state.error = action.payload?.message || 'Failed to remove history record';
       })
 
       // Fetch Booked Rooms

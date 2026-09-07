@@ -307,7 +307,10 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
 
         const rooms = await Room.find({ hostelId: hostelOwnerId }).populate('beds');
 
-        const bookings = await Booking.find({ hostel_id: hostelOwnerId })
+        const bookings = await Booking.find({
+            hostel_id: hostelOwnerId,
+            owner_hidden: { $ne: true }
+        })
             .populate('student_id', 'first_name last_name cnic email phone_number profile_picture')
             .lean();
 
@@ -559,6 +562,42 @@ exports.completeBooking = async (req, res) => {
     } catch (error) {
         console.error('Error completing booking:', error);
         return res.status(500).json({ success: false, message: 'Unable to complete this booking.' });
+    }
+};
+
+// Soft-removes a finished record from the owner's view. The booking remains
+// in MongoDB for reporting/auditing and no bed state is changed.
+exports.archiveBooking = async (req, res) => {
+    const { bookingId } = req.params;
+    if (req.user.role !== 'hostelOwner') {
+        return res.status(403).json({ success: false, message: 'Only hostel owners can manage booking history.' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+        return res.status(400).json({ success: false, message: 'Invalid booking ID.' });
+    }
+
+    try {
+        const booking = await Booking.findById(bookingId);
+        if (!booking) return res.status(404).json({ success: false, message: 'Booking not found.' });
+        if (booking.hostel_id.toString() !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'This booking does not belong to your hostel.' });
+        }
+        if (!['Completed', 'Rejected', 'Cancelled'].includes(booking.status)) {
+            return res.status(409).json({
+                success: false,
+                message: 'Active bookings cannot be removed from history. Check the student out first.'
+            });
+        }
+
+        booking.owner_hidden = true;
+        await booking.save();
+        return res.status(200).json({
+            success: true,
+            message: 'Booking removed from your history view. The audit record is preserved.'
+        });
+    } catch (error) {
+        console.error('Error archiving booking:', error);
+        return res.status(500).json({ success: false, message: 'Unable to remove this history record.' });
     }
 };
 

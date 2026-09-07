@@ -5,7 +5,12 @@ const bookingSchema = new mongoose.Schema({
     room_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Room', required: true }, // Change 'HostelRoom' to 'Room'
     hostel_id: { type: mongoose.Schema.Types.ObjectId, ref: 'HostelOwner', required: true }, // Change 'Hostel' to 'HostelOwner'
     booking_date: { type: Date, default: Date.now },
-    status: { type: String, enum: ['Booked', 'Cancelled', 'Completed'], default: 'Booked' }
+    status: {
+        type: String,
+        enum: ['Pending', 'Approved', 'Rejected', 'Booked', 'Cancelled', 'Completed'],
+        default: 'Pending'
+    },
+    decided_at: { type: Date, default: null }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

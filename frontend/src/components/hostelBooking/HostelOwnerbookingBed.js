@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import HostelNavbar from "./HostelOwnerNavbar";
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchBookings, removeBookingFromHistory } from '../../store/bookingsSlice';
+import { decideBooking, fetchBookings, removeBookingFromHistory } from '../../store/bookingsSlice';
+import { toast } from 'react-toastify';
 import ErrorState from '../common/ErrorState';
 
 const HostelOwnerBookingBed = () => {
   const dispatch = useDispatch();
   const [removingId, setRemovingId] = useState(null);
+  const [decidingId, setDecidingId] = useState(null);
 
   // Fetch the bookings state from Redux (flat array - see getHostelOwnerBookedBeds)
   const { bookings, loading, error } = useSelector(state => state.bookings);
@@ -21,6 +23,19 @@ const HostelOwnerBookingBed = () => {
     setRemovingId(bookingId);
     await dispatch(removeBookingFromHistory(bookingId));
     setRemovingId(null);
+  };
+
+  const handleDecision = async (bookingId, decision) => {
+    if (decision === 'reject' && !window.confirm('Reject this booking? The bed will be freed and the payment refunded.')) return;
+    setDecidingId(bookingId);
+    try {
+      const result = await dispatch(decideBooking({ bookingId, decision })).unwrap();
+      toast.success(result.message);
+    } catch (err) {
+      toast.error(err?.message || 'Could not update the booking.');
+    } finally {
+      setDecidingId(null);
+    }
   };
 
   return (
@@ -55,15 +70,31 @@ const HostelOwnerBookingBed = () => {
                       {booking.paymentStatus}
                     </span>
                   </p>
+                  <p><span className="font-semibold flex flex-col text-gray-400">Booking Status:</span>
+                    <span className={booking.status === 'Approved' ? 'text-green-500' : 'text-yellow-400'}>{booking.status}</span>
+                  </p>
                 </div>
 
-                <button
+                {booking.status === 'Pending' ? (
+                  <div className="flex gap-3 ml-0 md:ml-10 items-center">
+                    <button
+                      className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+                      disabled={decidingId === booking.bookingId}
+                      onClick={() => handleDecision(booking.bookingId, 'approve')}
+                    >Approve</button>
+                    <button
+                      className="px-6 py-2 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50"
+                      disabled={decidingId === booking.bookingId}
+                      onClick={() => handleDecision(booking.bookingId, 'reject')}
+                    >{decidingId === booking.bookingId ? 'Updating...' : 'Reject'}</button>
+                  </div>
+                ) : <button
                   className="px-6 py-2 ml-0 md:ml-10 bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50"
                   disabled={removingId === booking.bookingId}
                   onClick={() => handleRemove(booking.bookingId)}
                 >
                   {removingId === booking.bookingId ? 'Removing...' : 'Remove from History'}
-                </button>
+                </button>}
               </div>
             ))}
           </div>

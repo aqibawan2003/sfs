@@ -41,6 +41,23 @@ export const fetchBookings = createAsyncThunk('bookings/fetchBookings', async (_
   }
 });
 
+export const decideBooking = createAsyncThunk(
+  'bookings/decideBooking',
+  async ({ bookingId, decision }, { rejectWithValue }) => {
+    const token = Cookies.get('token');
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/api/bookings/${bookingId}/${decision}`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return { bookingId, status: response.data.data.status, message: response.data.message };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Failed to update booking status' });
+    }
+  }
+);
+
 // Thunk to unbook a bed
 export const unbookRoom = createAsyncThunk('bookings/unbookRoom', async ({ roomId, bedId }, { rejectWithValue }) => {
   const token = Cookies.get('token');
@@ -162,6 +179,22 @@ const bookingsSlice = createSlice({
       .addCase(fetchBookings.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to fetch bookings';
+      })
+
+      .addCase(decideBooking.pending, (state) => {
+        state.error = null;
+      })
+      .addCase(decideBooking.fulfilled, (state, action) => {
+        const { bookingId, status } = action.payload;
+        if (status === 'Rejected') {
+          state.bookings = state.bookings.filter(b => b.bookingId?.toString() !== bookingId);
+        } else {
+          const booking = state.bookings.find(b => b.bookingId?.toString() === bookingId);
+          if (booking) booking.status = status;
+        }
+      })
+      .addCase(decideBooking.rejected, (state, action) => {
+        state.error = action.payload?.message || 'Failed to update booking status';
       })
 
       // Fetch Booked Rooms

@@ -8,6 +8,7 @@ const logger = require('../../utils/logger');
 const generateInvoicePdf = require('../../utils/generateInvoicePdf');
 const { uploadBufferToCloudinary, getSignedFileUrl } = require('../../utils/cloudinaryUpload');
 const sendEmail = require('../../utils/emailService');
+const mongoose = require('mongoose');
 
 // Controller function to book a bed and process payment
 exports.bookBed = async (req, res) => {
@@ -83,7 +84,7 @@ exports.bookBed = async (req, res) => {
                 room_id: roomId,
                 hostel_id: hostelId,
                 booking_date: bedToBook.bookingDate,
-                status: 'Booked',
+                status: 'Pending',
             });
             await newBooking.save();
             return res.status(200).json({
@@ -111,7 +112,7 @@ exports.bookBed = async (req, res) => {
             room_id: roomId,
             hostel_id: hostelId,
             booking_date: bedToBook.bookingDate,
-            status: 'Booked',
+            status: 'Pending',
         });
         await newBooking.save();
 
@@ -281,6 +282,9 @@ exports.getMonthlyBookingStats = async (req, res, next) => {
 
 exports.getHostelOwnerBookedBeds = async (req, res, next) => {
     try {
+        if (req.user.role !== 'hostelOwner') {
+            return res.status(403).json({ success: false, message: 'Only hostel owners can view booking requests.' });
+        }
         const hostelOwnerId = req.user.id;
 
         const rooms = await Room.find({ hostelId: hostelOwnerId }).populate('beds');
@@ -330,6 +334,90 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
         next(error);
     }
 };
+
+// Shared UC-07 decision handler. It validates the actor, booking identifier,
+// ownership and current state before making an irreversible status change.
+const decideBooking = async (req, res, decision) => {
+    const { bookingId } = req.params;
+
+    if (req.user.role !== 'hostelOwner') {
+        return res.status(403).json({ success: false, message: 'Only hostel owners can approve or reject bookings.' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+        return res.status(400).json({ success: false, message: 'Invalid booking ID.' });
+    }
+
+    try {
+        const booking = await Booking.findById(bookingId).populate('student_id', 'first_name last_name email');
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found.' });
+        }
+        if (booking.hostel_id.toString() !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'This booking does not belong to your hostel.' });
+        }
+        if (booking.status !== 'Pending') {
+            return res.status(409).json({
+                success: false,
+                message: `This booking has already been ${booking.status.toLowerCase()}.`,
+            });
+        }
+
+        const bed = await Bed.findOne({ roomId: booking.room_id, bookedBy: booking.student_id._id });
+        if (!bed) {
+            return res.status(409).json({ success: false, message: 'The bed assigned to this booking could not be found.' });
+        }
+
+        if (decision === 'Rejected') {
+            // The existing checkout charges before owner review. Refund first so
+            // a rejected request can never leave the student charged.
+            if (bed.paymentIntentId && bed.paymentStatus === 'completed') {
+                try {
+                    await stripe.refunds.create({ payment_intent: bed.paymentIntentId });
+                } catch (refundError) {
+                    console.error('Booking rejection refund failed:', refundError.message);
+                    return res.status(502).json({
+                        success: false,
+                        message: 'The payment refund failed, so the booking remains pending. Please try again.',
+                    });
+                }
+                bed.paymentStatus = 'refunded';
+            }
+            bed.isBooked = false;
+            bed.bookedBy = null;
+            bed.bookingDate = null;
+            await bed.save();
+        }
+
+        booking.status = decision;
+        booking.decided_at = new Date();
+        await booking.save();
+
+        const student = booking.student_id;
+        const message = decision === 'Approved'
+            ? 'Your hostel booking request has been approved.'
+            : 'Your hostel booking request has been rejected. Any completed card payment has been refunded.';
+
+        // Status persistence is the source of truth. Notification delivery is
+        // best-effort and must not roll back a completed owner decision.
+        req.app.get('io')?.to(`room-user${student._id}`).emit('bookingStatusUpdate', {
+            bookingId: booking._id,
+            status: decision,
+            message,
+        });
+        if (student.email) {
+            sendEmail(student.email, `Hostel booking ${decision.toLowerCase()}`, message)
+                .catch(error => console.error('Booking decision email failed:', error.message));
+        }
+
+        return res.status(200).json({ success: true, message, data: booking });
+    } catch (error) {
+        console.error(`Error marking booking as ${decision}:`, error);
+        return res.status(500).json({ success: false, message: 'Unable to update the booking status.' });
+    }
+};
+
+exports.approveBooking = (req, res) => decideBooking(req, res, 'Approved');
+exports.rejectBooking = (req, res) => decideBooking(req, res, 'Rejected');
 
 
 // Regenerates the receipt PDF on demand and streams it directly from our own

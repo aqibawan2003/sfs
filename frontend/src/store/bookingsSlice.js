@@ -55,7 +55,13 @@ export const decideBooking = createAsyncThunk(
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      return { bookingId, status: response.data.data.status, message: response.data.message };
+      return {
+        bookingId,
+        status: response.data.data.status,
+        message: response.data.message,
+        notificationSent: response.data.notificationSent,
+        notificationMessage: response.data.notificationMessage,
+      };
     } catch (error) {
       return rejectWithValue(error.response?.data || { message: 'Failed to update booking status' });
     }

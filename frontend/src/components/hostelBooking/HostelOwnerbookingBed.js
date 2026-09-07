@@ -79,6 +79,9 @@ const HostelOwnerBookingBed = () => {
     try {
       const result = await dispatch(decideBooking({ bookingId, decision })).unwrap();
       toast.success(result.message);
+      if (!result.notificationSent) {
+        toast.warning(result.notificationMessage);
+      }
     } catch (err) {
       toast.error(err?.message || 'Could not update the booking.');
     } finally { setBusyId(null); }

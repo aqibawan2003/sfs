@@ -450,23 +450,44 @@ const decideBooking = async (req, res, decision) => {
         await booking.save();
 
         const student = booking.student_id;
-        const message = decision === 'Approved'
-            ? 'Your hostel booking request has been approved.'
-            : 'Your hostel booking request has been rejected. Any completed card payment has been refunded.';
+        const room = await Room.findById(booking.room_id).select('name').lean();
+        const studentMessage = decision === 'Approved'
+            ? `Hi ${student.first_name}, your booking for Room ${room?.name || 'N/A'}, Bed ${bed.bed_number} has been approved by the hostel owner.`
+            : `Hi ${student.first_name}, your booking for Room ${room?.name || 'N/A'}, Bed ${bed.bed_number} has been rejected by the hostel owner. Any completed card payment has been refunded.`;
+        const ownerMessage = decision === 'Approved'
+            ? `Booking for ${student.first_name} ${student.last_name} has been approved.`
+            : `Booking for ${student.first_name} ${student.last_name} has been rejected and the bed is now available.`;
 
         // Status persistence is the source of truth. Notification delivery is
         // best-effort and must not roll back a completed owner decision.
         req.app.get('io')?.to(`room-user${student._id}`).emit('bookingStatusUpdate', {
             bookingId: booking._id,
             status: decision,
-            message,
+            message: studentMessage,
         });
+        let notificationSent = false;
         if (student.email) {
-            sendEmail(student.email, `Hostel booking ${decision.toLowerCase()}`, message)
-                .catch(error => console.error('Booking decision email failed:', error.message));
+            try {
+                await sendEmail(
+                    student.email,
+                    `Hostel booking ${decision.toLowerCase()} - Room ${room?.name || 'N/A'}, Bed ${bed.bed_number}`,
+                    studentMessage
+                );
+                notificationSent = true;
+            } catch (error) {
+                console.error('Booking decision email failed:', error.message);
+            }
         }
 
-        return res.status(200).json({ success: true, message, data: booking });
+        return res.status(200).json({
+            success: true,
+            message: ownerMessage,
+            notificationSent,
+            notificationMessage: notificationSent
+                ? `An email notification was sent to ${student.email}.`
+                : 'The booking was updated, but the email notification could not be sent.',
+            data: booking
+        });
     } catch (error) {
         console.error(`Error marking booking as ${decision}:`, error);
         return res.status(500).json({ success: false, message: 'Unable to update the booking status.' });

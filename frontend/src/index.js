@@ -10,6 +10,38 @@ import { store } from './store/store';
 import './index.css';
 import App from './App';
 
+// Prevent a flash of unstyled React content on slow connections. In the
+// production build CRA extracts our CSS to /static/css/*.css; reveal the app
+// only after those local stylesheets are available. External web fonts do not
+// block the interface. Development injects styles synchronously, so it can be
+// revealed immediately when no extracted CSS link exists.
+const revealStyledApp = () => {
+  document.documentElement.classList.add('app-styles-ready');
+};
+
+const appStyleLinks = Array.from(document.querySelectorAll('link[rel="stylesheet"]'))
+  .filter(link => link.href.includes('/static/css/'));
+
+if (appStyleLinks.length === 0 || appStyleLinks.every(link => link.sheet)) {
+  revealStyledApp();
+} else {
+  let remaining = appStyleLinks.filter(link => !link.sheet).length;
+  appStyleLinks.filter(link => !link.sheet).forEach(link => {
+    link.addEventListener('load', () => {
+      remaining -= 1;
+      if (remaining === 0) revealStyledApp();
+    }, { once: true });
+  });
+
+  window.setTimeout(() => {
+    if (document.documentElement.classList.contains('app-styles-ready')) return;
+    const boot = document.getElementById('app-boot');
+    const message = document.getElementById('app-boot-message');
+    boot?.classList.add('app-boot-slow');
+    if (message) message.textContent = 'Styles are taking longer than expected. Check your connection and try again.';
+  }, 12000);
+}
+
 
 // Load Stripe with your publishable key
 // const stripePromise = loadStripe(process.env.REACT_APP_STRIPE_PUBLIC_KEY || '');

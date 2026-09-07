@@ -109,7 +109,7 @@ const RoomDetail = () => {
   };
 
   const handleCheckoutSuccess = async (paymentData) => {
-    const updatedBed = { ...selectedBed, isBooked: true, paymentStatus: "completed" };
+    const updatedBed = { ...selectedBed, isBooked: true, bookingStatus: "Pending", paymentStatus: "completed" };
     await dispatch(bookRoom({ hostelId, roomId: roomData._id, bed: updatedBed, paymentData }));
     
     // Refetch room data from backend to ensure UI shows current bed status
@@ -161,9 +161,11 @@ const RoomDetail = () => {
                   {beds.map((bed, index) => (
                     <div key={bed.bed_number??index} className={`border border-[#59636e] p-4 rounded ${bed.isBooked?"bg-gray-200 text-gray-800":""}`}>
                       <p>Bed Number: {bed.bed_number??index+1}</p>
-                      <p>Status: {bed.isBooked?"Booked":"Available"}</p>
+                      <p>Status: {bed.isBooked ? (bed.bookingStatus === 'Pending' ? 'Pending Approval' : 'Booked') : 'Available'}</p>
                       {bed.isBooked
-                        ? <button className="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed mt-2" disabled>Occupied</button>
+                        ? <button className="bg-gray-400 text-white px-4 py-2 rounded cursor-not-allowed mt-2" disabled>
+                            {bed.bookingStatus === 'Pending' ? 'Reserved - Pending Approval' : 'Occupied'}
+                          </button>
                         : <button onClick={()=>handleBookBedClick(bed)} className="bg-[#697565] hover:bg-[#3C3D37] text-white font-bold py-2 px-4 mt-2 rounded transition">Book Bed</button>
                       }
                     </div>

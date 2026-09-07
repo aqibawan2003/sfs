@@ -72,6 +72,7 @@ exports.bookBed = async (req, res) => {
 
         // Update bed booking status based on payment intent status
         bedToBook.isBooked = true;
+        bedToBook.bookingStatus = 'Pending';
         bedToBook.paymentIntentId = paymentIntent.id;
         bedToBook.bookingDate = new Date();
         bedToBook.bookedBy = customerId;
@@ -383,8 +384,12 @@ const decideBooking = async (req, res, decision) => {
                 bed.paymentStatus = 'refunded';
             }
             bed.isBooked = false;
+            bed.bookingStatus = null;
             bed.bookedBy = null;
             bed.bookingDate = null;
+            await bed.save();
+        } else {
+            bed.bookingStatus = 'Approved';
             await bed.save();
         }
 
@@ -499,6 +504,7 @@ exports.unbookRoom = async (req, res) => {
 
         // Reset bed booking status
         bedToUnbook.isBooked = false;
+        bedToUnbook.bookingStatus = null;
         bedToUnbook.bookedBy = null;
         bedToUnbook.paymentIntentId = null;
         bedToUnbook.paymentStatus = 'pending';

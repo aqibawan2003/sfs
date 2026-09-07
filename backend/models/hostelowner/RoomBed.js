@@ -5,6 +5,11 @@ const Schema = mongoose.Schema;
 const bedSchema = new Schema({
     bed_number: { type: Number, required: true },
     isBooked: { type: Boolean, default: false },
+    bookingStatus: {
+        type: String,
+        enum: ['Pending', 'Approved'],
+        default: null
+    },
     bookedBy: { type: Schema.Types.ObjectId, ref: 'Student' },
     bookingDate: { type: Date },
     paymentStatus: { type: String, enum: ['pending', 'completed', 'failed', 'refunded'], default: 'pending' },
@@ -14,4 +19,3 @@ const bedSchema = new Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('Bed', bedSchema);
-

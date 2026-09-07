@@ -68,6 +68,23 @@ export const decideBooking = createAsyncThunk(
   }
 );
 
+export const completeBooking = createAsyncThunk(
+  'bookings/completeBooking',
+  async (bookingId, { rejectWithValue }) => {
+    const token = Cookies.get('token');
+    try {
+      const response = await axios.patch(
+        `${API_BASE_URL}/api/bookings/${bookingId}/complete`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      return { bookingId, status: response.data.data.status, message: response.data.message };
+    } catch (error) {
+      return rejectWithValue(error.response?.data || { message: 'Failed to complete booking' });
+    }
+  }
+);
+
 // Thunk to unbook a bed
 export const unbookRoom = createAsyncThunk('bookings/unbookRoom', async ({ roomId, bedId }, { rejectWithValue }) => {
   const token = Cookies.get('token');
@@ -210,6 +227,13 @@ const bookingsSlice = createSlice({
       })
       .addCase(decideBooking.rejected, (state, action) => {
         state.error = action.payload?.message || 'Failed to update booking status';
+      })
+      .addCase(completeBooking.fulfilled, (state, action) => {
+        const booking = state.bookings.find(b => b.bookingId?.toString() === action.payload.bookingId);
+        if (booking) booking.status = action.payload.status;
+      })
+      .addCase(completeBooking.rejected, (state, action) => {
+        state.error = action.payload?.message || 'Failed to complete booking';
       })
 
       // Fetch Booked Rooms

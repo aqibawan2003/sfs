@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { FaBed, FaCheckCircle, FaSearch, FaSortAmountDown, FaUserClock, FaWallet } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import HostelNavbar from './HostelOwnerNavbar';
-import { decideBooking, fetchBookings, removeBookingFromHistory } from '../../store/bookingsSlice';
+import { completeBooking, decideBooking, fetchBookings } from '../../store/bookingsSlice';
 import ErrorState from '../common/ErrorState';
 
 const statusClass = {
@@ -12,6 +12,7 @@ const statusClass = {
   Booked: 'border-[#43534a] bg-[#222c27] text-[#adc0b5]',
   Completed: 'border-[#46515d] bg-[#252c34] text-[#b5c0cb]',
   Rejected: 'border-[#60494b] bg-[#302426] text-[#d1aaad]',
+  Cancelled: 'border-slate-600 bg-slate-800 text-slate-300',
 };
 
 const statusLabel = {
@@ -20,6 +21,7 @@ const statusLabel = {
   Booked: 'Confirmed',
   Completed: 'Completed',
   Rejected: 'Rejected',
+  Cancelled: 'Cancelled',
 };
 
 const Detail = ({ label, value, mono }) => (
@@ -58,7 +60,7 @@ const HostelOwnerBookingBed = () => {
   const counts = useMemo(() => ({
     total: bookings.length,
     pending: bookings.filter(b => b.status === 'Pending').length,
-    approved: bookings.filter(b => ['Approved', 'Booked', 'Completed'].includes(b.status)).length,
+    approved: bookings.filter(b => ['Approved', 'Booked'].includes(b.status)).length,
     paid: bookings.filter(b => b.paymentStatus === 'completed').length,
   }), [bookings]);
 
@@ -68,7 +70,7 @@ const HostelOwnerBookingBed = () => {
       const text = [booking.studentName, booking.bookingId, booking.cnic, booking.email, booking.phoneNumber, booking.roomNumber, booking.bedNumber]
         .filter(value => value !== null && value !== undefined).join(' ').toLowerCase();
       const statusMatches = statusFilter === 'All'
-        || (statusFilter === 'Approved' && ['Approved', 'Booked', 'Completed'].includes(booking.status))
+        || (statusFilter === 'Approved' && ['Approved', 'Booked'].includes(booking.status))
         || booking.status === statusFilter;
       return (!term || text.includes(term))
         && statusMatches
@@ -101,14 +103,14 @@ const HostelOwnerBookingBed = () => {
     } finally { setBusyId(null); }
   };
 
-  const handleRemove = async bookingId => {
-    if (!window.confirm('Remove this booking? This will free up the bed.')) return;
+  const handleCheckout = async bookingId => {
+    if (!window.confirm('Mark this student as checked out? The bed will become available and booking history will be kept.')) return;
     setBusyId(bookingId);
     try {
-      await dispatch(removeBookingFromHistory(bookingId)).unwrap();
-      toast.success('Booking removed successfully.');
+      const result = await dispatch(completeBooking(bookingId)).unwrap();
+      toast.success(result.message);
     } catch (err) {
-      toast.error(err?.message || err?.error || 'Could not remove the booking.');
+      toast.error(err?.message || 'Could not complete the booking.');
     } finally { setBusyId(null); }
   };
 
@@ -152,7 +154,7 @@ const HostelOwnerBookingBed = () => {
                 <input value={search} onChange={e => setSearch(e.target.value)} placeholder="Search name, CNIC, email or ID" className="h-11 w-full rounded-xl border border-slate-700 bg-slate-950 pl-11 pr-4 text-sm text-white outline-none placeholder:text-slate-600 focus:border-amber-400" />
               </label>
               <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className={controlClass} aria-label="Filter by status">
-                <option value="All">All statuses</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Rejected">Rejected</option>
+                <option value="All">All statuses</option><option value="Pending">Pending</option><option value="Approved">Approved</option><option value="Completed">Completed</option><option value="Rejected">Rejected</option><option value="Cancelled">Cancelled</option>
               </select>
               <select value={paymentFilter} onChange={e => setPaymentFilter(e.target.value)} className={controlClass} aria-label="Filter by payment">
                 <option value="All">All payments</option><option value="completed">Paid</option><option value="pending">Payment pending</option><option value="refunded">Refunded</option>
@@ -199,11 +201,13 @@ const HostelOwnerBookingBed = () => {
                       <Detail label="Booking ID" value={booking.bookingId} mono /><Detail label="CNIC" value={booking.cnic} /><Detail label="Email" value={booking.email} /><Detail label="Phone" value={booking.phoneNumber} /><Detail label="Room" value={String(booking.roomNumber ?? 'N/A')} /><Detail label="Bed" value={String(booking.bedNumber ?? 'N/A')} />
                     </div>
                     <div className="flex flex-col gap-3 bg-slate-950/40 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-                      <p className="text-xs text-slate-500">{pending ? 'This request is waiting for your decision.' : 'This reservation has been processed.'}</p>
+                      <p className="text-xs text-slate-500">{pending ? 'This request is waiting for your decision.' : ['Approved', 'Booked'].includes(booking.status) ? 'The student currently holds this bed.' : 'Saved booking history.'}</p>
                       {pending ? <div className="flex gap-3">
                         <button disabled={busy} onClick={() => handleDecision(booking.bookingId, 'approve')} className="rounded-lg bg-emerald-500 px-5 py-2.5 text-sm font-bold text-white hover:bg-emerald-400 disabled:opacity-50">Approve</button>
                         <button disabled={busy} onClick={() => handleDecision(booking.bookingId, 'reject')} className="rounded-lg border border-red-500/50 bg-red-500/10 px-5 py-2.5 text-sm font-bold text-red-300 hover:bg-red-500 hover:text-white disabled:opacity-50">{busy ? 'Updating...' : 'Reject'}</button>
-                      </div> : <button disabled={busy} onClick={() => handleRemove(booking.bookingId)} className="rounded-lg border border-slate-700 px-4 py-2 text-sm font-semibold text-slate-300 hover:border-red-500/60 hover:text-red-300 disabled:opacity-50">{busy ? 'Removing...' : 'Remove from history'}</button>}
+                      </div> : ['Approved', 'Booked'].includes(booking.status) ? (
+                        <button disabled={busy} onClick={() => handleCheckout(booking.bookingId)} className="rounded-lg border border-slate-600 bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-200 hover:border-amber-400/60 hover:text-amber-200 disabled:opacity-50">{busy ? 'Updating...' : 'Mark as checked out'}</button>
+                      ) : <span className="text-xs font-medium uppercase tracking-wider text-slate-600">History record</span>}
                     </div>
                   </article>
                 );

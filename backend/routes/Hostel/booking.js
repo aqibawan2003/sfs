@@ -25,6 +25,7 @@ router.post('/book/:hostelId/:roomId/:bedId',authenticateToken, bookingControlle
 // An owning hostel owner can make one final decision on a pending request.
 router.patch('/:bookingId/approve', authenticateToken, bookingController.approveBooking);
 router.patch('/:bookingId/reject', authenticateToken, bookingController.rejectBooking);
+router.patch('/:bookingId/complete', authenticateToken, bookingController.completeBooking);
 
 // Route to unbook a room
 router.delete('/unbookBed/:bookingId', authenticateToken, bookingController.unbookRoom);

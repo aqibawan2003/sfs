@@ -93,6 +93,9 @@ exports.bookBed = async (req, res) => {
                 student_id: customerId,
                 room_id: roomId,
                 bed_id: bedToBook._id,
+                bed_number: bedToBook.bed_number,
+                room_name: room.name,
+                payment_status: bedToBook.paymentStatus,
                 hostel_id: hostelId,
                 booking_date: bedToBook.bookingDate,
                 status: 'Pending',
@@ -122,6 +125,9 @@ exports.bookBed = async (req, res) => {
             student_id: customerId,
             room_id: roomId,
             bed_id: bedToBook._id,
+            bed_number: bedToBook.bed_number,
+            room_name: room.name,
+            payment_status: bedToBook.paymentStatus,
             hostel_id: hostelId,
             booking_date: bedToBook.bookingDate,
             status: 'Pending',
@@ -301,10 +307,7 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
 
         const rooms = await Room.find({ hostelId: hostelOwnerId }).populate('beds');
 
-        const bookings = await Booking.find({
-            hostel_id: hostelOwnerId,
-            status: { $ne: 'Cancelled' }
-        })
+        const bookings = await Booking.find({ hostel_id: hostelOwnerId })
             .populate('student_id', 'first_name last_name cnic email phone_number profile_picture')
             .lean();
 
@@ -350,11 +353,11 @@ exports.getHostelOwnerBookedBeds = async (req, res, next) => {
             return {
                 bookingId: booking._id,
                 roomId: room?._id || booking.room_id,
-                roomNumber: room?.name || 'N/A',
-                bedNumber: bed?.bed_number || 'N/A',
+                roomNumber: booking.room_name || room?.name || 'N/A',
+                bedNumber: booking.bed_number ?? bed?.bed_number ?? 'N/A',
                 bookingDate: booking.booking_date,
                 status: booking.status,
-                paymentStatus: bed?.paymentStatus || (booking.status === 'Rejected' ? 'refunded' : 'unknown'),
+                paymentStatus: booking.payment_status || bed?.paymentStatus || (booking.status === 'Rejected' ? 'refunded' : 'unknown'),
                 studentName: student ? `${student.first_name} ${student.last_name}` : 'N/A',
                 cnic: student?.cnic || 'N/A',
                 email: student?.email || 'N/A',
@@ -419,6 +422,10 @@ const decideBooking = async (req, res, decision) => {
         if (!bed) {
             return res.status(409).json({ success: false, message: 'The bed assigned to this booking could not be found.' });
         }
+        const room = await Room.findById(booking.room_id).select('name').lean();
+        booking.bed_number = booking.bed_number ?? bed.bed_number;
+        booking.room_name = booking.room_name || room?.name;
+        booking.payment_status = booking.payment_status || bed.paymentStatus;
 
         if (decision === 'Rejected') {
             // The existing checkout charges before owner review. Refund first so
@@ -435,6 +442,7 @@ const decideBooking = async (req, res, decision) => {
                 }
                 bed.paymentStatus = 'refunded';
             }
+            booking.payment_status = bed.paymentStatus;
             bed.isBooked = false;
             bed.bookingStatus = null;
             bed.bookedBy = null;
@@ -451,7 +459,6 @@ const decideBooking = async (req, res, decision) => {
         await booking.save();
 
         const student = booking.student_id;
-        const room = await Room.findById(booking.room_id).select('name').lean();
         const studentMessage = decision === 'Approved'
             ? `Hi ${student.first_name}, your booking for Room ${room?.name || 'N/A'}, Bed ${bed.bed_number} has been approved by the hostel owner.`
             : `Hi ${student.first_name}, your booking for Room ${room?.name || 'N/A'}, Bed ${bed.bed_number} has been rejected by the hostel owner. Any completed card payment has been refunded.`;
@@ -497,6 +504,63 @@ const decideBooking = async (req, res, decision) => {
 
 exports.approveBooking = (req, res) => decideBooking(req, res, 'Approved');
 exports.rejectBooking = (req, res) => decideBooking(req, res, 'Rejected');
+
+// Ends an approved stay without deleting its history. The bed becomes
+// available again and the booking remains visible as Completed.
+exports.completeBooking = async (req, res) => {
+    const { bookingId } = req.params;
+    if (req.user.role !== 'hostelOwner') {
+        return res.status(403).json({ success: false, message: 'Only hostel owners can complete bookings.' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(bookingId)) {
+        return res.status(400).json({ success: false, message: 'Invalid booking ID.' });
+    }
+
+    try {
+        const booking = await Booking.findById(bookingId);
+        if (!booking) {
+            return res.status(404).json({ success: false, message: 'Booking not found.' });
+        }
+        if (booking.hostel_id.toString() !== req.user.id) {
+            return res.status(403).json({ success: false, message: 'This booking does not belong to your hostel.' });
+        }
+        if (!['Approved', 'Booked'].includes(booking.status)) {
+            return res.status(409).json({ success: false, message: 'Only an approved booking can be checked out.' });
+        }
+
+        const bed = await findBedForBooking(booking);
+        const room = await Room.findById(booking.room_id).select('name').lean();
+        booking.room_name = booking.room_name || room?.name;
+        const bedStillBelongsToBooking = bed
+            && bed.isBooked
+            && bed.bookedBy
+            && bed.bookedBy.toString() === booking.student_id.toString();
+        if (bedStillBelongsToBooking) {
+            booking.bed_number = booking.bed_number ?? bed.bed_number;
+            booking.payment_status = booking.payment_status || bed.paymentStatus;
+            bed.isBooked = false;
+            bed.bookingStatus = null;
+            bed.bookedBy = null;
+            // Preserve payment and booking metadata for the audit trail.
+            await bed.save();
+        }
+
+        booking.status = 'Completed';
+        booking.completed_at = new Date();
+        await booking.save();
+
+        return res.status(200).json({
+            success: true,
+            message: bedStillBelongsToBooking
+                ? 'Student checked out and the bed is now available.'
+                : 'Booking marked as completed. Its history has been preserved.',
+            data: booking,
+        });
+    } catch (error) {
+        console.error('Error completing booking:', error);
+        return res.status(500).json({ success: false, message: 'Unable to complete this booking.' });
+    }
+};
 
 
 // Regenerates the receipt PDF on demand and streams it directly from our own

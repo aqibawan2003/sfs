@@ -572,25 +572,29 @@ exports.unbookRoom = async (req, res) => {
         // making the request (the hostel owner's own ID would never match here).
         const bedToUnbook = await findBedForBooking(booking);
 
-        if (!bedToUnbook) {
-            return res.status(404).json({ error: 'Bed not found in the room for unbooking' });
+        // Old history can outlive its student or bed relationship. If the bed
+        // still exists, release it; otherwise there is nothing left to free
+        // and the stale booking can still be archived successfully.
+        if (bedToUnbook) {
+            bedToUnbook.isBooked = false;
+            bedToUnbook.bookingStatus = null;
+            bedToUnbook.bookedBy = null;
+            bedToUnbook.paymentIntentId = null;
+            bedToUnbook.paymentStatus = 'pending';
+            bedToUnbook.bookingDate = null;
+            await bedToUnbook.save();
         }
-
-        // Reset bed booking status
-        bedToUnbook.isBooked = false;
-        bedToUnbook.bookingStatus = null;
-        bedToUnbook.bookedBy = null;
-        bedToUnbook.paymentIntentId = null;
-        bedToUnbook.paymentStatus = 'pending';
-        bedToUnbook.bookingDate = null;
-
-        await bedToUnbook.save();
 
         // Update booking status to 'Cancelled'
         booking.status = 'Cancelled';
         await booking.save();
 
-        res.status(200).json({ success: true, message: 'Room unbooked successfully' });
+        res.status(200).json({
+            success: true,
+            message: bedToUnbook
+                ? 'Booking removed and bed released successfully.'
+                : 'Old booking history removed successfully.'
+        });
     } catch (error) {
         console.error('Error unbooking room:', error);
         res.status(500).json({ error: 'Internal Server Error' });

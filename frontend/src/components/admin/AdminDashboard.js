@@ -264,6 +264,64 @@ const ConfirmDialog = ({ box, onClose }) => {
   );
 };
 
+const DetailItem = ({ label, value }) => value !== undefined && value !== null && value !== '' ? (
+  <div>
+    <p className="text-[10px] font-semibold uppercase tracking-[0.07em] mb-1" style={{ color: ink.faint }}>{label}</p>
+    <p className="text-[13px] break-words" style={{ color: ink.text }}>{String(value)}</p>
+  </div>
+) : null;
+
+const ListingDetails = ({ listing, onClose }) => {
+  if (!listing) return null;
+  const { type, data } = listing;
+  const isHostel = type === 'hostel';
+  const title = isHostel ? (data.hostelName || data.hostel_name) : data.kitchen_name;
+  const picture = isHostel ? (data.hostelPicture || data.hostel_picture || '/images/hostel.jpg') : (data.kitchen_picture || '/images/kitchens.png');
+  const owner = isHostel
+    ? `${data.hostel_owner_id?.first_name || ''} ${data.hostel_owner_id?.last_name || ''}`.trim()
+    : `${data.first_name || ''} ${data.last_name || ''}`.trim();
+  const email = isHostel ? data.hostel_owner_id?.email : data.email;
+  const phone = isHostel ? data.hostel_owner_id?.phone_number : data.phone_number;
+  const id = isHostel ? data.hostel_owner_id?.owner_id : data.provider_id;
+  const entries = isHostel ? (data.rooms || []) : (data.dishes || []);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center px-4 py-6" role="dialog" aria-modal="true" aria-labelledby="listing-details-title" onMouseDown={e=>{ if(e.target===e.currentTarget) onClose(); }} style={{ background: 'rgba(26,26,26,0.55)', backdropFilter: 'blur(3px)' }}>
+      <div className="w-full max-w-3xl max-h-full overflow-y-auto rounded-2xl" style={{ background: ink.surface, border: `1px solid ${ink.line}`, boxShadow: '0 24px 60px rgba(26,26,26,0.22)' }}>
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5 py-4" style={{ background: ink.surface, borderBottom: `1px solid ${ink.line}` }}>
+          <div><p className="text-[10px] uppercase font-bold tracking-wider" style={{ color: ink.brand }}>{isHostel ? 'Hostel details' : 'Kitchen details'}</p><h2 id="listing-details-title" className="text-xl font-bold" style={sans}>{title}</h2></div>
+          <button onClick={onClose} aria-label="Close details" className="p-2 rounded-lg hover:bg-black/5" style={{ color: ink.faint }}><FaTimes/></button>
+        </div>
+        <div className="p-5 md:p-6">
+          <img src={picture} alt={title} className="w-full h-56 md:h-72 rounded-xl object-cover mb-6" onError={e=>{e.currentTarget.style.display='none'}}/>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-6">
+            <DetailItem label="Owner" value={owner}/><DetailItem label="Provider ID" value={id}/>
+            <DetailItem label="Email" value={email}/><DetailItem label="Phone" value={phone}/>
+            <DetailItem label="Address" value={data.address || data.hostel_address}/>
+            {isHostel && <DetailItem label="Hostel type" value={data.hostelType || data.hostel_type}/>} 
+          </div>
+          <DetailItem label="Description" value={isHostel ? (data.description || data.hostel_description) : data.kitchen_description}/>
+          {isHostel && data.facilities?.length > 0 && <div className="mt-6"><p className="text-[10px] font-semibold uppercase tracking-[0.07em] mb-2" style={{ color: ink.faint }}>Facilities</p><div className="flex flex-wrap gap-2">{data.facilities.map((f,i)=><Pill key={`${f}-${i}`}>{f}</Pill>)}</div></div>}
+          <div className="mt-7 pt-6" style={{ borderTop: `1px solid ${ink.line}` }}>
+            <h3 className="font-bold text-[16px] mb-3" style={sans}>{isHostel ? `Rooms (${entries.length})` : `Menu (${entries.length})`}</h3>
+            {entries.length === 0 ? <p className="text-sm" style={{ color: ink.faint }}>No {isHostel ? 'rooms' : 'dishes'} have been added.</p> : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">{entries.map((item,i)=>{
+                const availableBeds = isHostel ? (item.beds || []).filter(b=>!b.isBooked).length : null;
+                return <div key={item._id || i} className="rounded-xl p-4" style={{ background: ink.panel, border: `1px solid ${ink.line}` }}>
+                  <div className="flex justify-between gap-3"><h4 className="font-semibold text-sm">{item.name}</h4><Pill tone={item.availability === false ? 'muted' : 'strong'}>{item.availability === false ? 'Unavailable' : 'Available'}</Pill></div>
+                  <p className="text-[13px] font-bold mt-2" style={{ color: ink.brandDark }}>Rs. {Number(item.price || 0).toLocaleString()}</p>
+                  {isHostel ? <p className="text-xs mt-1" style={{ color: ink.sub }}>Capacity: {item.capacity || 0} · Beds available: {availableBeds}/{(item.beds || []).length}</p> : <p className="text-xs mt-1" style={{ color: ink.sub }}>{item.category}</p>}
+                  {item.description && <p className="text-xs mt-2 line-clamp-3" style={{ color: ink.faint }}>{item.description}</p>}
+                </div>;
+              })}</div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const AdminDashboard = () => {
   const navigate  = useNavigate();
   const token     = localStorage.getItem('adminToken');
@@ -284,6 +342,7 @@ const AdminDashboard = () => {
   const [loading,      setLoading]      = useState(false);
   const [sidebarOpen,  setSidebarOpen]  = useState(false);
   const [confirmBox,   setConfirmBox]   = useState(null);
+  const [selectedListing, setSelectedListing] = useState(null);
   const askConfirm = (message, onConfirm, tone = 'danger', confirmLabel, title) =>
     setConfirmBox({ message, onConfirm, tone, confirmLabel, title });
 
@@ -809,14 +868,14 @@ const AdminDashboard = () => {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
                       {rows.map(h=>(
-                        <div key={h._id} className="rounded-xl p-4 transition-all duration-150 hover:-translate-y-0.5 shadow-sm hover:shadow-md" style={{ background: ink.surface, border: `1px solid ${ink.line}` }}>
+                        <div key={h._id} role="button" tabIndex={0} aria-label={`View details for ${hostelTitle(h)}`} onClick={()=>setSelectedListing({type:'hostel',data:h})} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSelectedListing({type:'hostel',data:h});}}} className="rounded-xl p-4 cursor-pointer focus:outline-none focus:ring-2 transition-all duration-150 hover:-translate-y-0.5 shadow-sm hover:shadow-md" style={{ background: ink.surface, border: `1px solid ${ink.line}`, '--tw-ring-color': ink.brandLight }}>
                           <div className="relative h-32 rounded-lg overflow-hidden mb-3" style={{ background: ink.panel }}>
                             <img src={h.hostelPicture||h.hostel_picture||'/images/hostel.jpg'} alt={hostelTitle(h)} className="w-full h-full object-cover" onError={e=>{e.target.style.display='none'}}/>
                           </div>
                           <p style={{ ...body, color: ink.brand }} className="text-[10px] font-bold uppercase tracking-wider mb-1" >{hostelType(h)}</p>
                           <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ color: ink.text }}>{hostelTitle(h)}</h3>
                           <p className="text-[12px] mb-4" style={{ color: ink.faint }}>{hostelOwnerName(h)}</p>
-                          <Action onClick={()=>removeHostel(h._id)} icon={<FaTrash/>} label="Remove" tone="danger"/>
+                          <div onClick={e=>e.stopPropagation()} onKeyDown={e=>e.stopPropagation()}><Action onClick={()=>removeHostel(h._id)} icon={<FaTrash/>} label="Remove" tone="danger"/></div>
                         </div>
                       ))}
                     </div>
@@ -846,13 +905,13 @@ const AdminDashboard = () => {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-5">
                       {rows.map(k=>(
-                        <div key={k._id} className="rounded-xl p-4 transition-all duration-150 hover:-translate-y-0.5 shadow-sm hover:shadow-md" style={{ background: ink.surface, border: `1px solid ${ink.line}` }}>
+                        <div key={k._id} role="button" tabIndex={0} aria-label={`View details for ${k.kitchen_name}`} onClick={()=>setSelectedListing({type:'kitchen',data:k})} onKeyDown={e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();setSelectedListing({type:'kitchen',data:k});}}} className="rounded-xl p-4 cursor-pointer focus:outline-none focus:ring-2 transition-all duration-150 hover:-translate-y-0.5 shadow-sm hover:shadow-md" style={{ background: ink.surface, border: `1px solid ${ink.line}`, '--tw-ring-color': ink.brandLight }}>
                           <div className="relative h-32 rounded-lg overflow-hidden mb-3" style={{ background: ink.panel }}>
                             <img src={k.kitchen_picture||'/images/kitchens.png'} alt={k.kitchen_name} className="w-full h-full object-cover" onError={e=>{e.target.style.display='none'}}/>
                           </div>
                           <h3 className="font-bold text-[15px] leading-tight mb-1" style={{ color: ink.text }}>{k.kitchen_name}</h3>
                           <p className="text-[12px] mb-4 line-clamp-2" style={{ color: ink.faint }}>{k.kitchen_description}</p>
-                          <Action onClick={()=>removeKitchen(k._id)} icon={<FaTrash/>} label="Remove" tone="danger"/>
+                          <div onClick={e=>e.stopPropagation()} onKeyDown={e=>e.stopPropagation()}><Action onClick={()=>removeKitchen(k._id)} icon={<FaTrash/>} label="Remove" tone="danger"/></div>
                         </div>
                       ))}
                     </div>
@@ -1104,6 +1163,7 @@ const AdminDashboard = () => {
         </Modal>
       )}
 
+      <ListingDetails listing={selectedListing} onClose={()=>setSelectedListing(null)}/>
       <ConfirmDialog box={confirmBox} onClose={()=>setConfirmBox(null)}/>
     </div>
   );

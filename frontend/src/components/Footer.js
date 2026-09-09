@@ -15,10 +15,10 @@ const Footer = () => {
           <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
           <ul className="space-y-2 text-sm">
             <li><Link to="/" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaHome /> Home</Link></li>
-            <li><Link to="/AboutUs" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaInfoCircle /> About Us</Link></li>
+            <li><Link to="/about-us" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaInfoCircle /> About Us</Link></li>
             <li><Link to="/hostel-booking" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaBuilding /> Hostel Booking</Link></li>
-            <li><Link to="/home-made-food" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaUtensils /> Homemade Food</Link></li>
-            <li><Link to="/ContactUs" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaPhone /> Contact Us</Link></li>
+            <li><Link to="/kitchens" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaUtensils /> Homemade Food</Link></li>
+            <li><Link to="/contact-us" className="text-gray-400 hover:text-white transition flex items-center gap-2"><FaPhone /> Contact Us</Link></li>
           </ul>
         </div>
         <div>

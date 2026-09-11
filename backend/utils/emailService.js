@@ -1,19 +1,15 @@
 // utils/emailService.js
 require('dotenv').config();
 
-const MAILJET_EMAIL_URL = 'https://api.mailjet.com/v3.1/send';
+const BREVO_EMAIL_URL = 'https://api.brevo.com/v3/smtp/email';
 
 const ensureConfigured = () => {
-  if (!process.env.MAILJET_API_KEY) {
-    console.error('MAILJET_API_KEY environment variable is missing');
+  if (!process.env.BREVO_API_KEY) {
+    console.error('BREVO_API_KEY environment variable is missing');
     throw new Error('Email configuration is incomplete');
   }
-  if (!process.env.MAILJET_SECRET_KEY) {
-    console.error('MAILJET_SECRET_KEY environment variable is missing');
-    throw new Error('Email configuration is incomplete');
-  }
-  if (!process.env.MAILJET_FROM) {
-    console.error('MAILJET_FROM environment variable is missing');
+  if (!process.env.BREVO_FROM) {
+    console.error('BREVO_FROM environment variable is missing');
     throw new Error('Email configuration is incomplete');
   }
 };
@@ -31,21 +27,21 @@ const attachmentContent = (content) => {
   throw new Error('Email attachments must contain a Buffer or base64 string');
 };
 
-// Sends all transactional emails through Mailjet's HTTPS API. Attachments use
+// Sends all transactional emails through Brevo's HTTPS API. Attachments use
 // the same { filename, content } shape expected by the existing callers.
 const sendEmail = async (to, subject, text, attachments = []) => {
   ensureConfigured();
   console.log(`Sending email to ${to} with subject "${subject}"`);
 
-  const message = {
-    From: {
-      Email: process.env.MAILJET_FROM,
-      Name: 'Student Facility System',
+  const payload = {
+    sender: {
+      name: 'Student Facility System',
+      email: process.env.BREVO_FROM,
     },
-    To: [{ Email: to }],
-    Subject: subject,
-    TextPart: text,
-    HTMLPart: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
+    to: [{ email: to }],
+    subject,
+    textContent: text,
+    htmlContent: `<div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
       <h2 style="color: #4a5568;">Student Facility System</h2>
       <p>${escapeHtml(text).replace(/\r?\n/g, '<br>')}</p>
       <p style="margin-top: 20px; font-size: 12px; color: #718096;">
@@ -55,47 +51,34 @@ const sendEmail = async (to, subject, text, attachments = []) => {
   };
 
   if (attachments.length > 0) {
-    message.Attachments = attachments.map((attachment) => ({
-      Filename: attachment.filename,
-      ContentType: attachment.contentType || attachment.type || 'application/octet-stream',
-      Base64Content: attachmentContent(attachment.content),
+    payload.attachment = attachments.map((attachment) => ({
+      name: attachment.filename,
+      content: attachmentContent(attachment.content),
     }));
   }
 
   try {
-    const credentials = Buffer.from(
-      `${process.env.MAILJET_API_KEY}:${process.env.MAILJET_SECRET_KEY}`
-    ).toString('base64');
-
-    const response = await fetch(MAILJET_EMAIL_URL, {
+    const response = await fetch(BREVO_EMAIL_URL, {
       method: 'POST',
       headers: {
         accept: 'application/json',
-        authorization: `Basic ${credentials}`,
+        'api-key': process.env.BREVO_API_KEY,
         'content-type': 'application/json',
       },
-      body: JSON.stringify({ Messages: [message] }),
+      body: JSON.stringify(payload),
       signal: AbortSignal.timeout(15000),
     });
 
     const responseBody = await response.json().catch(() => ({}));
-    const result = responseBody.Messages?.[0];
-    if (!response.ok || result?.Status === 'error') {
-      const apiErrors = result?.Errors?.map((item) => item.ErrorMessage).filter(Boolean);
-      throw new Error(
-        apiErrors?.join('; ') ||
-        responseBody.ErrorMessage ||
-        `Mailjet email request failed (${response.status})`
-      );
+    if (!response.ok) {
+      throw new Error(responseBody.message || `Brevo email request failed (${response.status})`);
     }
 
-    const recipientResult = result?.To?.[0];
-    const messageId = recipientResult?.MessageID || recipientResult?.MessageUUID;
-    console.log('Email sent successfully. Message ID:', messageId);
-    return { success: true, messageId };
+    console.log('Email sent successfully. Message ID:', responseBody.messageId);
+    return { success: true, messageId: responseBody.messageId };
   } catch (error) {
     const message = error.name === 'TimeoutError'
-      ? 'Mailjet email request timed out'
+      ? 'Brevo email request timed out'
       : error.message;
     console.error('Error sending email:', message);
     throw new Error(message || 'Failed to send email');

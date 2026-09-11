@@ -96,24 +96,23 @@ Registration and profile forms now let people either **upload an image from thei
 
 ## Step 2c — Email Setup (OTP / verification emails)
 
-`backend/utils/emailService.js` sends OTP and notification emails through **Mailjet's HTTPS API**, not through Gmail SMTP directly:
+`backend/utils/emailService.js` sends OTP and notification emails through **Brevo's HTTPS API**, not through Gmail SMTP directly:
 
 > **Local development** originally used `nodemailer` over Gmail SMTP (port 587), and that still works fine on your own machine or on any host that allows outbound SMTP.
 >
-> **Render's free tier blocks outbound SMTP** (a common anti-spam restriction on free-tier hosts), so this app uses Mailjet over outbound HTTPS.
+> **Render's free tier blocks outbound SMTP** (a common anti-spam restriction on free-tier hosts), so this app uses Brevo over outbound HTTPS.
 
-**Setting up Mailjet:**
-1. Create a Mailjet account at https://www.mailjet.com
-2. Add your sender email and complete sender verification.
-3. Open **API → API Key Management** and copy the API key and secret key.
-4. Set these three backend env vars:
+**Setting up Brevo:**
+1. Create a Brevo account at https://www.brevo.com
+2. Go to **Settings → Senders, domains, IPs → Senders**, add your sender email, and complete verification.
+3. Go to **Settings → SMTP & API → API Keys**, generate a key, and copy it immediately.
+4. Set these two backend env vars:
    ```env
-   MAILJET_API_KEY=your_mailjet_api_key
-   MAILJET_SECRET_KEY=your_mailjet_secret_key
-   MAILJET_FROM=your_verified_sender_email@gmail.com
+   BREVO_API_KEY=xkeysib-your_key_here
+   BREVO_FROM=your_verified_sender_email@gmail.com
    ```
 
-**Known limitation:** a Gmail sender cannot have its domain authenticated by you, so messages may land in spam. For production, use your own domain and authenticate it in Mailjet; a verified Gmail sender is sufficient for a demo/FYP.
+**Known limitation:** a Gmail sender cannot have its domain authenticated by you, so messages may land in spam. For production, use your own domain and authenticate it in Brevo; a verified Gmail sender is sufficient for a demo/FYP.
 
 ---
 
@@ -140,9 +139,8 @@ JWT_SECRET=your_long_random_secret_here
 EMAIL=aqibawan0102@gmail.com
 CONTACT_NOTIFY_EMAIL=aqibawan0102@gmail.com
 
-MAILJET_API_KEY=your_mailjet_api_key
-MAILJET_SECRET_KEY=your_mailjet_secret_key
-MAILJET_FROM=your_verified_sender_email@gmail.com
+BREVO_API_KEY=xkeysib-your_key_here
+BREVO_FROM=your_verified_sender_email@gmail.com
 
 STRIPE_SECRET_KEY=sk_test_your_stripe_secret_key
 
@@ -296,10 +294,9 @@ node resetSuperAdminPassword.js your@email.com "YourNewStrongPassword"
 | `MONGODB_URI`         | MongoDB Atlas connection string               | ✅ |
 | `JWT_SECRET`          | Long random string for JWT signing            | ✅ |
 | `EMAIL`               | Address used for the Contact Us notification destination | ✅ |
-| `MAILJET_API_KEY`     | Mailjet API key used for transactional email authentication | ✅ |
-| `MAILJET_SECRET_KEY`  | Mailjet secret key used for transactional email authentication | ✅ |
-| `MAILJET_FROM`        | Your verified Mailjet sender email | ✅ |
-| `APP_PASSWORD`        | Gmail App Password — only needed if you replace Mailjet with nodemailer/SMTP | Optional (local/SMTP only) |
+| `BREVO_API_KEY`       | Brevo API key used to send transactional emails over HTTPS | ✅ |
+| `BREVO_FROM`          | Your verified Brevo sender email | ✅ |
+| `APP_PASSWORD`        | Gmail App Password — only needed if you replace Brevo with nodemailer/SMTP | Optional (local/SMTP only) |
 | `CONTACT_NOTIFY_EMAIL` | Where Contact Us submissions get emailed. Defaults to `EMAIL` if unset | Optional |
 | `STRIPE_SECRET_KEY`   | Stripe secret key `sk_test_...`               | ✅ |
 | `ALLOWED_ORIGIN`      | Comma-separated frontend URL(s) for CORS + Socket.IO | ✅ |

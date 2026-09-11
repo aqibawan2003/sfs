@@ -65,7 +65,7 @@ Student Facility System (SFS) brings essential student services into a single re
 | Data | MongoDB, Mongoose |
 | Maps | Leaflet, React Leaflet, OpenStreetMap |
 | Payments | Stripe Elements and Stripe API |
-| Email | Mailjet Send API v3.1 |
+| Email | Brevo Transactional Email API |
 | Storage | Cloudinary |
 | Deployment | Vercel, Render, MongoDB Atlas |
 
@@ -79,7 +79,7 @@ flowchart LR
     S --- B
     B --> M[(MongoDB Atlas)]
     B --> P[Stripe]
-    B --> E[Mailjet Email API]
+    B --> E[Brevo Email API]
     B --> C[Cloudinary]
     B --> G[OpenStreetMap services]
 ```
@@ -162,9 +162,8 @@ Never commit real credentials. Both applications include safe `.env.example` tem
 |---|---|
 | `MONGODB_URI` | MongoDB connection string |
 | `JWT_SECRET` | Secret used to sign authentication tokens |
-| `MAILJET_API_KEY` | Mailjet API key |
-| `MAILJET_SECRET_KEY` | Mailjet secret key |
-| `MAILJET_FROM` | Sender address verified in Mailjet |
+| `BREVO_API_KEY` | Brevo transactional email API key |
+| `BREVO_FROM` | Sender address verified in Brevo |
 | `STRIPE_SECRET_KEY` | Stripe server-side secret key |
 | `ALLOWED_ORIGIN` | Comma-separated frontend origins allowed by CORS |
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary account cloud name |
@@ -200,7 +199,7 @@ The production architecture uses:
 - **Frontend:** Vercel
 - **Backend:** Render
 - **Database:** MongoDB Atlas
-- **Transactional email:** Mailjet
+- **Transactional email:** Brevo
 
 Read the [complete deployment guide](DEPLOYMENT_GUIDE.md) for environment configuration, service setup, and production deployment.
 

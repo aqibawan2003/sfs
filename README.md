@@ -169,6 +169,9 @@ Never commit real credentials. Both applications include safe `.env.example` tem
 | `CLOUDINARY_CLOUD_NAME` | Cloudinary account cloud name |
 | `CLOUDINARY_API_KEY` | Cloudinary API key |
 | `CLOUDINARY_API_SECRET` | Cloudinary API secret |
+| `VAPID_PUBLIC_KEY` | Public VAPID key used to subscribe installed SFS apps to phone notifications |
+| `VAPID_PRIVATE_KEY` | Secret VAPID key used by the backend to send phone notifications |
+| `VAPID_SUBJECT` | Administrator contact URI, normally `mailto:you@example.com` |
 
 See [backend/.env.example](backend/.env.example) for optional settings and local-development defaults.
 

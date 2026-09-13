@@ -36,30 +36,51 @@ const LocationPicker = ({ value, onChange, addressHint }) => {
   const hasValue = value && value.lat != null && value.lng != null;
   const position = hasValue ? [value.lat, value.lng] : DEFAULT_CENTER;
 
-  const handleLocateAddress = async () => {
-    if (!addressHint || !addressHint.trim()) {
-      setLocateError('Type your hostel address above first, then click this button.');
-      return;
-    }
+  const locateAddress = async (address, showError = true) => {
+    if (!address || !address.trim()) return;
+
     setLocating(true);
-    setLocateError('');
+    if (showError) setLocateError('');
     try {
       const { data } = await axios.post(`${API_BASE_URL}/api/geo/geocode`, {
-        address: `${addressHint}, Lahore, Pakistan`,
+        address: `${address.trim()}, Lahore, Pakistan`,
       });
       if (data?.lat != null && data?.lng != null) {
         onChange({ lat: data.lat, lng: data.lng });
-      } else {
+      } else if (showError) {
         setLocateError('Could not find that address. Try clicking the map directly instead.');
       }
     } catch (err) {
       console.error('Failed to locate address:', err);
-      setLocateError(
-        err.response?.data?.message || 'Could not find that address. Try clicking the map directly instead.'
-      );
+      if (showError) {
+        setLocateError(
+          err.response?.data?.message || 'Could not find that address. Try clicking the map directly instead.'
+        );
+      }
     } finally {
       setLocating(false);
     }
+  };
+
+  // Look up a typed place after the user pauses, rather than sending a
+  // request for every keystroke. The button remains available for retries.
+  useEffect(() => {
+    const address = addressHint?.trim();
+    if (!address || address.length < 3) return undefined;
+
+    const timer = setTimeout(() => {
+      locateAddress(address, false);
+    }, 900);
+
+    return () => clearTimeout(timer);
+  }, [addressHint]);
+
+  const handleLocateAddress = () => {
+    if (!addressHint || !addressHint.trim()) {
+      setLocateError('Type your hostel address above first, then click this button.');
+      return;
+    }
+    locateAddress(addressHint);
   };
 
   return (

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import Cookies from 'js-cookie';
 import Navbar from '../Navbar';
@@ -13,7 +12,6 @@ import ResponseCountdown from '../common/ResponseCountdown';
 const OrderPage = () => {
   const dispatch = useDispatch();
   const { orders, loading, error } = useSelector((state) => state.orders);
-  const [socket, setSocket] = useState(null);
   const [orderPlaced, setOrderPlaced] = useState(false); // For tracking order placement
 
   useEffect(() => {
@@ -36,8 +34,6 @@ const OrderPage = () => {
       newSocket.on('connect_error', (err) => {
         console.error('Socket connection error:', err.message);
       });
-
-      setSocket(newSocket);
 
       newSocket.emit('joinUserRoom', userId);
 

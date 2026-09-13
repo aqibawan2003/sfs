@@ -214,6 +214,11 @@ Read the [complete deployment guide](DEPLOYMENT_GUIDE.md) for environment config
 
 If a secret is ever exposed, revoke it at the provider, generate a replacement, and update the deployment environment immediately.
 
+## Team Members
+
+- Abubakr Bhatti
+- M. Sami
+
 ## 🤝 Contributing
 
 Contributions and suggestions are welcome:

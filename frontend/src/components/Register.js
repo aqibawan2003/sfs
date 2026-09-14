@@ -45,6 +45,16 @@ const isAllowedEmail = (email) => {
   return ALLOWED_DOMAINS.includes(domain);
 };
 
+const PHONE_COUNTRIES = [
+  { code: '+92', label: 'Pakistan (+92)' },
+  { code: '+91', label: 'India (+91)' },
+  { code: '+234', label: 'Nigeria (+234)' },
+];
+
+const internationalPhoneSchema = Yup.string()
+  .matches(/^\+(?:92|91|234)[0-9]{10}$/, 'Select a country code and enter a 10-digit phone number')
+  .required('Phone number is required');
+
 const validationSchemas = {
   student: Yup.object({
     first_name: Yup.string().required("First name is required"),
@@ -59,9 +69,7 @@ const validationSchemas = {
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
-    phone_number: Yup.string()
-      .matches(/^\+92[0-9]{10}$/, 'Phone number must start with +92 followed by 10 digits')
-      .required("Phone number is required"),
+    phone_number: internationalPhoneSchema,
     address: Yup.string().required("Address is required"),
     gender: Yup.string().required("Gender is required"),
     profile_picture: Yup.string()
@@ -84,9 +92,7 @@ const validationSchemas = {
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
-    phone_number: Yup.string()
-      .matches(/^\+92[0-9]{10}$/, 'Phone number must start with +92 followed by 10 digits')
-      .required("Phone number is required"),
+    phone_number: internationalPhoneSchema,
     address: Yup.string().required("Address is required"),
     profile_picture: Yup.string()
       .url("Invalid URL")
@@ -126,9 +132,7 @@ const validationSchemas = {
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm password is required"),
-    phone_number: Yup.string()
-      .matches(/^\+92[0-9]{10}$/, 'Phone number must start with +92 followed by 10 digits')
-      .required("Phone number is required"),
+    phone_number: internationalPhoneSchema,
     address: Yup.string().required("Address is required"),
     profile_picture: Yup.string()
       .url("Invalid URL")
@@ -155,6 +159,7 @@ const RegistrationForm = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phoneCountryCode, setPhoneCountryCode] = useState('+92');
 
   const toggleShowPassword = () => setShowPassword(!showPassword);
   const toggleShowConfirmPassword = () =>
@@ -619,7 +624,21 @@ const RegistrationForm = () => {
                 Phone Number
               </label>
               <div className="mt-1 flex rounded-md shadow-sm">
-                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-700 text-gray-200">+92</span>
+                <select
+                  aria-label="Phone country code"
+                  value={phoneCountryCode}
+                  onChange={(e) => {
+                    const nextCode = e.target.value;
+                    const localNumber = (formik.values.phone_number || '').slice(phoneCountryCode.length);
+                    setPhoneCountryCode(nextCode);
+                    formik.setFieldValue('phone_number', localNumber ? `${nextCode}${localNumber}` : '');
+                  }}
+                  className="px-2 rounded-l-md border border-r-0 border-gray-300 bg-gray-700 text-gray-200 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  {PHONE_COUNTRIES.map((country) => (
+                    <option key={country.code} value={country.code}>{country.label}</option>
+                  ))}
+                </select>
                 <input
                   id="phone_number"
                   name="phone_number_local"
@@ -628,10 +647,10 @@ const RegistrationForm = () => {
                   maxLength={10}
                   onChange={(e) => {
                     const digits = (e.target.value || '').replace(/\D/g, '').slice(0, 10);
-                    formik.setFieldValue('phone_number', digits ? `+92${digits}` : '');
+                    formik.setFieldValue('phone_number', digits ? `${phoneCountryCode}${digits}` : '');
                   }}
                   onBlur={() => formik.setFieldTouched('phone_number', true)}
-                  value={(formik.values.phone_number || '').replace(/^\+92/, '')}
+                  value={(formik.values.phone_number || '').slice(phoneCountryCode.length)}
                   className="p-2 block w-full border border-gray-300 rounded-r-md focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
                 />
               </div>

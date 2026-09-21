@@ -55,7 +55,7 @@ const LoginForm = () => {
           navigate('/kitchen-owner-profile');
         }
       } catch (error) {
-        setError('Invalid email or password');
+        setError(error?.message || 'Invalid email or password');
       }
     },
   });

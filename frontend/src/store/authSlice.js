@@ -33,10 +33,22 @@ export const registerUser = createAsyncThunk(
 );
 
 // Async thunk for user login
-export const loginUser = createAsyncThunk('auth/loginUser', async (credentials) => {
-  const response = await axios.post(`${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/login`, credentials);
-  return response.data;
-});
+export const loginUser = createAsyncThunk(
+  'auth/loginUser',
+  async (credentials, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL || 'http://localhost:5000'}/auth/login`,
+        credentials
+      );
+      return response.data;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data || { message: 'Unable to log in. Please try again.' }
+      );
+    }
+  }
+);
 
 // Define the initial state
 const initialState = {

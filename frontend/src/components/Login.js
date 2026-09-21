@@ -18,6 +18,17 @@ const LoginForm = () => {
   const dispatch = useDispatch();
   const [error, setError] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [retryAfter, setRetryAfter] = useState(0);
+
+  useEffect(() => {
+    if (retryAfter <= 0) return undefined;
+
+    const timer = setInterval(() => {
+      setRetryAfter((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [retryAfter > 0]);
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -60,6 +71,7 @@ const LoginForm = () => {
           navigate('/kitchen-owner-profile');
         }
       } catch (error) {
+        setRetryAfter(error?.retryAfter || 0);
         setError(error?.message || 'Invalid email or password');
       }
     },
@@ -72,6 +84,12 @@ const LoginForm = () => {
       event.preventDefault();
       if (!formik.isSubmitting) formik.submitForm();
     }
+  };
+
+  const formatRetryAfter = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${String(remainingSeconds).padStart(2, '0')}`;
   };
 
   const handleForgotPassword = async () => {
@@ -170,7 +188,12 @@ const LoginForm = () => {
               ) : null}
             </div>
 
-            {error && <div className="text-red-600 text-sm mb-4">{error}</div>}
+            {error && (
+              <div className="text-red-600 text-sm mb-4">
+                {error}
+                {retryAfter > 0 && ` Try again in ${formatRetryAfter(retryAfter)}.`}
+              </div>
+            )}
 
             <button
               type="button"
@@ -181,10 +204,10 @@ const LoginForm = () => {
             </button>
             <button
               type="submit"
-              disabled={formik.isSubmitting}
+              disabled={formik.isSubmitting || retryAfter > 0}
               className="w-full py-2 px-4 mt-6 hover:bg-black text-gray-300 font-bold rounded-md shadow-sm focus:ring-2 hover:border-gray-600 focus:ring-indigo-500 focus:ring-offset-2 bg-[#25292e] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {formik.isSubmitting ? 'Logging in...' : 'Login'}
+              {formik.isSubmitting ? 'Logging in...' : retryAfter > 0 ? `Try again in ${formatRetryAfter(retryAfter)}` : 'Login'}
             </button>
           </form>
 

@@ -44,7 +44,10 @@ export const loginUser = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(
-        error.response?.data || { message: 'Unable to log in. Please try again.' }
+        {
+          ...(error.response?.data || { message: 'Unable to log in. Please try again.' }),
+          retryAfter: Number(error.response?.headers?.['ratelimit-reset']) || 0,
+        }
       );
     }
   }

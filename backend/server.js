@@ -51,6 +51,28 @@ app.use(
   })
 );
 
+// CORS must run before rate limiting so browser clients can read a 429
+// response and its RateLimit-Reset header.
+const allowedOrigins = process.env.ALLOWED_ORIGIN
+  ? process.env.ALLOWED_ORIGIN.split(',').map(o => o.trim())
+  : ['http://localhost:3000'];
+
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Allow requests with no origin (mobile apps, curl, Postman)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) return callback(null, true);
+    return callback(new Error('Not allowed by CORS'));
+  },
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
+};
+
+app.use(cors(corsOptions));
+app.options('*', cors(corsOptions));
+
 // Generic rate limiter for the whole API - generous, just a backstop.
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -73,26 +95,6 @@ const authLimiter = rateLimit({
 
 // Initialize Socket.IO
 const io = connectSocket(server);
-
-// Middleware
-const allowedOrigins = process.env.ALLOWED_ORIGIN
-  ? process.env.ALLOWED_ORIGIN.split(',').map(o => o.trim())
-  : ['http://localhost:3000'];
-
-const corsOptions = {
-  origin: function (origin, callback) {
-    // Allow requests with no origin (mobile apps, curl, Postman)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error('Not allowed by CORS'));
-  },
-  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
-  credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization']
-};
-
-app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
 
 // Request logging middleware for debugging
 app.use((req, res, next) => {

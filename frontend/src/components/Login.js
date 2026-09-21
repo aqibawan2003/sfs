@@ -8,6 +8,8 @@ import { useDispatch } from 'react-redux';
 import { updateCartSummary } from '../store/cartSlice';
 import { loginUser, setCredentials } from '../store/authSlice';
 import { toast } from 'react-toastify';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import API_BASE_URL from '../utils/api';
 
 
@@ -15,6 +17,7 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [error, setError] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     const token = Cookies.get('token');
@@ -139,19 +142,27 @@ const LoginForm = () => {
               ) : null}
             </div>
 
-            <div className="mb-4">
+            <div className="mb-4 relative">
               <label htmlFor="password" className="block text-lg font-medium text-gray-300">
                 Password
               </label>
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 onChange={formik.handleChange}
                 onKeyDown={handleLoginKeyDown}
                 value={formik.values.password}
-                className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
+                className="mt-1 p-2 pr-10 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword((visible) => !visible)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+                className="absolute right-3 bottom-2.5 text-gray-300 hover:text-white"
+              >
+                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+              </button>
               {formik.touched.password && formik.errors.password ? (
                 <div className="text-red-600 text-sm">{formik.errors.password}</div>
               ) : null}

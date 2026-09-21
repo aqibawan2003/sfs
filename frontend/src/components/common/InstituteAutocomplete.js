@@ -11,6 +11,7 @@ import API_BASE_URL from '../../utils/api';
 const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, className }) => {
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
+  const [searchError, setSearchError] = useState('');
   const wrapperRef = useRef(null);
   const debounceRef = useRef(null);
 
@@ -38,12 +39,15 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
         setSuggestions(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Institute search failed:', err);
+        setSuggestions([]);
+        setSearchError(err.response?.data?.message || 'Unable to search institutes. Please try again.');
       }
     }, 300);
   };
 
   const handleInputChange = (e) => {
     onChange(e);
+    setSearchError('');
     setOpen(true);
     fetchSuggestions(e.target.value);
   };
@@ -81,6 +85,7 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
           ))}
         </div>
       )}
+      {searchError && <p className="mt-1 text-xs text-red-500">{searchError}</p>}
     </div>
   );
 };

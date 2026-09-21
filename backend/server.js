@@ -57,6 +57,7 @@ const generalLimiter = rateLimit({
   max: 300,
   standardHeaders: true,
   legacyHeaders: false,
+  message: { message: 'Too many requests. Please wait a few minutes and try again.' },
 });
 app.use(generalLimiter);
 

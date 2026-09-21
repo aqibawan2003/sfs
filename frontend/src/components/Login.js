@@ -60,6 +60,15 @@ const LoginForm = () => {
     },
   });
 
+  // Make Enter submit reliably even when a browser does not use the form's
+  // implicit submit behavior for the focused input.
+  const handleLoginKeyDown = (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      formik.submitForm();
+    }
+  };
+
   const handleForgotPassword = async () => {
     if (!formik.values.email) {
       setError('Please enter your email address to reset your password');
@@ -121,6 +130,7 @@ const LoginForm = () => {
                 name="email"
                 type="email"
                 onChange={formik.handleChange}
+                onKeyDown={handleLoginKeyDown}
                 value={formik.values.email}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
               />
@@ -138,6 +148,7 @@ const LoginForm = () => {
                 name="password"
                 type="password"
                 onChange={formik.handleChange}
+                onKeyDown={handleLoginKeyDown}
                 value={formik.values.password}
                 className="mt-1 p-2 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
               />

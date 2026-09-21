@@ -50,7 +50,9 @@ const LoginForm = () => {
         sessionStorage.removeItem('verified');
         
         if (user.role === 'student') {
-          toast.success(`${user.first_name} ${user.last_name} has successfully logged in!`);
+          toast.success(`${user.first_name} ${user.last_name} has successfully logged in!`, {
+            toastId: 'login-success',
+          });
           navigate('/');
         } else if (user.role === 'hostelOwner') {
           navigate('/hostel-owner-profile');
@@ -68,7 +70,7 @@ const LoginForm = () => {
   const handleLoginKeyDown = (event) => {
     if (event.key === 'Enter') {
       event.preventDefault();
-      formik.submitForm();
+      if (!formik.isSubmitting) formik.submitForm();
     }
   };
 
@@ -179,9 +181,10 @@ const LoginForm = () => {
             </button>
             <button
               type="submit"
-              className="w-full py-2 px-4 mt-6 hover:bg-black text-gray-300 font-bold rounded-md shadow-sm focus:ring-2 hover:border-gray-600 focus:ring-indigo-500 focus:ring-offset-2 bg-[#25292e]"
+              disabled={formik.isSubmitting}
+              className="w-full py-2 px-4 mt-6 hover:bg-black text-gray-300 font-bold rounded-md shadow-sm focus:ring-2 hover:border-gray-600 focus:ring-indigo-500 focus:ring-offset-2 bg-[#25292e] disabled:cursor-not-allowed disabled:opacity-60"
             >
-              Login
+              {formik.isSubmitting ? 'Logging in...' : 'Login'}
             </button>
           </form>
 

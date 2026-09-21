@@ -35,7 +35,16 @@ const ImageUploadField = ({
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [fileName, setFileName] = useState('');
+  const [retryAfter, setRetryAfter] = useState(0);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    if (retryAfter <= 0) return undefined;
+    const timer = setInterval(() => setRetryAfter(seconds => Math.max(0, seconds - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [retryAfter > 0]);
+
+  const countdown = `${Math.floor(retryAfter / 60)}:${String(retryAfter % 60).padStart(2, '0')}`;
 
   // If a URL already exists (e.g. editing an existing profile), default to the
   // URL tab so the person immediately sees what's already set.
@@ -65,6 +74,7 @@ const ImageUploadField = ({
 
       onChange(res.data.url);
     } catch (err) {
+      setRetryAfter(Number(err?.response?.headers?.['ratelimit-reset']) || 0);
       const message =
         err?.response?.data?.message ||
         'Image upload failed. Please try again, or switch to "Image URL" and paste a link instead.';
@@ -138,15 +148,17 @@ const ImageUploadField = ({
           <button
             type="button"
             onClick={() => fileInputRef.current && fileInputRef.current.click()}
-            disabled={uploading}
+            disabled={uploading || retryAfter > 0}
             className={`w-full flex items-center justify-center gap-2 border-2 border-dashed rounded-md py-4 transition ${
               darkMode ? 'border-gray-500 text-gray-300 hover:border-[#697565]' : 'border-gray-300 text-gray-600 hover:border-[#697565]'
-            } ${uploading ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+            } ${uploading || retryAfter > 0 ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
           >
             {uploading ? (
               <>
                 <FaSpinner className="animate-spin" /> Uploading...
               </>
+            ) : retryAfter > 0 ? (
+              <>Try again in {countdown}</>
             ) : value ? (
               <>
                 <FaCheckCircle className="text-green-500" /> {fileName ? `${fileName} uploaded` : 'Image set — click to replace'}
@@ -170,7 +182,7 @@ const ImageUploadField = ({
           )}
           {uploadError && (
             <div className="text-red-500 text-sm mt-1 flex items-center gap-1">
-              <FaTimesCircle /> {uploadError}
+              <FaTimesCircle /> {uploadError}{retryAfter > 0 && ` Try again in ${countdown}.`}
             </div>
           )}
         </div>

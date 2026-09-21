@@ -12,6 +12,7 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
   const [suggestions, setSuggestions] = useState([]);
   const [open, setOpen] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [retryAfter, setRetryAfter] = useState(0);
   const wrapperRef = useRef(null);
   const debounceRef = useRef(null);
 
@@ -25,7 +26,16 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (retryAfter <= 0) return undefined;
+    const timer = setInterval(() => setRetryAfter(seconds => Math.max(0, seconds - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [retryAfter > 0]);
+
+  const countdown = `${Math.floor(retryAfter / 60)}:${String(retryAfter % 60).padStart(2, '0')}`;
+
   const fetchSuggestions = (query) => {
+    if (retryAfter > 0) return;
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(async () => {
       if (!query || query.trim().length < 2) {
@@ -40,6 +50,7 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
       } catch (err) {
         console.error('Institute search failed:', err);
         setSuggestions([]);
+        setRetryAfter(Number(err?.response?.headers?.['ratelimit-reset']) || 0);
         setSearchError(err.response?.data?.message || 'Unable to search institutes. Please try again.');
       }
     }, 300);
@@ -66,6 +77,7 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
         name={name}
         value={value || ''}
         onChange={handleInputChange}
+        disabled={retryAfter > 0}
         onFocus={() => value && value.trim().length >= 2 && suggestions.length > 0 && setOpen(true)}
         placeholder={placeholder}
         className={className}
@@ -85,7 +97,7 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
           ))}
         </div>
       )}
-      {searchError && <p className="mt-1 text-xs text-red-500">{searchError}</p>}
+      {searchError && <p className="mt-1 text-xs text-red-500">{searchError}{retryAfter > 0 && ` Try again in ${countdown}.`}</p>}
     </div>
   );
 };

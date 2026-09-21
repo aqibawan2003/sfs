@@ -33,11 +33,19 @@ const ClickHandler = ({ onChange }) => {
 const LocationPicker = ({ value, onChange, addressHint }) => {
   const [locating, setLocating] = useState(false);
   const [locateError, setLocateError] = useState('');
+  const [retryAfter, setRetryAfter] = useState(0);
   const hasValue = value && value.lat != null && value.lng != null;
   const position = hasValue ? [value.lat, value.lng] : DEFAULT_CENTER;
+  const countdown = `${Math.floor(retryAfter / 60)}:${String(retryAfter % 60).padStart(2, '0')}`;
+
+  useEffect(() => {
+    if (retryAfter <= 0) return undefined;
+    const timer = setInterval(() => setRetryAfter(seconds => Math.max(0, seconds - 1)), 1000);
+    return () => clearInterval(timer);
+  }, [retryAfter > 0]);
 
   const locateAddress = async (address, showError = true) => {
-    if (!address || !address.trim()) return;
+    if (!address || !address.trim() || retryAfter > 0) return;
 
     setLocating(true);
     if (showError) setLocateError('');
@@ -52,6 +60,7 @@ const LocationPicker = ({ value, onChange, addressHint }) => {
       }
     } catch (err) {
       console.error('Failed to locate address:', err);
+      setRetryAfter(Number(err?.response?.headers?.['ratelimit-reset']) || 0);
       if (showError) {
         setLocateError(
           err.response?.data?.message || 'Could not find that address. Try clicking the map directly instead.'
@@ -90,17 +99,17 @@ const LocationPicker = ({ value, onChange, addressHint }) => {
         <button
           type="button"
           onClick={handleLocateAddress}
-          disabled={locating}
+          disabled={locating || retryAfter > 0}
           className="text-xs bg-[#697565] hover:bg-[#3C3D37] text-white px-2 py-1 rounded disabled:opacity-50"
         >
-          {locating ? 'Locating...' : 'Locate my address'}
+          {locating ? 'Locating...' : retryAfter > 0 ? `Try again in ${countdown}` : 'Locate my address'}
         </button>
       </div>
       <p className="text-xs text-gray-400 mb-2">
         Click the map (or drag the pin) to mark your hostel's exact location — this helps students get accurate distances. Optional; you can skip this.
       </p>
       {locateError && (
-        <p className="text-xs text-red-400 mb-2">{locateError}</p>
+        <p className="text-xs text-red-400 mb-2">{locateError}{retryAfter > 0 && ` Try again in ${countdown}.`}</p>
       )}
       <MapContainer center={position} zoom={hasValue ? 15 : 13} className="w-full h-64 rounded-md">
         <TileLayer

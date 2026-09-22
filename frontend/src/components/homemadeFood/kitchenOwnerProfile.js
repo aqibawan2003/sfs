@@ -30,13 +30,11 @@ const KitchenOwnerProfile = () => {
   }, [dispatch]);
 
   return (
-    <div className="flex min-h-screen">
+    <div className="bg-[#1E201E] min-h-screen flex">
       <KitchenOwnerNavbar />
-      <div className="bg-black flex-1 flex flex-col items-center justify-center pt-20 md:pt-0"> {/* Centering the content */}
-         {/* Centered text */}
-        
+      <main className="flex-1 flex flex-col p-6 pt-20 md:pt-6">
         <Profile />
-        
+
         <button
           onClick={() => {
             setModalState((prevState) => ({
@@ -46,7 +44,7 @@ const KitchenOwnerProfile = () => {
               payload: {},
             }));
           }}
-          className="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 mt-4 rounded"
+          className="bg-[#697565] w-[120px] ml-6 hover:bg-[#3C3D37] md:mt-4 text-white px-4 py-2 rounded"
         >
           Add Item
         </button>
@@ -71,7 +69,7 @@ const KitchenOwnerProfile = () => {
             {successMessage}
           </div>
         )}
-      </div>
+      </main>
     </div>
   );
 };

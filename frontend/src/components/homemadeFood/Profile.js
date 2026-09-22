@@ -21,7 +21,7 @@ const KitchenOwnerProfile = () => {
   }, []);
 
   if (!user) {
-    return <div>No user data available</div>;
+    return <div className='text-white text-center'>No user data available</div>;
   }
 
   const startEdit = () => {
@@ -53,20 +53,19 @@ const KitchenOwnerProfile = () => {
   };
 
   return (
-    <div className=' text-white'>
-    <div className='flex flex-col justify-center items-center'>
-    <p className="text-2xl font-bold text-center text-white mt-4"> {user.kitchen_name} Dashboard </p>
-      <img className='w-full h-[500px]' src={user.kitchen_picture} alt={user.kitchen_name} />
+    <div className='md:flex'>
+      <div className='w-full md:w-[500px] pt-6 pl-6'>
+      <img className='w-full h-auto md:h-[500px] object-cover' src={user.kitchen_picture} alt={user.kitchen_name} />
       {!editMode && (
         <button
           onClick={startEdit}
-          className='mt-2 bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded flex items-center gap-2'
+          className='mt-2 bg-[#697565] hover:bg-[#3C3D37] text-white px-4 py-2 rounded flex items-center gap-2'
         >
           <FaEdit /> Change Picture
         </button>
       )}
       {editMode && (
-        <form onSubmit={handleSave} className='mt-4 w-full max-w-md bg-[#25292e] rounded-xl p-4'>
+        <form onSubmit={handleSave} className='mt-4 bg-[#25292e] rounded-xl p-4'>
           <ImageUploadField
             label="Kitchen Picture"
             name="kitchenPicture"
@@ -79,19 +78,18 @@ const KitchenOwnerProfile = () => {
             <button type='submit' disabled={saving} className='bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white px-4 py-2 rounded'>
               {saving ? 'Saving...' : 'Save'}
             </button>
-            <button type='button' onClick={() => setEditMode(false)} className='bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded'>
+            <button type='button' onClick={() => setEditMode(false)} className='bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded'>
               Cancel
             </button>
           </div>
         </form>
       )}
-      <div className='p-4 justify-center'>
-
-        <h2 className='text-xl font-bold'>{user.kitchen_name}</h2>
-        <p className='text-lg font-semibold'>{user.address}</p>
-        <p className=''>Description:{user.kitchen_description}</p>
       </div>
-    </div>
+      <div className='p-4 text-white text-center mt-20'>
+        <h2 className='text-2xl font-bold'>{user.kitchen_name}</h2>
+        <p className='text-lg font-semibold'>{user.address}</p>
+        <p>Description: {user.kitchen_description}</p>
+      </div>
     </div>
   );
 };

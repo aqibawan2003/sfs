@@ -22,6 +22,7 @@ const MOBILE_BREAKPOINT = 768;
 const HostelNavbar = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [user, setUser] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // Desktop vs mobile is decided in JS, not via Tailwind's `md:` classes -
@@ -34,10 +35,15 @@ const HostelNavbar = () => {
 
   useEffect(() => {
     const token = Cookies.get('token');
-    const user = sessionStorage.getItem('user');
+    const storedUser = sessionStorage.getItem('user');
 
-    if (token && user) {
+    if (token && storedUser) {
       setIsLoggedIn(true);
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (error) {
+        console.error('Failed to read stored user:', error);
+      }
     } else {
       setIsLoggedIn(false);
     }
@@ -91,7 +97,6 @@ const HostelNavbar = () => {
 
   const renderLinks = (onLinkClick) => (
     <>
-      <li className="px-3 py-2"><PushNotificationButton /></li>
       {OWNER_LINKS.map((link) => (
         <li key={link.label} className="text-white text-2xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
           <Link to={link.to} onClick={onLinkClick}>{link.label}</Link>
@@ -127,6 +132,7 @@ const HostelNavbar = () => {
                 {renderLinks(closeMenu)}
               </ul>
               <div className="mt-4">
+                <div className="px-3 pb-4"><PushNotificationButton /></div>
                 <Link to="/" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="text-white text-xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
                   Visit Website
                 </Link>
@@ -148,11 +154,17 @@ const HostelNavbar = () => {
         /* Desktop: traditional sidebar, sticky (not fixed) so it can't overlap
            content that comes after it in the page (e.g. anything below the fold). */
         <nav className="flex w-[180px] shrink-0 h-screen sticky top-0 self-start p-4 flex-col justify-between bg-gray-800 z-30">
-          <ul className="mt-20 space-y-4">
+          <div>
+            <Link to="/profile" className="mx-auto mt-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-gray-600 bg-gray-700 text-lg font-semibold text-white hover:border-gray-400" aria-label="Open personal profile">
+              {user?.profile_picture ? <img src={user.profile_picture} alt="Owner profile" className="h-full w-full object-cover" /> : <span>{user?.first_name?.charAt(0)?.toUpperCase() || 'O'}</span>}
+            </Link>
+            <ul className="mt-10 space-y-4">
             {renderLinks(undefined)}
-          </ul>
+            </ul>
+          </div>
 
           <div className="mb-4">
+            <div className="mb-5 px-3"><PushNotificationButton /></div>
             <Link to="/" target="_blank" rel="noopener noreferrer" className="text-white text-xl font-semibold  hover:bg-gray-900 px-3 py-2 rounded">
               Visit Website
             </Link>

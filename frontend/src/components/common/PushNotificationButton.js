@@ -49,14 +49,23 @@ const PushNotificationButton = () => {
       setState('working');
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
-      const token = Cookies.get('token');
 
       if (subscription) {
-        await axios.delete(`${API_BASE_URL}/api/push/unsubscribe`, {
-          headers: { Authorization: `Bearer ${token}` },
-          data: { endpoint: subscription.endpoint },
-        });
+        const endpoint = subscription.endpoint;
         await subscription.unsubscribe();
+        setState('disabled');
+
+        // A server cleanup failure must not prevent the owner from turning off
+        // notifications on this device. Invalid subscriptions are also removed
+        // automatically by the notification service when a send fails.
+        try {
+          await axios.delete(`${API_BASE_URL}/api/push/unsubscribe`, {
+            headers: { Authorization: `Bearer ${Cookies.get('token')}` },
+            data: { endpoint },
+          });
+        } catch (error) {
+          console.warn('Could not remove the server push subscription:', error);
+        }
       }
 
       setState('disabled');

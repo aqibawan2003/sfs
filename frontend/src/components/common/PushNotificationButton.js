@@ -45,15 +45,27 @@ const PushNotificationButton = () => {
   };
 
   if (state === 'unsupported') return null;
+  const isBusy = state === 'working' || state === 'checking';
+  const isBlocked = state === 'denied';
+  const isEnabled = state === 'enabled';
+  const tooltip = isEnabled
+    ? 'Phone alerts are enabled.'
+    : isBlocked
+      ? 'Notifications are blocked. Allow them in your phone or browser settings.'
+      : isBusy
+        ? 'Setting up phone alerts…'
+        : 'Enable phone alerts';
+
   return (
     <button
       type="button"
       onClick={enable}
-      disabled={state === 'enabled' || state === 'working' || state === 'checking' || state === 'denied'}
-      className="w-full rounded-lg border border-amber-400/50 bg-amber-400/10 px-3 py-2 text-left text-sm font-semibold text-amber-200 disabled:cursor-default disabled:opacity-70"
-      title={state === 'denied' ? 'Allow notifications in your phone or browser settings.' : undefined}
+      disabled={isEnabled || isBusy || isBlocked}
+      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-white/5 text-base text-white/85 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-default disabled:opacity-45"
+      title={tooltip}
+      aria-label={tooltip}
     >
-      {state === 'enabled' ? '🔔 Phone alerts enabled' : state === 'denied' ? '🔕 Notifications blocked' : state === 'working' || state === 'checking' ? 'Enabling alerts…' : '🔔 Enable phone alerts'}
+      {isBlocked ? '🔕' : '🔔'}
     </button>
   );
 };

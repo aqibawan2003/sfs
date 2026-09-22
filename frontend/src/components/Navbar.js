@@ -198,7 +198,7 @@ const Navbar = ({ module }) => {
             </>
           )}
           {isLoggedIn && module !== 'home' && (
-            <div className="mt-3 min-w-48 md:mt-0"><PushNotificationButton /></div>
+            <div className="mt-3 md:mt-0 md:ml-3"><PushNotificationButton /></div>
           )}
         </div>
       </div>

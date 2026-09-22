@@ -155,7 +155,7 @@ const HostelNavbar = () => {
            content that comes after it in the page (e.g. anything below the fold). */
         <nav className="flex w-[180px] shrink-0 h-screen sticky top-0 self-start p-4 flex-col justify-between bg-gray-800 z-30">
           <div>
-            <Link to="/profile" className="mx-auto mt-4 flex h-16 w-16 items-center justify-center overflow-hidden rounded-full border-2 border-gray-600 bg-gray-700 text-lg font-semibold text-white hover:border-gray-400" aria-label="Open personal profile">
+            <Link to="/profile" className="mx-auto mt-4 flex h-24 w-24 items-center justify-center overflow-hidden rounded-full border-2 border-gray-600 bg-gray-700 text-lg font-semibold text-white hover:border-gray-400" aria-label="Open personal profile">
               {user?.profile_picture ? <img src={user.profile_picture} alt="Owner profile" className="h-full w-full object-cover" /> : <span>{user?.first_name?.charAt(0)?.toUpperCase() || 'O'}</span>}
             </Link>
             <ul className="mt-10 space-y-4">

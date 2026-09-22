@@ -94,7 +94,7 @@ const ContactUs = () => {
             <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
             <div className="space-y-5">
               {[
-                { icon: <FaUser />, label: 'Developer', value: 'Aqib Awan (Aqib Ejaz)', href: 'https://aqibawan2003.netlify.app/', external: true },
+                { icon: <FaUser />, label: 'Developer', value: 'Aqib Awan (Aqib Ejaz)', href: 'https://aqibawan2003.vercel.app', external: true },
                 { icon: <FaEnvelope />, label: 'Email', value: 'aqibawan0102@gmail.com', href: 'mailto:aqibawan0102@gmail.com' },
                 { icon: <FaPhone />, label: 'Phone', value: '+92-310-4693600', href: 'tel:+923104693600' },
                 { icon: <FaMapMarkerAlt />, label: 'Location', value: 'Shalimar College, Lahore, Pakistan' },

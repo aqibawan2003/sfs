@@ -44,12 +44,34 @@ const PushNotificationButton = () => {
     }
   };
 
+  const disable = async () => {
+    try {
+      setState('working');
+      const registration = await navigator.serviceWorker.ready;
+      const subscription = await registration.pushManager.getSubscription();
+      const token = Cookies.get('token');
+
+      if (subscription) {
+        await axios.delete(`${API_BASE_URL}/api/push/unsubscribe`, {
+          headers: { Authorization: `Bearer ${token}` },
+          data: { endpoint: subscription.endpoint },
+        });
+        await subscription.unsubscribe();
+      }
+
+      setState('disabled');
+    } catch (error) {
+      console.error('Could not disable push notifications:', error);
+      setState('enabled');
+    }
+  };
+
   if (state === 'unsupported') return null;
   const isBusy = state === 'working' || state === 'checking';
   const isBlocked = state === 'denied';
   const isEnabled = state === 'enabled';
   const tooltip = isEnabled
-    ? 'Phone alerts are enabled.'
+    ? 'Disable phone alerts'
     : isBlocked
       ? 'Notifications are blocked. Allow them in your phone or browser settings.'
       : isBusy
@@ -59,8 +81,8 @@ const PushNotificationButton = () => {
   return (
     <button
       type="button"
-      onClick={enable}
-      disabled={isEnabled || isBusy || isBlocked}
+      onClick={isEnabled ? disable : enable}
+      disabled={isBusy || isBlocked}
       className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-white/5 text-base text-white/85 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-default disabled:opacity-45"
       title={tooltip}
       aria-label={tooltip}

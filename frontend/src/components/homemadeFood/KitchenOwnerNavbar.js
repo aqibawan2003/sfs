@@ -145,18 +145,18 @@ const KitchenOwnerNavbar = () => {
                 {renderLinks(closeMenu)}
               </ul>
               <div className="mt-4">
-                <div className="px-3 pb-4"><PushNotificationButton /></div>
                 <Link to="/" target="_blank" rel="noopener noreferrer" onClick={closeMenu} className="text-white text-xl font-semibold hover:bg-gray-900 px-3 py-2 rounded">
                   Visit Website
                 </Link>
                 {isLoggedIn && (
-                  <div className="mt-4">
+                  <div className="mt-4 flex items-center gap-3">
                     <button
                       onClick={handleLogoutClick}
                       className="bg-[#ECDFCC] hover:bg-[#D6C4B0] px-4 py-2 rounded-lg"
                     >
                       Logout
                     </button>
+                    <PushNotificationButton />
                   </div>
                 )}
               </div>
@@ -177,18 +177,18 @@ const KitchenOwnerNavbar = () => {
           </div>
 
           <div className="mb-4">
-            <div className="mb-5 px-3"><PushNotificationButton /></div>
             <Link to="/" target="_blank" rel="noopener noreferrer" className="text-white text-2xl mb-6 font-semibold hover:bg-gray-900 px-3 py-2 rounded">
               Visit Website
             </Link>
             {isLoggedIn && (
-              <div className="ml-16 mt-6">
+              <div className="ml-16 mt-6 flex items-center gap-3">
                 <button
                   onClick={handleLogoutClick}
                   className="bg-[#ECDFCC] hover:bg-[#D6C4B0]  px-4 py-2 rounded-lg"
                 >
                   Logout
                 </button>
+                <PushNotificationButton />
               </div>
             )}
           </div>

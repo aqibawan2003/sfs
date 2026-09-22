@@ -181,7 +181,7 @@ const KitchenOwnerNavbar = () => {
               Visit Website
             </Link>
             {isLoggedIn && (
-              <div className="ml-16 mt-6 flex items-center gap-3">
+              <div className="mt-6 flex items-center justify-center gap-3">
                 <button
                   onClick={handleLogoutClick}
                   className="bg-[#ECDFCC] hover:bg-[#D6C4B0]  px-4 py-2 rounded-lg"

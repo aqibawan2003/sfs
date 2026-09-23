@@ -54,7 +54,7 @@ const KitchenOwnerProfile = () => {
 
   return (
     <section className='w-full'>
-      <div className='relative min-h-[430px] overflow-hidden rounded-2xl border border-white/10 bg-[#25292e] shadow-2xl sm:min-h-[500px]'>
+      <div className='relative min-h-[480px] overflow-hidden rounded-2xl border border-white/10 bg-[#25292e] shadow-2xl sm:min-h-[500px]'>
         <img
           className='absolute inset-0 h-full w-full object-cover'
           src={user.kitchen_picture}

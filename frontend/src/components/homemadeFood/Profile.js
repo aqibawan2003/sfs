@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import ImageUploadField from '../common/ImageUploadField';
-import { FaEdit } from 'react-icons/fa';
+import { FaEdit, FaMapMarkerAlt, FaUtensils } from 'react-icons/fa';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -60,30 +60,48 @@ const KitchenOwnerProfile = () => {
           src={user.kitchen_picture}
           alt={user.kitchen_name || 'Kitchen'}
         />
-        <div className='absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5' />
+        <div className='absolute inset-0 bg-black/15' />
+        <div className='absolute inset-y-0 left-0 w-full bg-gradient-to-r from-black/85 via-black/70 to-transparent sm:w-[64%] lg:w-[56%]' />
 
-        <div className='absolute inset-x-0 bottom-0 flex flex-col gap-5 p-6 text-white sm:p-10 lg:max-w-3xl'>
-          <div>
-            <p className='mb-3 inline-flex rounded-full bg-[#ECDFCC] px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#25292e]'>
-              Kitchen owner
-            </p>
-            <h2 className='text-3xl font-bold tracking-tight sm:text-5xl'>
+        <div className='absolute inset-y-0 left-0 flex w-full max-w-3xl flex-col justify-end p-6 text-white sm:w-[64%] sm:p-10 lg:w-[56%] lg:p-12'>
+          <div className='border-l-2 border-[#ECDFCC] pl-5 sm:pl-6'>
+            <div className='mb-5 flex items-center gap-3'>
+              <span className='inline-flex h-9 w-9 items-center justify-center rounded-full border border-[#ECDFCC]/50 bg-[#ECDFCC]/15 text-[#ECDFCC]'>
+                <FaUtensils aria-hidden='true' />
+              </span>
+              <p className='text-[11px] font-bold uppercase tracking-[0.28em] text-[#ECDFCC]'>
+                Kitchen owner profile
+              </p>
+            </div>
+
+            <h2 className='max-w-xl text-4xl font-bold leading-[0.95] tracking-tight drop-shadow-lg sm:text-5xl lg:text-6xl'>
               {user.kitchen_name}
             </h2>
-            <p className='mt-2 text-base font-semibold text-white/90 sm:text-xl'>
-              {user.address}
-            </p>
+
+            <div className='my-5 h-px w-20 bg-[#ECDFCC]/80' />
+
+            {user.address && (
+              <p className='flex items-start gap-3 text-sm font-semibold leading-6 text-white/95 sm:text-base'>
+                <FaMapMarkerAlt className='mt-1 shrink-0 text-[#ECDFCC]' aria-hidden='true' />
+                <span>{user.address}</span>
+              </p>
+            )}
+
             {user.kitchen_description && (
-              <p className='mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base'>
+              <p className='mt-4 max-w-lg text-sm leading-7 text-white/85 sm:text-base'>
                 {user.kitchen_description}
               </p>
             )}
+
+            <p className='mt-6 text-[10px] font-semibold uppercase tracking-[0.22em] text-white/55'>
+              Homemade food · Kitchen information
+            </p>
           </div>
 
           {!editMode && (
             <button
               onClick={startEdit}
-              className='w-fit rounded-lg bg-[#697565] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3C3D37] focus:outline-none focus:ring-2 focus:ring-[#ECDFCC]'
+              className='mt-6 w-fit rounded-lg border border-white/15 bg-[#697565] px-4 py-2.5 text-sm font-semibold text-white shadow-lg transition hover:bg-[#3C3D37] focus:outline-none focus:ring-2 focus:ring-[#ECDFCC]'
             >
               <span className='flex items-center gap-2'>
                 <FaEdit /> Change Picture

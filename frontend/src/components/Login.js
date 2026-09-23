@@ -162,27 +162,29 @@ const LoginForm = () => {
               ) : null}
             </div>
 
-            <div className="mb-4 relative">
+            <div className="mb-4">
               <label htmlFor="password" className="block text-lg font-medium text-gray-300">
                 Password
               </label>
-              <input
-                id="password"
-                name="password"
-                type={showPassword ? 'text' : 'password'}
-                onChange={formik.handleChange}
-                onKeyDown={handleLoginKeyDown}
-                value={formik.values.password}
-                className="mt-1 p-2 pr-10 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 bg-[#25292e] text-white"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword((visible) => !visible)}
-                aria-label={showPassword ? 'Hide password' : 'Show password'}
-                className="absolute right-3 bottom-2.5 text-gray-300 hover:text-white"
-              >
-                <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
-              </button>
+              <div className="relative mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  onChange={formik.handleChange}
+                  onKeyDown={handleLoginKeyDown}
+                  value={formik.values.password}
+                  className="block w-full rounded-md border border-gray-300 bg-[#25292e] p-2 pr-12 text-white shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((visible) => !visible)}
+                  aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-md text-gray-300 transition hover:text-white focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+                >
+                  <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                </button>
+              </div>
               {formik.touched.password && formik.errors.password ? (
                 <div className="text-red-600 text-sm">{formik.errors.password}</div>
               ) : null}

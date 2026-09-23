@@ -4,6 +4,7 @@ import { addItem, deleteItem, updateItem, fetchItem } from "../../store/kitchenS
 import KitchenOwnerNavbar from "./KitchenOwnerNavbar";
 import { AddOrUpdateItemModal } from "./AddOrUpdateItemModal";
 import Profile from "../homemadeFood/Profile";
+import Footer from "../Footer";
 
 const KitchenOwnerProfile = () => {
   const [modalState, setModalState] = useState({
@@ -30,45 +31,48 @@ const KitchenOwnerProfile = () => {
   }, [dispatch]);
 
   return (
-    <div className="bg-[#1E201E] min-h-screen flex">
+    <div className="flex min-h-screen bg-[#1E201E]">
       <KitchenOwnerNavbar />
-      <main className="flex-1 flex flex-col p-6 pt-20 md:pt-6">
-        <Profile />
+      <main className="flex min-w-0 flex-1 flex-col pt-20 md:pt-6">
+        <div className="flex-1 p-6">
+          <Profile />
 
-        <button
-          onClick={() => {
-            setModalState((prevState) => ({
-              ...prevState,
-              isOpen: true,
-              action: 'Add',
-              payload: {},
-            }));
-          }}
-          className="mt-4 w-[120px] rounded bg-[#697565] px-4 py-2 text-white hover:bg-[#3C3D37]"
-        >
-          Add Item
-        </button>
-
-        {modalState.isOpen && (
-          <AddOrUpdateItemModal
-            action={modalState.action}
-            payload={modalState.payload}
-            handleClose={() => {
-              setModalState({
-                isOpen: false,
-                payload: {},
+          <button
+            onClick={() => {
+              setModalState((prevState) => ({
+                ...prevState,
+                isOpen: true,
                 action: 'Add',
-              });
-              handleItemSuccess('Item added/updated successfully!'); // Show success message
+                payload: {},
+              }));
             }}
-          />
-        )}
+            className="mt-4 w-[120px] rounded bg-[#697565] px-4 py-2 text-white hover:bg-[#3C3D37]"
+          >
+            Add Item
+          </button>
 
-        {successMessage && (
-          <div className="mt-4 p-2 bg-green-500 text-white rounded">
-            {successMessage}
-          </div>
-        )}
+          {modalState.isOpen && (
+            <AddOrUpdateItemModal
+              action={modalState.action}
+              payload={modalState.payload}
+              handleClose={() => {
+                setModalState({
+                  isOpen: false,
+                  payload: {},
+                  action: 'Add',
+                });
+                handleItemSuccess('Item added/updated successfully!');
+              }}
+            />
+          )}
+
+          {successMessage && (
+            <div className="mt-4 rounded bg-green-500 p-2 text-white">
+              {successMessage}
+            </div>
+          )}
+        </div>
+        <Footer />
       </main>
     </div>
   );

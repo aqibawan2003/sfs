@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import HostelNavbar from "./HostelOwnerNavbar";
 import { AddOrUpdateRoomModal } from "./AddOrUpdateRoomModal/AddOrUpdateRoomModal";
 import Profile from "./Profile";
+import Footer from "../Footer";
 
 const HostelOwnerProfile = () => {
   const [modalState, setModalState] = useState({
@@ -23,43 +24,46 @@ const HostelOwnerProfile = () => {
   };
 
   return (
-    <div className="bg-[#1E201E] min-h-screen flex">
+    <div className="flex min-h-screen bg-[#1E201E]">
       <HostelNavbar />
-      <main className="flex-1 flex flex-col p-6 pt-20 md:pt-6">
-        <Profile />
+      <main className="flex min-w-0 flex-1 flex-col pt-20 md:pt-6">
+        <div className="flex-1 p-6">
+          <Profile />
 
-        <button
-          onClick={() => {
-            setModalState({
-              isOpen: true,
-              action: "Add",
-              payload: {},
-            });
-          }}
-          className="mt-4 w-[120px] rounded bg-[#697565] px-4 py-2 text-white hover:bg-[#3C3D37]"
-        >
-          Add Room
-        </button>
-
-        {modalState.isOpen && (
-          <AddOrUpdateRoomModal
-            action={modalState.action}
-            payload={modalState.payload}
-            handleClose={() => {
+          <button
+            onClick={() => {
               setModalState({
-                isOpen: false,
-                payload: {},
+                isOpen: true,
                 action: "Add",
+                payload: {},
               });
             }}
-          />
-        )}
+            className="mt-4 w-[120px] rounded bg-[#697565] px-4 py-2 text-white hover:bg-[#3C3D37]"
+          >
+            Add Room
+          </button>
 
-        {successMessage && (
-          <div className="mt-4 p-2 bg-[#ECDFCC] text-white rounded">
-            {successMessage}
-          </div>
-        )}
+          {modalState.isOpen && (
+            <AddOrUpdateRoomModal
+              action={modalState.action}
+              payload={modalState.payload}
+              handleClose={() => {
+                setModalState({
+                  isOpen: false,
+                  payload: {},
+                  action: "Add",
+                });
+              }}
+            />
+          )}
+
+          {successMessage && (
+            <div className="mt-4 rounded bg-[#ECDFCC] p-2 text-white">
+              {successMessage}
+            </div>
+          )}
+        </div>
+        <Footer />
       </main>
     </div>
   );

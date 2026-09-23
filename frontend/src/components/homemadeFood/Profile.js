@@ -53,19 +53,48 @@ const KitchenOwnerProfile = () => {
   };
 
   return (
-    <div className='md:flex'>
-      <div className='w-full md:w-[500px] pt-6 pl-6'>
-      <img className='w-full h-auto md:h-[500px] object-cover' src={user.kitchen_picture} alt={user.kitchen_name} />
-      {!editMode && (
-        <button
-          onClick={startEdit}
-          className='mt-2 bg-[#697565] hover:bg-[#3C3D37] text-white px-4 py-2 rounded flex items-center gap-2'
-        >
-          <FaEdit /> Change Picture
-        </button>
-      )}
+    <section className='w-full'>
+      <div className='relative min-h-[430px] overflow-hidden rounded-2xl border border-white/10 bg-[#25292e] shadow-2xl sm:min-h-[500px]'>
+        <img
+          className='absolute inset-0 h-full w-full object-cover'
+          src={user.kitchen_picture}
+          alt={user.kitchen_name || 'Kitchen'}
+        />
+        <div className='absolute inset-0 bg-gradient-to-t from-black/85 via-black/35 to-black/5' />
+
+        <div className='absolute inset-x-0 bottom-0 flex flex-col gap-5 p-6 text-white sm:p-10 lg:max-w-3xl'>
+          <div>
+            <p className='mb-3 inline-flex rounded-full bg-[#ECDFCC] px-3 py-1 text-xs font-bold uppercase tracking-[0.2em] text-[#25292e]'>
+              Kitchen owner
+            </p>
+            <h2 className='text-3xl font-bold tracking-tight sm:text-5xl'>
+              {user.kitchen_name}
+            </h2>
+            <p className='mt-2 text-base font-semibold text-white/90 sm:text-xl'>
+              {user.address}
+            </p>
+            {user.kitchen_description && (
+              <p className='mt-3 max-w-2xl text-sm leading-6 text-white/80 sm:text-base'>
+                {user.kitchen_description}
+              </p>
+            )}
+          </div>
+
+          {!editMode && (
+            <button
+              onClick={startEdit}
+              className='w-fit rounded-lg bg-[#697565] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-[#3C3D37] focus:outline-none focus:ring-2 focus:ring-[#ECDFCC]'
+            >
+              <span className='flex items-center gap-2'>
+                <FaEdit /> Change Picture
+              </span>
+            </button>
+          )}
+        </div>
+      </div>
+
       {editMode && (
-        <form onSubmit={handleSave} className='mt-4 bg-[#25292e] rounded-xl p-4'>
+        <form onSubmit={handleSave} className='mt-4 rounded-xl bg-[#25292e] p-4'>
           <ImageUploadField
             label="Kitchen Picture"
             name="kitchenPicture"
@@ -73,24 +102,18 @@ const KitchenOwnerProfile = () => {
             onChange={setEditPicture}
             uploadType="kitchen"
           />
-          {error && <div className='text-red-500 text-sm mb-2'>{error}</div>}
+          {error && <div className='mb-2 text-sm text-red-500'>{error}</div>}
           <div className='flex gap-3'>
-            <button type='submit' disabled={saving} className='bg-green-600 hover:bg-green-700 disabled:opacity-60 text-white px-4 py-2 rounded'>
+            <button type='submit' disabled={saving} className='rounded bg-green-600 px-4 py-2 text-white hover:bg-green-700 disabled:opacity-60'>
               {saving ? 'Saving...' : 'Save'}
             </button>
-            <button type='button' onClick={() => setEditMode(false)} className='bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded'>
+            <button type='button' onClick={() => setEditMode(false)} className='rounded bg-gray-600 px-4 py-2 text-white hover:bg-gray-700'>
               Cancel
             </button>
           </div>
         </form>
       )}
-      </div>
-      <div className='p-4 text-white text-center mt-20'>
-        <h2 className='text-2xl font-bold'>{user.kitchen_name}</h2>
-        <p className='text-lg font-semibold'>{user.address}</p>
-        <p>Description: {user.kitchen_description}</p>
-      </div>
-    </div>
+    </section>
   );
 };
 

@@ -33,6 +33,26 @@ On first connection, `seedDummyData.js` automatically seeds 15 hostels, 15 kitch
 
 `STRIPE_WEBHOOK_SECRET` and the `JAZZCASH_*` vars are **not read anywhere in the current code** — checkout confirms payment synchronously in-browser (no webhook), and JazzCash is a "Coming Soon" UI placeholder only. Leave them unset.
 
+## First-time super admin setup (Postman)
+
+The first admin registered through `POST /api/admin/register` becomes a `super_admin` with `email_verified: false`. Log in normally through `POST /api/admin/login`, then use the returned bearer token to change the password through `PATCH /api/admin/change-password`:
+
+```json
+{
+  "currentPassword": "initial-password",
+  "newPassword": "your-new-password",
+  "confirmPassword": "your-new-password"
+}
+```
+
+For an unverified super admin, a successful password change sends a verification code to the account email and returns `requiresVerification: true`. Confirm it through `POST /api/admin/verify-superadmin`:
+
+```json
+{"email":"superadmin@example.com","otp":"123456"}
+```
+
+The code expires after five minutes. If it expires or email delivery fails, use `POST /api/admin/resend-superadmin-verification` with `{"email":"superadmin@example.com"}` to request a fresh code. Email verification is set to true only after a valid code is confirmed.
+
 ## Structure
 
 - `routes/` + `controllers/` — one pair per domain (auth, hostel, kitchen owner, admin, contact, etc.)

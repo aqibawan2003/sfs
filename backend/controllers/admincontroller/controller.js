@@ -8,6 +8,20 @@ const logger = require('../../utils/logger');
 const sendEmail = require('../../utils/emailService');
 const { generateVerificationToken, maxTokenTime } = require('../../utils/Utils');
 
+const sendSuperAdminVerification = async (admin) => {
+    const otp = generateVerificationToken().toString();
+    admin.email_verified = false;
+    admin.verification_token = otp;
+    admin.verification_token_time = maxTokenTime();
+    await admin.save();
+
+    await sendEmail(
+        admin.email,
+        'Verify Your SFS Super Admin Account',
+        `Your Student Facility System super admin verification code is: ${otp}\n\nThis code will expire in 5 minutes.`
+    );
+};
+
 exports.registerAdmin = async (req, res) => {
     try {
         const { first_name, last_name, email, password, confirmPassword } = req.body;
@@ -60,11 +74,7 @@ exports.registerAdmin = async (req, res) => {
 
         const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Mini admins must verify their email before the account is created —
-        // proves the email is real/reachable instead of trusting whatever the
-        // super admin typed in. The super_admin bootstrap path above (first
-        // admin ever) is unaffected — that one still goes live immediately,
-        // matching the documented Postman-based first-time setup.
+        // Mini admins must verify their email before the account is created.
         if (role === 'admin') {
             const otp = generateVerificationToken();
             const otpString = otp.toString();
@@ -110,16 +120,86 @@ exports.registerAdmin = async (req, res) => {
             email,
             password: hashedPassword,
             role,
+            email_verified: false,
         });
 
         await admin.save();
 
-        res.status(201).json({
-            message: 'Super Admin registered successfully',
-            role,
+        return res.status(201).json({
+            message: 'Super admin created. Log in and change the password to verify the email address.',
+            requiresVerification: false,
+            email_verified: admin.email_verified,
+            email,
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+exports.verifySuperAdmin = async (req, res) => {
+    try {
+        const { email, otp } = req.body;
+        if (typeof email !== 'string' || !email.trim() || otp === undefined || otp === null) {
+            return res.status(400).json({ message: "Email and verification code are required." });
+        }
+
+        const admin = await Admin.findOne({
+            email: email.trim(),
+            role: 'super_admin',
+            email_verified: false,
+            verification_token: otp.toString(),
+            verification_token_time: { $gt: new Date() },
+        });
+
+        if (!admin) {
+            return res.status(400).json({ message: "Invalid or expired verification code. Request a new code and try again." });
+        }
+
+        admin.email_verified = true;
+        admin.verification_token = undefined;
+        admin.verification_token_time = undefined;
+        await admin.save();
+
+        res.status(200).json({
+            message: "Super admin email verified successfully.",
+            admin: {
+                _id: admin._id,
+                first_name: admin.first_name,
+                last_name: admin.last_name,
+                email: admin.email,
+                role: admin.role,
+                email_verified: admin.email_verified,
+            },
+        });
+    } catch (error) {
+        console.error('Super admin email verification failed:', error);
+        res.status(500).json({ message: "Verification failed. Please try again." });
+    }
+};
+
+exports.resendSuperAdminVerification = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (typeof email !== 'string' || !email.trim()) {
+            return res.status(400).json({ message: "Email is required." });
+        }
+
+        const admin = await Admin.findOne({
+            email: email.trim(),
+            role: 'super_admin',
+            email_verified: false,
+        });
+
+        if (admin) {
+            await sendSuperAdminVerification(admin);
+        }
+
+        res.status(200).json({
+            message: "If an unverified super admin account exists for this email, a verification code has been sent.",
+        });
+    } catch (error) {
+        console.error('Could not resend super admin verification code:', error);
+        res.status(500).json({ message: "Could not send a verification code. Please try again." });
     }
 };
 
@@ -182,6 +262,13 @@ exports.loginAdmin = async (req, res) => {
             return res.status(400).json({ message: "Invalid credentials" });
         }
 
+        if (!admin.email_verified && admin.role !== 'super_admin') {
+            return res.status(403).json({
+                message: "Please verify your email before logging in. Request a verification code to continue.",
+                requiresVerification: true,
+            });
+        }
+
         // Sign token with actual role from DB (super_admin or admin)
         const token = jwt.sign(
             { id: admin._id, role: admin.role },
@@ -197,6 +284,7 @@ exports.loginAdmin = async (req, res) => {
                 last_name: admin.last_name,
                 email: admin.email,
                 role: admin.role,
+                email_verified: admin.email_verified,
             }
         });
     } catch (error) {
@@ -738,8 +826,29 @@ exports.changeOwnPassword = async (req, res) => {
         }
 
         admin.password = await bcrypt.hash(newPassword, 10);
-        await admin.save();
 
+        if (admin.role === 'super_admin' && !admin.email_verified) {
+            try {
+                await sendSuperAdminVerification(admin);
+            } catch (error) {
+                console.error('Could not send super admin verification code after password change:', error);
+                return res.status(500).json({
+                    message: 'Password changed, but the verification email could not be sent. Request a new code and try again.',
+                    passwordChanged: true,
+                    requiresVerification: true,
+                    email: admin.email,
+                });
+            }
+
+            return res.status(200).json({
+                message: `Password changed. A verification code was sent to ${admin.email}. Enter the code to verify your email.`,
+                passwordChanged: true,
+                requiresVerification: true,
+                email: admin.email,
+            });
+        }
+
+        await admin.save();
         res.json({ message: 'Password changed successfully. Please log in again.' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error: error.message });

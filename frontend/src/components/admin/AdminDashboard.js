@@ -366,6 +366,9 @@ const AdminDashboard = () => {
   const [cpError,  setCpError]  = useState('');
   const [cpSuccess,setCpSuccess]= useState('');
   const [cpLoading,setCpLoading]= useState(false);
+  const [cpNeedsVerification, setCpNeedsVerification] = useState(false);
+  const [cpOtp, setCpOtp] = useState('');
+  const [cpVerified, setCpVerified] = useState(false);
 
   const [showEditProfilePic, setShowEditProfilePic] = useState(false);
   const [myProfilePic, setMyProfilePic] = useState(adminData.profile_picture || '');
@@ -462,8 +465,64 @@ const AdminDashboard = () => {
     if(cpForm.newPassword.length<6){setCpError('Min. 6 characters.');return;}
     if(cpForm.currentPassword===cpForm.newPassword){setCpError('New password must differ from current.');return;}
     setCpLoading(true);
-    try { await axios.patch(`${API_BASE_URL}/api/admin/change-password`,{currentPassword:cpForm.currentPassword,newPassword:cpForm.newPassword,confirmPassword:cpForm.confirmPassword},authHeaders); setCpSuccess('Password changed! Logging you out...'); setCpForm({currentPassword:'',newPassword:'',confirmPassword:''}); setTimeout(()=>handleLogout(),3000); }
-    catch(err){setCpError(err.response?.data?.message||'Failed.');}
+    try {
+      const res = await axios.patch(`${API_BASE_URL}/api/admin/change-password`,{
+        currentPassword:cpForm.currentPassword,
+        newPassword:cpForm.newPassword,
+        confirmPassword:cpForm.confirmPassword,
+      },authHeaders);
+      setCpForm({currentPassword:'',newPassword:'',confirmPassword:''});
+      if (res.data.requiresVerification) {
+        setCpNeedsVerification(true);
+        setCpSuccess(res.data.message || `A verification code was sent to ${adminData.email}.`);
+      } else {
+        setCpSuccess('Password changed! Logging you out...');
+        setTimeout(()=>handleLogout(),3000);
+      }
+    }
+    catch(err){
+      if (err.response?.data?.requiresVerification && err.response?.data?.passwordChanged) {
+        setCpNeedsVerification(true);
+      }
+      setCpError(err.response?.data?.message||'Failed.');
+    }
+    setCpLoading(false);
+  };
+
+  const handleResendSuperAdminCode = async () => {
+    setCpError('');
+    setCpLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/admin/resend-superadmin-verification`, {
+        email: adminData.email,
+      });
+      setCpSuccess(res.data.message);
+      toast.success('A new verification code was sent if the account is still unverified.');
+    } catch(err) {
+      setCpError(err.response?.data?.message || 'Could not resend the verification code.');
+    }
+    setCpLoading(false);
+  };
+
+  const handleVerifySuperAdminEmail = async (e) => {
+    e.preventDefault();
+    setCpError('');
+    if (!cpOtp.trim()) { setCpError('Enter the verification code from your email.'); return; }
+    setCpLoading(true);
+    try {
+      const res = await axios.post(`${API_BASE_URL}/api/admin/verify-superadmin`, {
+        email: adminData.email,
+        otp: cpOtp.trim(),
+      });
+      const verifiedAdminData = { ...adminData, email_verified: true };
+      localStorage.setItem('adminData', JSON.stringify(verifiedAdminData));
+      setCpSuccess(res.data.message || 'Email verified successfully.');
+      setCpOtp('');
+      setCpVerified(true);
+      toast.success('Super admin email verified.');
+    } catch(err) {
+      setCpError(err.response?.data?.message || 'Verification failed. Check the code and try again.');
+    }
     setCpLoading(false);
   };
 
@@ -602,7 +661,7 @@ const AdminDashboard = () => {
             <FaCamera className="text-[12px] flex-shrink-0" style={{ color: ink.sideFaint }}/>
             <span className="text-[13.5px] font-medium">Edit profile picture</span>
           </button>
-          <button onClick={() => { setShowChangePassword(true); setCpError(''); setCpSuccess(''); setCpForm({ currentPassword:'', newPassword:'', confirmPassword:'' }); }}
+          <button onClick={() => { setShowChangePassword(true); setCpError(''); setCpSuccess(''); setCpForm({ currentPassword:'', newPassword:'', confirmPassword:'' }); setCpNeedsVerification(false); setCpOtp(''); setCpVerified(false); }}
             className="w-full flex items-center gap-3 px-3 py-2 rounded-lg transition hover:bg-white/5" style={{ color: ink.sideText }}>
             <FaLock className="text-[12px] flex-shrink-0" style={{ color: ink.sideFaint }}/>
             <span className="text-[13.5px] font-medium">Change password</span>
@@ -1119,17 +1178,40 @@ const AdminDashboard = () => {
       {showChangePassword && (
         <Modal onClose={()=>setShowChangePassword(false)} title="Change my password" icon={<FaLock style={{color:ink.brand, fontSize: 13}}/>}>
           <p className="text-[12px] mb-4" style={{ color: ink.faint }}>Logged in as <span style={{ color: ink.text, fontWeight: 600 }}>{adminData.email}</span></p>
-          <form onSubmit={handleChangePassword} className="space-y-3">
-            <FormField label="Current password" type="password" required value={cpForm.currentPassword} onChange={e=>setCpForm({...cpForm,currentPassword:e.target.value})} placeholder="Your current password"/>
-            <FormField label="New password" type="password" required value={cpForm.newPassword} onChange={e=>setCpForm({...cpForm,newPassword:e.target.value})} placeholder="Min. 6 characters"/>
-            <FormField label="Confirm new password" type="password" required value={cpForm.confirmPassword} onChange={e=>setCpForm({...cpForm,confirmPassword:e.target.value})} placeholder="Repeat new password"/>
-            {cpError && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: '#8F3B28', color: '#FFFFFF' }}>{cpError}</div>}
-            {cpSuccess && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: ink.brandDim, border: `1px solid ${ink.line}`, color: ink.brandDark }}>{cpSuccess}<p className="mt-1 opacity-70">Signing out in 3 seconds…</p></div>}
-            <div className="flex gap-3 pt-1">
-              <PrimaryBtn type="submit" disabled={cpLoading||!!cpSuccess}>{cpLoading?'Changing…':'Change password'}</PrimaryBtn>
-              <GhostBtn type="button" onClick={()=>setShowChangePassword(false)}>Cancel</GhostBtn>
+          {cpVerified ? (
+            <div className="space-y-4">
+              <div className="p-3 rounded-lg text-[12.5px]" style={{ background: ink.brandDim, border: `1px solid ${ink.line}`, color: ink.brandDark }}>
+                {cpSuccess}
+              </div>
+              <GhostBtn type="button" onClick={()=>setShowChangePassword(false)}>Done</GhostBtn>
             </div>
-          </form>
+          ) : cpNeedsVerification ? (
+            <form onSubmit={handleVerifySuperAdminEmail} className="space-y-3">
+              {cpSuccess && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: ink.brandDim, border: `1px solid ${ink.line}`, color: ink.brandDark }}>{cpSuccess}</div>}
+              <p className="text-[12.5px]" style={{ color: ink.sub }}>
+                Your password has been changed. Enter the verification code sent to <strong>{adminData.email}</strong> to verify your email.
+              </p>
+              <FormField label="Verification code" type="text" required value={cpOtp} onChange={e=>setCpOtp(e.target.value)} placeholder="6-digit code"/>
+              {cpError && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: '#8F3B28', color: '#FFFFFF' }}>{cpError}</div>}
+              <div className="flex gap-3 pt-1">
+                <PrimaryBtn type="submit" disabled={cpLoading}>{cpLoading?'Verifying…':'Verify email'}</PrimaryBtn>
+                <GhostBtn type="button" onClick={handleResendSuperAdminCode} disabled={cpLoading}>{cpLoading?'Sending…':'Resend code'}</GhostBtn>
+                <GhostBtn type="button" onClick={()=>setShowChangePassword(false)}>Later</GhostBtn>
+              </div>
+            </form>
+          ) : (
+            <form onSubmit={handleChangePassword} className="space-y-3">
+              <FormField label="Current password" type="password" required value={cpForm.currentPassword} onChange={e=>setCpForm({...cpForm,currentPassword:e.target.value})} placeholder="Your current password"/>
+              <FormField label="New password" type="password" required value={cpForm.newPassword} onChange={e=>setCpForm({...cpForm,newPassword:e.target.value})} placeholder="Min. 6 characters"/>
+              <FormField label="Confirm new password" type="password" required value={cpForm.confirmPassword} onChange={e=>setCpForm({...cpForm,confirmPassword:e.target.value})} placeholder="Repeat new password"/>
+              {cpError && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: '#8F3B28', color: '#FFFFFF' }}>{cpError}</div>}
+              {cpSuccess && <div className="p-3 rounded-lg text-[12.5px]" style={{ background: ink.brandDim, border: `1px solid ${ink.line}`, color: ink.brandDark }}>{cpSuccess}<p className="mt-1 opacity-70">Signing out in 3 seconds…</p></div>}
+              <div className="flex gap-3 pt-1">
+                <PrimaryBtn type="submit" disabled={cpLoading||!!cpSuccess}>{cpLoading?'Changing…':'Change password'}</PrimaryBtn>
+                <GhostBtn type="button" onClick={()=>setShowChangePassword(false)}>Cancel</GhostBtn>
+              </div>
+            </form>
+          )}
         </Modal>
       )}
 

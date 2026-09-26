@@ -6,6 +6,8 @@ const { adminAuth, superAdminOnly } = require('../../middlewares/adminAuth');
 // ── Public routes (no auth) ───────────────────────────────────────────
 router.post('/register', ctrl.registerAdmin);
 router.post('/login', ctrl.loginAdmin);
+router.post('/resend-superadmin-verification', ctrl.resendSuperAdminVerification);
+router.post('/verify-superadmin', ctrl.verifySuperAdmin);
 
 // ── All routes below require valid admin JWT ──────────────────────────
 router.use(adminAuth);

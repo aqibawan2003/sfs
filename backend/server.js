@@ -124,6 +124,8 @@ app.get('/', (req, res) => res.send('Hello World!'));
 app.use('/auth/login', authLimiter);
 app.use('/auth/register', authLimiter);
 app.use('/auth/forgot-password', authLimiter);
+app.use('/api/admin/resend-superadmin-verification', authLimiter);
+app.use('/api/admin/verify-superadmin', authLimiter);
 app.use('/auth', authUsers);
 app.use('/profile', profileRoutes);
 app.use('/hostel', hostelRoutes);

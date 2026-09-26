@@ -1183,7 +1183,9 @@ const AdminDashboard = () => {
               <div className="p-3 rounded-lg text-[12.5px]" style={{ background: ink.brandDim, border: `1px solid ${ink.line}`, color: ink.brandDark }}>
                 {cpSuccess}
               </div>
-              <GhostBtn type="button" onClick={()=>setShowChangePassword(false)}>Done</GhostBtn>
+              <div className="flex">
+                <GhostBtn type="button" onClick={()=>setShowChangePassword(false)}>Done</GhostBtn>
+              </div>
             </div>
           ) : cpNeedsVerification ? (
             <form onSubmit={handleVerifySuperAdminEmail} className="space-y-3">

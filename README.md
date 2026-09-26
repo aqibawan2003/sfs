@@ -40,7 +40,7 @@ Student Facility System (SFS) brings essential student services into a single re
 
 | Area | Capabilities |
 |---|---|
-| 🔐 Authentication | Role-based registration, email OTP verification, login, and password recovery |
+| 🔐 Authentication | Role-based registration, email OTP verification, login, and password recovery for students, providers, and administrators |
 | 🏠 Hostels | Search and filter listings, map-based discovery, room/bed availability, and booking management |
 | 🍲 Homemade food | Browse kitchens and dishes, manage a cart, place orders, and follow order progress |
 | 💳 Payments | Stripe-powered checkout for hostel bookings and food orders |
@@ -51,7 +51,7 @@ Student Facility System (SFS) brings essential student services into a single re
 | 📍 Location | Leaflet maps, OpenStreetMap data, geocoding, and institute-aware discovery |
 | 📄 Receipts | Downloadable PDF invoices and transactional email attachments |
 | 🖼️ Media | Cloudinary-backed profile and listing image uploads |
-| 🛡️ Administration | Platform statistics, account moderation, listing management, and admin controls |
+| 🛡️ Administration | Super-admin onboarding and email verification, admin password recovery, platform statistics, account moderation, and listing management |
 
 ## 👥 Built for every role
 
@@ -59,6 +59,14 @@ Student Facility System (SFS) brings essential student services into a single re
 - **Hostel owners** — publish hostels and rooms, manage bed availability, review booking requests, and monitor performance.
 - **Kitchen owners** — manage kitchens and dishes, process orders, and track sales activity.
 - **Administrators** — oversee users, providers, listings, platform metrics, and account access.
+
+### Admin onboarding and password recovery
+
+The initial super-admin account can be created through the admin registration API. It starts unverified; after signing in to the admin portal, the super-admin changes the initial password and confirms the emailed OTP to verify the account. Other admin accounts follow the existing super-admin-controlled registration and verification process.
+
+Administrators can also select **Forgot password?** on the admin login page, request an email OTP, verify it, and set a new password. Reset requests are rate limited, and the API does not disclose whether an email address belongs to an admin account. Both flows deliver codes using the configured Brevo email service.
+
+See the [backend README](backend/README.md#first-time-super-admin-setup-postman) for the Postman setup steps, OTP details, and admin recovery API endpoints.
 
 ## 🧰 Technology stack
 

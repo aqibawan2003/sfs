@@ -6,6 +6,9 @@ const { adminAuth, superAdminOnly } = require('../../middlewares/adminAuth');
 // ── Public routes (no auth) ───────────────────────────────────────────
 router.post('/register', ctrl.registerAdmin);
 router.post('/login', ctrl.loginAdmin);
+router.post('/forgot-password', ctrl.requestAdminPasswordReset);
+router.post('/verify-password-reset-otp', ctrl.verifyAdminPasswordResetOtp);
+router.patch('/reset-password', ctrl.resetAdminPassword);
 router.post('/resend-superadmin-verification', ctrl.resendSuperAdminVerification);
 router.post('/verify-superadmin', ctrl.verifySuperAdmin);
 

@@ -93,6 +93,14 @@ const authLimiter = rateLimit({
   message: { message: 'Too many attempts. Please try again in a few minutes.' },
 });
 
+const adminPasswordResetLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Too many password reset attempts. Please try again in 15 minutes.' },
+});
+
 // Initialize Socket.IO
 const io = connectSocket(server);
 
@@ -126,6 +134,9 @@ app.use('/auth/register', authLimiter);
 app.use('/auth/forgot-password', authLimiter);
 app.use('/api/admin/resend-superadmin-verification', authLimiter);
 app.use('/api/admin/verify-superadmin', authLimiter);
+app.use('/api/admin/forgot-password', adminPasswordResetLimiter);
+app.use('/api/admin/verify-password-reset-otp', adminPasswordResetLimiter);
+app.use('/api/admin/reset-password', adminPasswordResetLimiter);
 app.use('/auth', authUsers);
 app.use('/profile', profileRoutes);
 app.use('/hostel', hostelRoutes);

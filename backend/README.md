@@ -53,6 +53,16 @@ For an unverified super admin, a successful password change sends a verification
 
 The code expires after five minutes. If it expires or email delivery fails, use `POST /api/admin/resend-superadmin-verification` with `{"email":"superadmin@example.com"}` to request a fresh code. Email verification is set to true only after a valid code is confirmed.
 
+## Admin forgot-password flow
+
+From the admin login page, request a reset code using the admin account email. The public admin endpoints are:
+
+1. `POST /api/admin/forgot-password` with `{"email":"admin@example.com"}` sends a five-minute code when the account exists. The response is intentionally the same whether or not the email belongs to an admin.
+2. `POST /api/admin/verify-password-reset-otp` with `{"email":"admin@example.com","otp":"123456"}` verifies and consumes the code, then returns a short-lived reset token.
+3. `PATCH /api/admin/reset-password` with `{"password":"new-password","confirmPassword":"new-password"}` and `Authorization: Bearer <resetToken>` updates the password. The reset token is single-use and expires after ten minutes.
+
+These recovery routes are public and rate limited. They are separate from super-admin onboarding verification and require the configured Brevo email settings to deliver codes.
+
 ## Structure
 
 - `routes/` + `controllers/` — one pair per domain (auth, hostel, kitchen owner, admin, contact, etc.)

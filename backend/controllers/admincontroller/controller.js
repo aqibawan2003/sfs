@@ -4,6 +4,7 @@ const PendingRegistration = require('../../models/PendingRegistration');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 const logger = require('../../utils/logger');
 const sendEmail = require('../../utils/emailService');
 const { generateVerificationToken, maxTokenTime } = require('../../utils/Utils');
@@ -289,6 +290,134 @@ exports.loginAdmin = async (req, res) => {
         });
     } catch (error) {
         res.status(500).json({ message: "Server error", error: error.message });
+    }
+};
+
+exports.requestAdminPasswordReset = async (req, res) => {
+    const genericMessage = 'If an admin account exists for that email, a password reset code has been sent.';
+
+    try {
+        const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+        if (!email) {
+            return res.status(400).json({ message: 'Email is required.' });
+        }
+
+        const admin = await Admin.findOne({ email });
+        if (!admin) {
+            return res.status(200).json({ message: genericMessage });
+        }
+
+        const otp = generateVerificationToken().toString();
+        admin.reset_password_token = otp;
+        admin.reset_password_token_time = maxTokenTime();
+        await admin.save();
+
+        try {
+            await sendEmail(
+                admin.email,
+                'Admin Password Reset - Student Facility System',
+                `Your admin password reset code is: ${otp}\n\nThis code will expire in 5 minutes. If you did not request this, ignore this email.`
+            );
+        } catch (emailError) {
+            admin.reset_password_token = undefined;
+            admin.reset_password_token_time = undefined;
+            await admin.save();
+            console.error('Could not send admin password reset email:', emailError);
+        }
+
+        return res.status(200).json({ message: genericMessage });
+    } catch (error) {
+        console.error('Admin password reset request failed:', error);
+        return res.status(500).json({ message: 'Could not process the password reset request. Please try again.' });
+    }
+};
+
+exports.verifyAdminPasswordResetOtp = async (req, res) => {
+    try {
+        const email = typeof req.body.email === 'string' ? req.body.email.trim().toLowerCase() : '';
+        const { otp } = req.body;
+        if (!email || otp === undefined || otp === null || !String(otp).trim()) {
+            return res.status(400).json({ message: 'Email and verification code are required.' });
+        }
+
+        const admin = await Admin.findOne({
+            email,
+            reset_password_token: String(otp).trim(),
+            reset_password_token_time: { $gt: new Date() },
+        });
+
+        if (!admin) {
+            return res.status(400).json({ message: 'Invalid or expired verification code.' });
+        }
+
+        const resetTokenId = crypto.randomUUID();
+        admin.reset_password_token = resetTokenId;
+        admin.reset_password_token_time = new Date(Date.now() + 10 * 60 * 1000);
+        await admin.save();
+
+        const resetToken = jwt.sign(
+            { id: admin._id, role: admin.role, purpose: 'admin_password_reset', jti: resetTokenId },
+            process.env.JWT_SECRET,
+            { expiresIn: '10m' }
+        );
+
+        res.status(200).json({ message: 'Code verified. You can now set a new password.', resetToken });
+    } catch (error) {
+        console.error('Admin password reset code verification failed:', error);
+        res.status(500).json({ message: 'Could not verify the code. Please try again.' });
+    }
+};
+
+exports.resetAdminPassword = async (req, res) => {
+    try {
+        const { password, confirmPassword } = req.body;
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'Password reset authorization is required.' });
+        }
+        if (!password || !confirmPassword) {
+            return res.status(400).json({ message: 'New password and confirmation are required.' });
+        }
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Passwords do not match.' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters.' });
+        }
+
+        let decoded;
+        try {
+            decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+        } catch (error) {
+            return res.status(401).json({ message: 'Password reset session is invalid or expired. Request a new code.' });
+        }
+
+        if (decoded.purpose !== 'admin_password_reset' || !['admin', 'super_admin'].includes(decoded.role)) {
+            return res.status(403).json({ message: 'Invalid password reset authorization.' });
+        }
+
+        const admin = await Admin.findById(decoded.id);
+        if (!admin || admin.role !== decoded.role) {
+            return res.status(404).json({ message: 'Admin account not found.' });
+        }
+        if (
+            !decoded.jti
+            || admin.reset_password_token !== decoded.jti
+            || !admin.reset_password_token_time
+            || admin.reset_password_token_time <= new Date()
+        ) {
+            return res.status(401).json({ message: 'Password reset session is invalid or expired. Request a new code.' });
+        }
+
+        admin.password = await bcrypt.hash(password, 10);
+        admin.reset_password_token = undefined;
+        admin.reset_password_token_time = undefined;
+        await admin.save();
+
+        res.status(200).json({ message: 'Password reset successfully. You can now log in.' });
+    } catch (error) {
+        console.error('Admin password reset failed:', error);
+        res.status(500).json({ message: 'Could not reset the password. Please try again.' });
     }
 };
 

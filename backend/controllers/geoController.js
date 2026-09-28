@@ -1,5 +1,6 @@
 const getLatLngFromAddress = require('../utils/geocodingService');
 const KnownInstitute = require('../models/KnownInstitute');
+const HostelOwner = require('../models/hostelowner/Hostelowner');
 
 // Public endpoint used by the hostel-owner registration map picker's
 // "Locate my address" button, to jump the pin near a typed address before
@@ -41,12 +42,34 @@ exports.searchInstitutes = async (req, res) => {
       .limit(25)
       .lean();
 
+    // Include institutes entered by existing approved hostel owners. This
+    // backfills older registrations that predate the KnownInstitute cache.
+    const registeredHostels = await HostelOwner.find({ isApproved: true, isBanned: false })
+      .select('nearby_institutes')
+      .lean();
+
     const seen = new Set();
     const distinct = [];
     for (const m of matches) {
       if (seen.has(m.name)) continue;
       seen.add(m.name);
       distinct.push({ name: m.name, lat: m.lat, lng: m.lng });
+      if (distinct.length >= 8) break;
+    }
+
+    for (const hostel of registeredHostels) {
+      for (const institute of hostel.nearby_institutes || []) {
+        if (!institute.university || !new RegExp(escaped, 'i').test(institute.university)) continue;
+        if (seen.has(institute.university)) continue;
+        if (institute.university_lat == null || institute.university_lng == null) continue;
+        seen.add(institute.university);
+        distinct.push({
+          name: institute.university,
+          lat: institute.university_lat,
+          lng: institute.university_lng,
+        });
+        if (distinct.length >= 8) break;
+      }
       if (distinct.length >= 8) break;
     }
 

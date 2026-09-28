@@ -228,6 +228,24 @@ exports.signUpUser = async (req, res, next) => {
           }
         }
 
+        // Make every successfully resolved institute available to the same
+        // autocomplete/search cache, including names resolved from the static
+        // verified database (not only live-geocoded names).
+        if (uniLatLng && uniLatLng.lat != null && uniLatLng.lng != null) {
+          KnownInstitute.updateOne(
+            { key: instKey },
+            {
+              $set: {
+                key: instKey,
+                name: inst.university.trim(),
+                lat: uniLatLng.lat,
+                lng: uniLatLng.lng,
+              },
+            },
+            { upsert: true }
+          ).catch((e) => logger.debug('Failed to cache registered institute:', e.message));
+        }
+
         geocodedInstitutes.push({
           university: inst.university,
           distance: inst.distance,

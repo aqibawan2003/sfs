@@ -353,7 +353,11 @@ const HostelList = () => {
                         .map((institute, index) => (
                           <div key={`${institute.university}-${index}`} className="flex items-center justify-between rounded-lg border border-[#465047] bg-[#252a26] px-3 py-2 text-sm">
                             <span className="text-gray-200">{institute.university}</span>
-                            {institute.distance && <span className="ml-3 shrink-0 text-xs text-[#c8b88f]">{institute.distance} km</span>}
+                            {institute.distance && (
+                              <span className="ml-3 shrink-0 text-xs text-[#c8b88f]">
+                                {String(institute.distance).replace(/\s*km\s*$/i, '')} km
+                              </span>
+                            )}
                           </div>
                         ))
                     : <span className="text-sm text-gray-500">No nearby institutes listed.</span>}

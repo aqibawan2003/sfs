@@ -228,7 +228,7 @@ const universityDatabase = {
   'virtual university': { name: 'Virtual University of Pakistan', lat: 31.5645, lng: 74.3102 },
 
   'lahore college women': { name: 'Lahore College for Women University', lat: 31.5641, lng: 74.3245 },
-  'lcwu': { name: 'Lahore College for Women University', lat: 31.5641, lng: 74.3245 },
+  'lcwu': { name: 'Lahore College for Women University', lat: 31.544959553084727, lng: 74.32503151467469 },
 
 
   'punjab college': { name: 'Punjab College', lat: 31.5825, lng: 74.3214 },
@@ -343,8 +343,8 @@ const universityDatabase = {
   // live-geocoded via Nominatim (not hand-typed), added 2026-07-11. ~65 other
   // candidate names (mostly generic "Government College <neighborhood>" guesses)
   // failed to geocode and were deliberately left out rather than guessed.
-  'umt': { name: 'University of Management and Technology Lahore', lat: 31.4514449, lng: 74.2940846 },
-  'university of management and technology': { name: 'University of Management and Technology Lahore', lat: 31.4514449, lng: 74.2940846 },
+  'umt': { name: 'University of Management and Technology Lahore', lat: 31.451185757702905, lng: 74.29107651467469 },
+  'university of management and technology': { name: 'University of Management and Technology Lahore', lat: 31.451185757702905, lng: 74.29107651467469 },
 
   'lse': { name: 'Lahore School of Economics', lat: 31.5027922, lng: 74.4749169 },
   'lahore school of economics': { name: 'Lahore School of Economics', lat: 31.5027922, lng: 74.4749169 },
@@ -436,8 +436,8 @@ const seededUniversityDatabase = {
   'lahore university of management sciences (lums)': { name: 'Lahore University of Management Sciences - Main Campus', lat: 31.470326, lng: 74.4097439 },
   'university of central punjab (ucp)': { name: 'University of Central Punjab - Main Campus', lat: 31.4472954, lng: 74.268077 },
   'the university of lahore (uol)': { name: 'The University of Lahore - Defence Road Campus', lat: 31.39242, lng: 74.24311 },
-  'lahore college for women university (lcwu)': { name: 'Lahore College for Women University - Jail Road Campus', lat: 31.544955, lng: 74.3272202 },
-  'university of management & technology (umt)': { name: 'University of Management and Technology Lahore - Main Campus', lat: 31.4514449, lng: 74.2940846 },
+  'lahore college for women university (lcwu)': { name: 'Lahore College for Women University - Jail Road Campus', lat: 31.544959553084727, lng: 74.32503151467469 },
+  'university of management & technology (umt)': { name: 'University of Management and Technology Lahore - Main Campus', lat: 31.451185757702905, lng: 74.29107651467469 },
   'forman christian college (fccu)': { name: 'Forman Christian College - Main Campus', lat: 31.5214848, lng: 74.3338898 },
   'hajvery university (hu)': { name: 'Hajvery University - Euro Campus', lat: 31.5042582, lng: 74.3582433 },
   'superior university': { name: 'Superior University - Main Campus', lat: 31.3341385, lng: 74.2337292 },

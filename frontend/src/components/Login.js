@@ -51,9 +51,11 @@ const LoginForm = () => {
     onSubmit: async (values) => {
       try {
         const response = await dispatch(loginUser(values)).unwrap();
-        const { user, cartSummary } = response;
-        // The server keeps the long-lived session in an HTTP-only cookie.
-        // Do not copy the access token into JavaScript-readable storage.
+        const { token, user, cartSummary } = response;
+        // The app's existing navbar, sockets and API slices still read this
+        // legacy token. Keep it until those callers are migrated; the server
+        // also sets the more secure HTTP-only session cookie.
+        Cookies.set('token', token);
         sessionStorage.setItem('user', JSON.stringify(user));
 
         dispatch(updateCartSummary(cartSummary));

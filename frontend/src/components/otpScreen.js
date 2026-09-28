@@ -58,7 +58,9 @@ const OtpScreen = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        // The verified session was set by the server as an HTTP-only cookie.
+        // Keep the legacy token while existing navbar/API callers are migrated.
+        // The server also sets an HTTP-only session cookie.
+        Cookies.set('token', response.data.token);
         sessionStorage.removeItem('verified');
         sessionStorage.setItem('user', JSON.stringify(response.data.user));
         if(response.status === 200){

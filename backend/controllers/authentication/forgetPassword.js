@@ -2,6 +2,7 @@ const { getUserModel, generateVerificationToken, maxTokenTime } = require('../..
 const sendEmail = require('../../utils/emailService');
 const jwt = require('jsonwebtoken');
 const logger = require('../../utils/logger');
+const { setSessionCookie, setCsrfCookie } = require('../../utils/sessionCookie');
 
 // Send OTP
 exports.sendOtp = async (req, res, next) => {
@@ -46,6 +47,8 @@ exports.sendOtp = async (req, res, next) => {
 
         // Generate JWT token
         const token = jwt.sign({ email, role, userId: user._id, purpose: 'password-reset-otp' }, process.env.JWT_SECRET, { expiresIn: '10m' });
+        setSessionCookie(res, token);
+        setCsrfCookie(res);
 
         // Send email with OTP
         try {

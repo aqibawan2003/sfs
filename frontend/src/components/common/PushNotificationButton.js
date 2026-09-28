@@ -105,7 +105,7 @@ const PushNotificationButton = () => {
       type="button"
       onClick={isEnabled ? disable : enable}
       disabled={isBusy || isBlocked}
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-md border text-base transition-colors focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-default disabled:opacity-45 ${isEnabled ? 'border-emerald-400/60 bg-emerald-500/20 text-emerald-100 hover:bg-emerald-500/30' : 'border-white/15 bg-white/5 text-white/85 hover:bg-white/10 hover:text-white'}`}
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white/40 disabled:cursor-default disabled:opacity-45 ${isEnabled ? 'text-emerald-300 drop-shadow-[0_0_7px_rgba(110,231,183,0.7)] hover:scale-110' : 'text-white/80 hover:scale-110 hover:text-white'}`}
       title={tooltip}
       aria-label={tooltip}
     >

@@ -92,9 +92,7 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
             billing_details: {
                 name: studentName,
                 email: studentEmail,
-                phone: phoneNumber,
-            },
-        });
+                phone: phoneNumber } });
 
         if (error) {
             // Stripe's own error message is already human-readable (e.g. "Your card number is invalid.")
@@ -112,8 +110,7 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
         description: `Booking bed ${bed.bed_number} in room ${room.name}`,
         hostelOwnerId,
         roomId: room._id,
-        bed,
-    };
+        bed };
 
     try {
         // Dispatching payment processing action to the backend
@@ -246,11 +243,8 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
                       color: '#1f2937',
                       fontFamily: 'Arial, sans-serif',
                       lineHeight: '24px',
-                      '::placeholder': { color: '#9ca3af' },
-                    },
-                    invalid: { color: '#dc2626' },
-                  },
-                }}
+                      '::placeholder': { color: '#9ca3af' } },
+                    invalid: { color: '#dc2626' } } }}
                 className="w-full"
               />
             </div>

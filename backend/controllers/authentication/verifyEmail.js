@@ -2,7 +2,7 @@ const { getUserModel } = require('../../utils/Utils');
 const PendingRegistration = require('../../models/PendingRegistration');
 const jwt = require('jsonwebtoken');
 const logger = require('../../utils/logger');
-const { setSessionCookie } = require('../../utils/sessionCookie');
+const { setSessionCookie, setCsrfCookie } = require('../../utils/sessionCookie');
 
 exports.verifyEmail = async (req, res, next) => {
     try {
@@ -65,7 +65,7 @@ exports.verifyEmail = async (req, res, next) => {
             await user.save();
             logger.debug('User saved successfully:', email);
         } catch (saveError) {
-            console.error('Error saving verified user:', saveError);
+            logger.error('Error saving verified user:', saveError);
 
             // Handle duplicate key errors
             if (saveError.code === 11000) {
@@ -101,6 +101,7 @@ exports.verifyEmail = async (req, res, next) => {
         const payload = { id: user._id, email: user.email, role: user.role };
         const finalToken = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '12h' });
         setSessionCookie(res, finalToken);
+        setCsrfCookie(res);
 
         const safeUser = user.toObject ? user.toObject() : { ...user };
         delete safeUser.password;
@@ -110,11 +111,10 @@ exports.verifyEmail = async (req, res, next) => {
         delete safeUser.verification_token_time;
         res.status(200).json({
             message: "Email verified successfully! Your account has been created.",
-            token: finalToken,
             user: safeUser
         });
     } catch (error) {
-        console.error('Verification error:', error);
+        logger.error('Verification error:', error);
         res.status(500).json({
             message: "Verification failed. Please try again.",
             error: process.env.NODE_ENV === 'development' ? error.message : undefined

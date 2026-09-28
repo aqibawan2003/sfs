@@ -4,8 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ImageUploadField from '../common/ImageUploadField';
 import {
-  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from 'recharts';
+  LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
   FaUsers, FaHome, FaUtensils, FaBuilding, FaList, FaChartBar,
   FaSignOutAlt, FaBan, FaTrash, FaCheck, FaTimes,
@@ -13,8 +12,7 @@ import {
   FaExclamationTriangle, FaKey, FaLock, FaBell, FaCamera,
   FaBoxOpen, FaChevronRight,
   FaEnvelopeOpenText, FaEnvelope, FaCheckDouble, FaPhone, FaWhatsapp, FaReply,
-  FaCalendarAlt, FaCheckCircle, FaCalendarCheck, FaShoppingBag, FaSearch, FaBars,
-} from 'react-icons/fa';
+  FaCalendarAlt, FaCheckCircle, FaCalendarCheck, FaShoppingBag, FaSearch, FaBars } from 'react-icons/fa';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const MAX_MINI_ADMINS = 4;
@@ -52,8 +50,7 @@ const ink = {
   sideFaint: '#8CA094',
   sideActive:'#375243',
   rustDim:   '#FBEAE6',
-  rustLine:  '#F0C7BC',
-};
+  rustLine:  '#F0C7BC' };
 
 // Fixed-order categorical hues for multi-series charts (colorblind-safe, validated
 // against this dashboard's white chart surface — see dataviz skill palette check).
@@ -79,8 +76,7 @@ const Pill = ({ tone='neutral', children }) => {
     strong:  { background: ink.brand, color: '#FFFFFF' },
     amber:   { background: '#8A6D3B', color: '#FFFFFF' },
     muted:   { background: '#3C3D37', color: '#D6D6D2' },
-    danger:  { background: '#8F3B28', color: '#FFFFFF' },
-  };
+    danger:  { background: '#8F3B28', color: '#FFFFFF' } };
   return (
     <span style={{ ...styles[tone], ...body, fontSize: 11, letterSpacing: '0.03em' }}
       className="px-2.5 py-1 rounded-full uppercase font-semibold whitespace-nowrap inline-block">
@@ -128,8 +124,7 @@ const Action = ({ onClick, icon, label, tone='default' }) => {
   const tones = {
     default: { background: ink.surface, color: '#3C3D37', border: `1px solid ${ink.line}` },
     go:      { background: ink.brand, color: '#FFFFFF' },
-    danger:  { background: '#8F3B28', color: '#FFFFFF' },
-  };
+    danger:  { background: '#8F3B28', color: '#FFFFFF' } };
   return (
     <button onClick={onClick}
       className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-2 rounded-lg transition hover:opacity-75"
@@ -324,9 +319,8 @@ const ListingDetails = ({ listing, onClose }) => {
 
 const AdminDashboard = () => {
   const navigate  = useNavigate();
-  const token     = localStorage.getItem('adminToken');
-  const adminData = JSON.parse(localStorage.getItem('adminData') || '{}');
-  const isSuperAdmin = adminData.role === 'super_admin';
+  const [adminData, setAdminData] = useState(null);
+  const isSuperAdmin = adminData?.role === 'super_admin';
 
   const [stats,        setStats]        = useState({});
   const [growth,       setGrowth]       = useState([]);
@@ -371,19 +365,25 @@ const AdminDashboard = () => {
   const [cpVerified, setCpVerified] = useState(false);
 
   const [showEditProfilePic, setShowEditProfilePic] = useState(false);
-  const [myProfilePic, setMyProfilePic] = useState(adminData.profile_picture || '');
-  const [ppInput,   setPpInput]   = useState(adminData.profile_picture || '');
+  const [myProfilePic, setMyProfilePic] = useState('');
+  const [ppInput,   setPpInput]   = useState('');
   const [ppError,   setPpError]   = useState('');
   const [ppLoading, setPpLoading] = useState(false);
 
   const [search, setSearch] = useState('');
 
-  const authHeaders = { headers: { Authorization: `Bearer ${token}` } };
+  const authHeaders = { headers: { } };
 
-  useEffect(() => { if (!token) navigate('/admin/login'); }, [token, navigate]);
-  useEffect(() => { if (token) { fetchStats(); fetchGrowth(); fetchMessages(); if (isSuperAdmin) fetchMiniAdmins(); } }, [token]);
   useEffect(() => {
-    if (!token) return;
+    axios.get(`${API_BASE_URL}/api/admin/me`).then(({ data }) => {
+      setAdminData(data.admin);
+      setMyProfilePic(data.admin.profile_picture || '');
+      setPpInput(data.admin.profile_picture || '');
+    }).catch(() => navigate('/admin/login'));
+  }, [navigate]);
+  useEffect(() => { if (adminData) { fetchStats(); fetchGrowth(); fetchMessages(); if (isSuperAdmin) fetchMiniAdmins(); } }, [adminData, isSuperAdmin]);
+  useEffect(() => {
+    if (!adminData) return;
     setSubjectFilter('');
     if (activeTab === 'students')      fetchStudents();
     else if (activeTab === 'hostelOwners')  fetchHostelOwners();
@@ -392,7 +392,7 @@ const AdminDashboard = () => {
     else if (activeTab === 'kitchens')  fetchKitchens();
     else if (activeTab === 'admins' && isSuperAdmin) fetchMiniAdmins();
     else if (activeTab === 'messages') fetchMessages();
-  }, [activeTab]);
+  }, [activeTab, adminData, isSuperAdmin]);
 
   const fetchStats        = async () => { try { const r = await axios.get(`${API_BASE_URL}/api/admin/stats`, authHeaders); setStats(r.data); } catch(e){} };
   const fetchGrowth       = async () => { try { const r = await axios.get(`${API_BASE_URL}/api/admin/growth-stats`, authHeaders); setGrowth(r.data.data||[]); } catch(e){} };
@@ -469,8 +469,7 @@ const AdminDashboard = () => {
       const res = await axios.patch(`${API_BASE_URL}/api/admin/change-password`,{
         currentPassword:cpForm.currentPassword,
         newPassword:cpForm.newPassword,
-        confirmPassword:cpForm.confirmPassword,
-      },authHeaders);
+        confirmPassword:cpForm.confirmPassword },authHeaders);
       setCpForm({currentPassword:'',newPassword:'',confirmPassword:''});
       if (res.data.requiresVerification) {
         setCpNeedsVerification(true);
@@ -494,8 +493,7 @@ const AdminDashboard = () => {
     setCpLoading(true);
     try {
       const res = await axios.post(`${API_BASE_URL}/api/admin/resend-superadmin-verification`, {
-        email: adminData.email,
-      });
+        email: adminData.email });
       setCpSuccess(res.data.message);
       toast.success('A new verification code was sent if the account is still unverified.');
     } catch(err) {
@@ -512,10 +510,9 @@ const AdminDashboard = () => {
     try {
       const res = await axios.post(`${API_BASE_URL}/api/admin/verify-superadmin`, {
         email: adminData.email,
-        otp: cpOtp.trim(),
-      });
+        otp: cpOtp.trim() });
       const verifiedAdminData = { ...adminData, email_verified: true };
-      localStorage.setItem('adminData', JSON.stringify(verifiedAdminData));
+      setAdminData(verifiedAdminData);
       setCpSuccess(res.data.message || 'Email verified successfully.');
       setCpOtp('');
       setCpVerified(true);
@@ -532,7 +529,7 @@ const AdminDashboard = () => {
     try {
       const res = await axios.patch(`${API_BASE_URL}/api/admin/profile-picture`, { profile_picture: ppInput }, authHeaders);
       const updatedAdmin = { ...adminData, profile_picture: res.data.admin.profile_picture };
-      localStorage.setItem('adminData', JSON.stringify(updatedAdmin));
+      setAdminData(updatedAdmin);
       setMyProfilePic(res.data.admin.profile_picture);
       toast.success('Profile picture updated!');
       setShowEditProfilePic(false);
@@ -540,7 +537,7 @@ const AdminDashboard = () => {
     setPpLoading(false);
   };
 
-  const handleLogout = () => { localStorage.removeItem('adminToken'); localStorage.removeItem('adminData'); navigate('/admin/login'); };
+  const handleLogout = async () => { await axios.post(`${API_BASE_URL}/auth/logout`).catch(() => {}); setAdminData(null); navigate('/admin/login'); };
 
   const tabs = [
     { key:'overview',     label:'Overview',        icon:<FaChartBar />,    count: null },
@@ -594,9 +591,12 @@ const AdminDashboard = () => {
     hostels: 'View accommodation currently listed on the platform.',
     kitchens: 'View food services currently listed on the platform.',
     messages: 'Read and respond to enquiries submitted through the website.',
-    admins: 'Manage staff accounts with access to this dashboard.',
-  };
+    admins: 'Manage staff accounts with access to this dashboard.' };
   const dateStr = new Date().toLocaleDateString('en-PK',{ weekday:'long', day:'numeric', month:'long', timeZone:'Asia/Karachi' });
+
+  if (!adminData) {
+    return <div className="min-h-screen flex items-center justify-center" style={{ background: ink.bg, color: ink.text }}>Loading dashboard...</div>;
+  }
 
   return (
     <div className="min-h-screen flex" style={{ background: ink.bg, color: ink.text, ...body }}>
@@ -623,8 +623,7 @@ const AdminDashboard = () => {
                 className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-lg text-left transition-colors duration-150 ${active ? '' : 'hover:bg-white/5'}`}
                 style={{
                   background: active ? ink.sideActive : undefined,
-                  color: active ? '#FFFFFF' : ink.sideText,
-                }}>
+                  color: active ? '#FFFFFF' : ink.sideText }}>
                 <span className="text-[15px] flex-shrink-0 w-5 text-center" style={{ color: active ? '#FFFFFF' : ink.sideFaint }}>{icon}</span>
                 <span className="text-[14.5px] font-semibold flex-1 truncate">{label}</span>
                 {count !== null && count > 0 && (
@@ -633,8 +632,7 @@ const AdminDashboard = () => {
                     style={{
                       ...body,
                       color: urgent ? '#3C3D37' : ink.sideText,
-                      background: urgent ? '#ECDFCC' : 'rgba(255,255,255,0.10)',
-                    }}>
+                      background: urgent ? '#ECDFCC' : 'rgba(255,255,255,0.10)' }}>
                     {count}
                   </span>
                 )}

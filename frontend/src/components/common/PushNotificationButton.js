@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import API_BASE_URL from '../../utils/api';
 
 const toUint8Array = (base64) => {
@@ -28,16 +27,15 @@ const PushNotificationButton = () => {
       setFeedback('');
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') return setState(permission === 'denied' ? 'denied' : 'disabled');
-      const token = Cookies.get('token');
-      const headers = { Authorization: `Bearer ${token}` };
+
+      const headers = { };
       const [{ data }, registration] = await Promise.all([
         axios.get(`${API_BASE_URL}/api/push/public-key`, { headers }),
         navigator.serviceWorker.ready,
       ]);
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
-        applicationServerKey: toUint8Array(data.publicKey),
-      });
+        applicationServerKey: toUint8Array(data.publicKey) });
       await axios.post(`${API_BASE_URL}/api/push/subscribe`, subscription.toJSON(), { headers });
       setState('enabled');
       setFeedback('Notifications enabled.');
@@ -46,8 +44,7 @@ const PushNotificationButton = () => {
       registration.showNotification('SFS notifications enabled', {
         body: 'You will receive booking and order updates on this device.',
         icon: '/logo.png',
-        tag: 'sfs-notifications-enabled',
-      }).catch(() => {});
+        tag: 'sfs-notifications-enabled' }).catch(() => {});
     } catch (error) {
       console.error('Could not enable push notifications:', error);
       setState('disabled');
@@ -71,9 +68,8 @@ const PushNotificationButton = () => {
         // automatically by the notification service when a send fails.
         try {
           await axios.delete(`${API_BASE_URL}/api/push/unsubscribe`, {
-            headers: { Authorization: `Bearer ${Cookies.get('token')}` },
-            data: { endpoint },
-          });
+            headers: { },
+            data: { endpoint } });
         } catch (error) {
           console.warn('Could not remove the server push subscription:', error);
         }

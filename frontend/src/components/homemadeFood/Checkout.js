@@ -4,7 +4,6 @@ import { clearCartAPI, getCartAPI } from '../../store/cartSlice'; // Using Redux
 import { getStudentDataAPI } from '../../store/studentSlice'; // Using Redux actions for student
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../Navbar';
-import Cookies from 'js-cookie'; // Importing js-cookie library
 import axios from 'axios'; // Importing axios library
 import Footer from '../Footer';
 import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
@@ -77,9 +76,7 @@ const Checkout = () => {
         card: cardElement,
         billing_details: {
           name: `${studentData.first_name} ${studentData.last_name}`,
-          phone: phoneNumber,
-        },
-      });
+          phone: phoneNumber } });
 
       if (error) {
         setPaymentError(error.message || 'Failed to validate card details. Please check and try again.');
@@ -102,19 +99,16 @@ const Checkout = () => {
         id: item.productId._id,
         name: item.productId.name,
         quantity: item.quantity,
-        price: item.productId.price,
-      })),
+        price: item.productId.price })),
       totalQuantity,
       totalPrice,
       paymentMethod,
-      paymentMethodId: paymentMethodIdToSend,
-    };
+      paymentMethodId: paymentMethodIdToSend };
 
     try {
-      const token = Cookies.get('token');
+
       const response = await axios.post(`${API_BASE_URL}/api/order/create`, orderData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+        headers: { } });
 
       if (response.data.requiresAction && response.data.clientSecret) {
         // Extra authentication (3D Secure) required
@@ -131,7 +125,7 @@ const Checkout = () => {
           await axios.post(
             `${API_BASE_URL}/api/order/confirm-payment`,
             { orderId: response.data.orderId },
-            { headers: { Authorization: `Bearer ${token}` } }
+            { headers: { } }
           );
           await dispatch(clearCartAPI({ kitchenId }));
           setPaymentSuccess(true);
@@ -273,11 +267,8 @@ const Checkout = () => {
                 base: {
                   fontSize: '16px',
                   color: '#1f2937',
-                  '::placeholder': { color: '#9ca3af' },
-                },
-                invalid: { color: '#dc2626' },
-              },
-            }}
+                  '::placeholder': { color: '#9ca3af' } },
+                invalid: { color: '#dc2626' } } }}
           />
         </div>
       </div>

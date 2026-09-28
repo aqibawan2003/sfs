@@ -14,6 +14,25 @@ const { sendPushToUser } = require('../../services/pushNotificationService');
 const BOOKING_RESPONSE_HOURS = Math.max(1, Number(process.env.BOOKING_RESPONSE_HOURS) || 24);
 const getBookingDeadline = () => new Date(Date.now() + BOOKING_RESPONSE_HOURS * 60 * 60 * 1000);
 
+// The bed reservation is claimed atomically before charging the card. Once
+// Stripe accepts the payment, the bed state and booking history must commit
+// together; otherwise a request can leave an occupied bed with no booking (or
+// the reverse). MongoDB transactions require a replica set, which is the
+// configuration used by MongoDB Atlas/Render deployments.
+async function saveBedAndBooking(bed, bookingData) {
+    const session = await mongoose.startSession();
+    try {
+        let booking;
+        await session.withTransaction(async () => {
+            await bed.save({ session });
+            [booking] = await Booking.create([bookingData], { session });
+        });
+        return booking;
+    } finally {
+        await session.endSession();
+    }
+}
+
 // Controller function to book a bed and process payment
 exports.bookBed = async (req, res) => {
     const { hostelId, roomId, bedId } = req.params;
@@ -88,7 +107,7 @@ exports.bookBed = async (req, res) => {
             await releaseReservation();
             // Surface the REAL Stripe error to the frontend instead of a generic 500.
             // Common causes: PKR not enabled on the Stripe account, invalid card, test-mode mismatch.
-            console.error('Stripe payment intent error:', stripeError.message);
+            logger.error('Stripe payment intent error:', stripeError.message);
             return res.status(402).json({
                 success: false,
                 message: stripeError.message || 'Payment was declined by Stripe. Please check your card details and try again.',
@@ -101,8 +120,7 @@ exports.bookBed = async (req, res) => {
 
         if (paymentIntent.status === 'requires_action') {
             bedToBook.paymentStatus = 'pending'; // Pending status if further action is needed
-            await bedToBook.save();
-            const newBooking = new Booking({
+            const newBooking = await saveBedAndBooking(bedToBook, {
                 student_id: customerId,
                 room_id: roomId,
                 bed_id: bedToBook._id,
@@ -114,7 +132,6 @@ exports.bookBed = async (req, res) => {
                 status: 'Pending',
                 response_deadline: getBookingDeadline(),
             });
-            await newBooking.save();
             return res.status(200).json({
                 success: true,
                 requiresAction: true,
@@ -134,9 +151,7 @@ exports.bookBed = async (req, res) => {
         }
 
         bedToBook.paymentStatus = 'completed';
-        await bedToBook.save();
-
-        const newBooking = new Booking({
+        const newBooking = await saveBedAndBooking(bedToBook, {
             student_id: customerId,
             room_id: roomId,
             bed_id: bedToBook._id,
@@ -148,7 +163,6 @@ exports.bookBed = async (req, res) => {
             status: 'Pending',
             response_deadline: getBookingDeadline(),
         });
-        await newBooking.save();
 
         // Fetch the student once — used for the receipt display data below
         // and, if it succeeds, for the PDF/email step.
@@ -183,7 +197,7 @@ exports.bookBed = async (req, res) => {
                 `Hi ${hostelOwner.first_name}, ${studentSummary ? `${studentSummary.first_name} ${studentSummary.last_name}` : 'a student'} requested Bed ${bedToBook.bed_number} in ${room.name}. Please sign in and approve or reject it before ${newBooking.response_deadline.toLocaleString()}.`
             );
         } catch (notificationError) {
-            console.error('Hostel owner notification email failed:', notificationError.message);
+            logger.error('Hostel owner notification email failed:', notificationError.message);
         }
 
         // Generate a PDF receipt, store it on Cloudinary, and email it to the
@@ -228,7 +242,7 @@ exports.bookBed = async (req, res) => {
                 [{ filename: `SFS-Receipt-${newBooking._id}.pdf`, content: pdfBuffer }]
             );
         } catch (invoiceError) {
-            console.error('Invoice generation/upload/email failed (booking still succeeded):', invoiceError.message);
+            logger.error('Invoice generation/upload/email failed (booking still succeeded):', invoiceError.message);
         }
 
         // Return success response with payment intent details.
@@ -243,7 +257,7 @@ exports.bookBed = async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Error processing booking:', error);
+        logger.error('Error processing booking:', error);
         res.status(500).json({ success: false, message: error.message || 'Internal Server Error while processing your booking.' });
     }
 };
@@ -306,7 +320,7 @@ exports.getBookedRooms = async (req, res, next) => {
         const formattedBookings = Object.values(mergedBookings); // Convert the object back to an array
         res.status(200).json({ success: true, data: formattedBookings });
     } catch (error) {
-        console.error('Error fetching booked rooms:', error);
+        logger.error('Error fetching booked rooms:', error);
         next(error); // Pass the error to the next middleware for centralized error handling
     }
 };
@@ -486,7 +500,7 @@ const decideBooking = async (req, res, decision) => {
                 try {
                     await stripe.refunds.create({ payment_intent: bed.paymentIntentId });
                 } catch (refundError) {
-                    console.error('Booking rejection refund failed:', refundError.message);
+                    logger.error('Booking rejection refund failed:', refundError.message);
                     return res.status(502).json({
                         success: false,
                         message: 'The payment refund failed, so the booking remains pending. Please try again.',
@@ -529,7 +543,7 @@ const decideBooking = async (req, res, decision) => {
             title: `Hostel booking ${decision.toLowerCase()}`,
             body: studentMessage,
             url: '/profile', tag: `booking-${booking._id}`,
-        }).catch(error => console.error('Booking decision push failed:', error.message));
+        }).catch(error => logger.error('Booking decision push failed:', error.message));
         let notificationSent = false;
         if (student.email) {
             try {
@@ -540,7 +554,7 @@ const decideBooking = async (req, res, decision) => {
                 );
                 notificationSent = true;
             } catch (error) {
-                console.error('Booking decision email failed:', error.message);
+                logger.error('Booking decision email failed:', error.message);
             }
         }
 
@@ -554,7 +568,7 @@ const decideBooking = async (req, res, decision) => {
             data: booking
         });
     } catch (error) {
-        console.error(`Error marking booking as ${decision}:`, error);
+        logger.error(`Error marking booking as ${decision}:`, error);
         return res.status(500).json({ success: false, message: 'Unable to update the booking status.' });
     }
 };
@@ -614,7 +628,7 @@ exports.completeBooking = async (req, res) => {
             data: booking,
         });
     } catch (error) {
-        console.error('Error completing booking:', error);
+        logger.error('Error completing booking:', error);
         return res.status(500).json({ success: false, message: 'Unable to complete this booking.' });
     }
 };
@@ -650,7 +664,7 @@ exports.archiveBooking = async (req, res) => {
             message: 'Booking removed from your history view. The audit record is preserved.'
         });
     } catch (error) {
-        console.error('Error archiving booking:', error);
+        logger.error('Error archiving booking:', error);
         return res.status(500).json({ success: false, message: 'Unable to remove this history record.' });
     }
 };
@@ -698,7 +712,7 @@ exports.getBookingReceipt = async (req, res) => {
         });
         res.send(pdfBuffer);
     } catch (error) {
-        console.error('Error generating booking receipt:', error);
+        logger.error('Error generating booking receipt:', error);
         res.status(500).json({ success: false, message: 'Failed to generate receipt' });
     }
 };
@@ -738,7 +752,7 @@ exports.unbookRoom = async (req, res) => {
             try {
                 await stripe.refunds.create({ payment_intent: paymentIntentId });
             } catch (refundError) {
-                console.error('Booking cancellation refund failed:', refundError.message);
+                logger.error('Booking cancellation refund failed:', refundError.message);
                 return res.status(502).json({ error: 'Refund failed; the booking was not cancelled.' });
             }
         }
@@ -766,7 +780,7 @@ exports.unbookRoom = async (req, res) => {
                 : 'Old booking history removed successfully.'
         });
     } catch (error) {
-        console.error('Error unbooking room:', error);
+        logger.error('Error unbooking room:', error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };

@@ -1,6 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import { FaUpload, FaLink, FaSpinner, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -30,8 +29,8 @@ const ImageUploadField = ({
   onBlur,
   error,
   uploadType = 'general',
-  darkMode = true,
-}) => {
+  isRegistration = false,
+  darkMode = true }) => {
   const [mode, setMode] = useState('upload'); // 'upload' | 'url'
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
@@ -69,14 +68,8 @@ const ImageUploadField = ({
       formData.append('image', file);
       formData.append('type', uploadType);
 
-      const token = Cookies.get('token');
-      // Registration occurs before a user owns a token. That route is limited
-      // to registration image categories and has a stricter server rate limit.
-      const endpoint = token ? '/api/upload/image' : '/api/upload/registration-image';
-      const headers = { 'Content-Type': 'multipart/form-data' };
-      if (token) headers.Authorization = `Bearer ${token}`;
-
-      const res = await axios.post(`${API_BASE_URL}${endpoint}`, formData, { headers });
+      const endpoint = isRegistration ? '/api/upload/registration-image' : '/api/upload/image';
+      const res = await axios.post(`${API_BASE_URL}${endpoint}`, formData);
 
       onChange(res.data.url);
     } catch (err) {

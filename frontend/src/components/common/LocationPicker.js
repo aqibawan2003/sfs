@@ -22,8 +22,7 @@ const ClickHandler = ({ onChange }) => {
   useMapEvents({
     click(e) {
       onChange({ lat: e.latlng.lat, lng: e.latlng.lng });
-    },
-  });
+    } });
   return null;
 };
 
@@ -51,8 +50,7 @@ const LocationPicker = ({ value, onChange, addressHint }) => {
     if (showError) setLocateError('');
     try {
       const { data } = await axios.post(`${API_BASE_URL}/api/geo/geocode`, {
-        address: `${address.trim()}, Lahore, Pakistan`,
-      });
+        address: `${address.trim()}, Lahore, Pakistan` });
       if (data?.lat != null && data?.lng != null) {
         onChange({ lat: data.lat, lng: data.lng });
       } else if (showError) {
@@ -127,8 +125,7 @@ const LocationPicker = ({ value, onChange, addressHint }) => {
               dragend: (e) => {
                 const { lat, lng } = e.target.getLatLng();
                 onChange({ lat, lng });
-              },
-            }}
+              } }}
           />
         )}
       </MapContainer>

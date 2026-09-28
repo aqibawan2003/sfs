@@ -1,6 +1,7 @@
 const {getUserModel} = require('../../utils/Utils');
 const jwt = require('jsonwebtoken');
 const logger = require('../../utils/logger');
+const { setSessionCookie, setCsrfCookie } = require('../../utils/sessionCookie');
  
 
 // Verify OTP
@@ -34,7 +35,9 @@ exports.verifyOtp = async (req, res, next) => {
         }
         // Generate JWT for password reset
         const tokenJwt = jwt.sign({ id: user._id, role, purpose: 'password-reset' }, process.env.JWT_SECRET, { expiresIn: '10m' });
-        res.json({ message: 'OTP verified.', token: tokenJwt });
+        setSessionCookie(res, tokenJwt);
+        setCsrfCookie(res);
+        res.json({ message: 'OTP verified.' });
     } catch (error) {
         next(error);
     }

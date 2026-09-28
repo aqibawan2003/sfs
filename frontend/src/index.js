@@ -11,9 +11,26 @@ import './index.css';
 import App from './App';
 import axios from 'axios';
 
-// Send the HTTP-only session cookie on cross-origin API calls. Existing
-// bearer headers remain temporarily compatible during this migration.
+// Send the HTTP-only session cookie and double-submit CSRF token on writes.
 axios.defaults.withCredentials = true;
+const apiBaseUrl = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const csrfClient = axios.create({ baseURL: apiBaseUrl, withCredentials: true });
+let csrfToken = null;
+axios.interceptors.request.use(async (config) => {
+  if (!['get', 'head', 'options'].includes((config.method || 'get').toLowerCase())) {
+    if (!csrfToken) {
+      const response = await csrfClient.get('/auth/csrf');
+      csrfToken = response.data.csrfToken;
+    }
+    if (csrfToken) config.headers.set('X-CSRF-Token', csrfToken);
+  }
+  return config;
+});
+axios.interceptors.response.use((response) => {
+  const refreshedCsrfToken = response.headers['x-csrf-token'];
+  if (refreshedCsrfToken) csrfToken = refreshedCsrfToken;
+  return response;
+});
 
 // Prevent a flash of unstyled React content on slow connections. In the
 // production build CRA extracts our CSS to /static/css/*.css; reveal the app

@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import Cookies from 'js-cookie';
 import io from 'socket.io-client';
-import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import API_BASE_URL from '../../utils/api';
 import { playNotificationSound } from '../../utils/playNotificationSound';
@@ -33,20 +32,11 @@ const KitchenOwnerNavbar = () => {
   );
 
   useEffect(() => {
-    const token = Cookies.get('token');
-    const storedUser = sessionStorage.getItem('user');
 
-    // Check if the user is logged in based on token and session
-    if (token && storedUser) {
+    axios.get(`${API_BASE_URL}/auth/me`).then(({ data }) => {
       setIsLoggedIn(true);
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to read stored user:', error);
-      }
-    } else {
-      setIsLoggedIn(false);
-    }
+      setUser(data.user);
+    }).catch(() => setIsLoggedIn(false));
   }, []);
 
   useEffect(() => {
@@ -60,15 +50,10 @@ const KitchenOwnerNavbar = () => {
   // keeping its order list in sync) — a toast + sound instead of them having
   // to keep the Orders tab open and watched to notice anything came in.
   useEffect(() => {
-    const token = Cookies.get('token');
-    if (!token) return;
 
-    const kitchenId = jwtDecode(token).id;
-    const socket = io(API_BASE_URL, {
-      transports: ['websocket'],
-      withCredentials: true,
-      auth: { token },
-    });
+    if (!user?._id || user.role !== 'kitchenOwner') return undefined;
+    const kitchenId = user._id;
+    const socket = io(API_BASE_URL, { transports: ['websocket'], withCredentials: true });
 
     socket.emit('joinKitchenRoom', kitchenId);
 
@@ -81,7 +66,7 @@ const KitchenOwnerNavbar = () => {
       socket.emit('leaveKitchenRoom', kitchenId);
       socket.disconnect();
     };
-  }, []);
+  }, [user]);
 
   // Lock background scroll while the mobile drawer is open, otherwise the
   // page underneath the translucent backdrop can still be scrolled/swiped.
@@ -97,7 +82,7 @@ const KitchenOwnerNavbar = () => {
   };
 
   const handleLogoutConfirm = () => {
-    Cookies.remove('token');
+    axios.post(`${API_BASE_URL}/auth/logout`).catch(() => {});
     sessionStorage.removeItem('user');
     setIsLoggedIn(false);
     setShowLogoutModal(false);

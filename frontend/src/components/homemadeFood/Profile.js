@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import Cookies from 'js-cookie';
 import ImageUploadField from '../common/ImageUploadField';
 import { FaEdit, FaMapMarkerAlt, FaUtensils } from 'react-icons/fa';
 
@@ -35,11 +34,11 @@ const KitchenOwnerProfile = () => {
     setSaving(true);
     setError('');
     try {
-      const token = Cookies.get('token');
+
       const res = await axios.put(
         `${API_BASE_URL}/profile/User`,
         { kitchen_picture: editPicture },
-        { headers: { Authorization: `Bearer ${token}` } }
+        { headers: { } }
       );
       const updatedUser = { ...user, kitchen_picture: res.data.kitchen_picture };
       setUser(updatedUser);

@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import Cookies from "js-cookie";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -77,8 +76,7 @@ const validationSchemas = {
       .required("Profile picture URL is required"),
     cnic: Yup.string()
       .matches(/^[0-9]{13}$/, "CNIC must be 13 digits")
-      .required("CNIC is required"),
-  }),
+      .required("CNIC is required") }),
   hostelOwner: Yup.object({
     first_name: Yup.string().required("First name is required"),
     last_name: Yup.string().required("Last name is required"),
@@ -111,14 +109,12 @@ const validationSchemas = {
       .of(
         Yup.object({
           university: Yup.string().required("University name is required"),
-          distance: Yup.string().required("Distance is required"),
-        })
+          distance: Yup.string().required("Distance is required") })
       )
       .min(1, "At least one nearby institute is required"),
     cnic: Yup.string()
       .matches(/^[0-9]{13}$/, "CNIC must be 13 digits")
-      .required("CNIC is required"),
-  }),
+      .required("CNIC is required") }),
   kitchenOwner: Yup.object({
     first_name: Yup.string().required("First name is required"),
     last_name: Yup.string().required("Last name is required"),
@@ -147,9 +143,7 @@ const validationSchemas = {
       .required("Kitchen picture URL is required"),
     cnic: Yup.string()
       .matches(/^[0-9]{13}$/, "CNIC must be 13 digits")
-      .required("CNIC is required"),
-  }),
-};
+      .required("CNIC is required") }) };
 
 const RegistrationForm = () => {
   const navigate = useNavigate();
@@ -190,8 +184,7 @@ const RegistrationForm = () => {
       kitchen_description: "",
       kitchen_picture: "",
       // stripe_account_id: "", // Added Stripe Account ID field
-      cnic: "",
-    },
+      cnic: "" },
     validationSchema: validationSchemas[role],
     onSubmit: async (values) => {
       try {
@@ -239,8 +232,7 @@ const RegistrationForm = () => {
               .filter(inst => inst.university && inst.university.trim() !== "")
               .map(inst => ({
                 university: inst.university.trim(),
-                distance: inst.distance ? inst.distance.trim() : "Distance not provided",
-              }))
+                distance: inst.distance ? inst.distance.trim() : "Distance not provided" }))
           };
         } else if (normalizedRole === 'student') {
           payload = {
@@ -262,8 +254,7 @@ const RegistrationForm = () => {
         // Single registration call via Redux thunk
         const response = await dispatch(registerUser(payload)).unwrap();
 
-        if (response.token) {
-          Cookies.set('token', response.token);
+        if (response.requiresVerification) {
           // Clear any previously logged-in user data so stale profile isn't shown
           sessionStorage.removeItem('user');
           toast.success('Registration successful! Please check your email for OTP.');
@@ -275,8 +266,7 @@ const RegistrationForm = () => {
         toast.error(errorMessage);
         setError(errorMessage);
       }
-    },
-  });
+    } });
 
   const handleRoleChange = (e) => {
     setRole(e.target.value);
@@ -296,8 +286,7 @@ const RegistrationForm = () => {
       kitchen_address: "",
       kitchen_description: "",
       kitchen_picture: "",
-      // stripe_account_id: "",
-    });
+      // stripe_account_id: "" });
     formik.setTouched({});
     formik.setErrors({});
   };
@@ -364,14 +353,12 @@ const RegistrationForm = () => {
             .filter(inst => inst.university && inst.university.trim() !== "")
             .map(inst => ({
               university: inst.university.trim(),
-              distance: inst.distance ? inst.distance.trim() : "Distance not provided",
-            })),
+              distance: inst.distance ? inst.distance.trim() : "Distance not provided" })),
           // Only sent if the owner used the map picker — backend falls back
           // to geocoding hostel_address when these are absent.
           ...(values.hostel_lat != null && values.hostel_lng != null
             ? { hostel_lat: values.hostel_lat, hostel_lng: values.hostel_lng }
-            : {}),
-        };
+            : {}) };
       } else if (normalizedRole === 'student') {
         payload = {
           ...payload,
@@ -401,9 +388,7 @@ const RegistrationForm = () => {
         
         console.log("Direct API call succeeded:", response.data);
         
-        if (response.data.token) {
-          Cookies.set('token', response.data.token);
-          sessionStorage.setItem('user', JSON.stringify(response.data.user));
+        if (response.data.requiresVerification) {
           toast.success('Registration successful! Please check your email for OTP.');
           navigate('/otp');
         }

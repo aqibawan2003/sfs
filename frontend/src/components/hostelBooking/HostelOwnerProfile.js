@@ -9,8 +9,7 @@ const HostelOwnerProfile = () => {
   const [modalState, setModalState] = useState({
     isOpen: false,
     action: "Add",
-    payload: {},
-  });
+    payload: {} });
   const [successMessage, setSuccessMessage] = useState("");
 
   const dispatch = useDispatch();
@@ -35,8 +34,7 @@ const HostelOwnerProfile = () => {
               setModalState({
                 isOpen: true,
                 action: "Add",
-                payload: {},
-              });
+                payload: {} });
             }}
             className="mt-4 w-[120px] rounded bg-[#697565] px-4 py-2 text-white hover:bg-[#3C3D37]"
           >
@@ -51,8 +49,7 @@ const HostelOwnerProfile = () => {
                 setModalState({
                   isOpen: false,
                   payload: {},
-                  action: "Add",
-                });
+                  action: "Add" });
               }}
             />
           )}

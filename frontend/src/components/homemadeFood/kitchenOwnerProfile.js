@@ -43,8 +43,7 @@ const KitchenOwnerProfile = () => {
                 ...prevState,
                 isOpen: true,
                 action: 'Add',
-                payload: {},
-              }));
+                payload: {} }));
             }}
             className="mt-4 w-[120px] rounded bg-[#697565] px-4 py-2 text-white hover:bg-[#3C3D37]"
           >
@@ -59,8 +58,7 @@ const KitchenOwnerProfile = () => {
                 setModalState({
                   isOpen: false,
                   payload: {},
-                  action: 'Add',
-                });
+                  action: 'Add' });
                 handleItemSuccess('Item added/updated successfully!');
               }}
             />

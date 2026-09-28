@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const Cart = require('../../models/kitchenowner/Cart'); // Assuming Cart is related to kitchens
 const logger = require('../../utils/logger');
-const { setSessionCookie } = require('../../utils/sessionCookie');
+const { setSessionCookie, setCsrfCookie } = require('../../utils/sessionCookie');
 
 exports.loginUser = async (req, res, next) => {
     try {
@@ -56,6 +56,7 @@ exports.loginUser = async (req, res, next) => {
         const payload = { id: user._id, email: user.email, role: user.role || role };
         const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '12h' });
         setSessionCookie(res, token);
+        setCsrfCookie(res);
 
         // Fetch cart summary for the user (assuming the user is a 'student' or related role)
         let cartSummary = { itemCount: 0, kitchenCount: 0 };
@@ -86,12 +87,11 @@ exports.loginUser = async (req, res, next) => {
         delete safeUser.verification_token_time;
 
         res.json({
-            token,
             user: safeUser,
             cartSummary // Include cart summary in the response
         });
     } catch (error) {
-        console.error('Login Error:', error);
+        logger.error('Login error:', error);
         next(error); // Pass the error to the next middleware (usually an error handler)
     }
 };

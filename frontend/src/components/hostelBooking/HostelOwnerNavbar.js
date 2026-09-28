@@ -1,9 +1,8 @@
 // src/components/HostelNavbar.js
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import io from 'socket.io-client';
-import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 import { toast } from 'react-toastify';
 import API_BASE_URL from '../../utils/api';
 import { playNotificationSound } from '../../utils/playNotificationSound';
@@ -34,35 +33,21 @@ const HostelNavbar = () => {
   );
 
   useEffect(() => {
-    const token = Cookies.get('token');
-    const storedUser = sessionStorage.getItem('user');
 
-    if (token && storedUser) {
+    axios.get(`${API_BASE_URL}/auth/me`).then(({ data }) => {
       setIsLoggedIn(true);
-      try {
-        setUser(JSON.parse(storedUser));
-      } catch (error) {
-        console.error('Failed to read stored user:', error);
-      }
-    } else {
-      setIsLoggedIn(false);
-    }
+      setUser(data.user);
+    }).catch(() => setIsLoggedIn(false));
   }, []);
 
   useEffect(() => {
-    const token = Cookies.get('token');
-    if (!token) return;
-    const hostelId = jwtDecode(token).id;
-    const socket = io(API_BASE_URL, {
-      transports: ['websocket'], withCredentials: true, auth: { token },
-    });
-    socket.emit('joinHostelRoom', hostelId);
-    socket.on('newBooking', (booking) => {
-      toast.success(`New bed request from ${booking.studentName}!`);
-      playNotificationSound();
-    });
+
+    if (!user?._id || user.role !== 'hostelOwner') return undefined;
+    const socket = io(API_BASE_URL, { transports: ['websocket'], withCredentials: true });
+    socket.emit('joinHostelRoom', user._id);
+    socket.on('newBooking', (booking) => { toast.success(`New bed request from ${booking.studentName}!`); playNotificationSound(); });
     return () => socket.disconnect();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth < MOBILE_BREAKPOINT);
@@ -84,7 +69,7 @@ const HostelNavbar = () => {
   };
 
   const handleLogoutConfirm = () => {
-    Cookies.remove('token');
+    axios.post(`${API_BASE_URL}/auth/logout`).catch(() => {});
     sessionStorage.removeItem('user');
     setIsLoggedIn(false);
     setShowLogoutModal(false);

@@ -45,8 +45,7 @@ function ChatBot() {
       const response = await fetch(`${API_BASE}/api/chatbot/message`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: msgText }),
-      });
+        body: JSON.stringify({ text: msgText }) });
       const data = await response.json();
       setMessages((prev) => [...prev, { text: data.reply, sender: 'bot', time: new Date() }]);
     } catch (error) {
@@ -55,8 +54,7 @@ function ChatBot() {
         ...prev,
         {
           text: 'Could not reach the server. Please try again. Contact: +92-310-4693600',
-          sender: 'bot', time: new Date(),
-        },
+          sender: 'bot', time: new Date() },
       ]);
     } finally {
       setIsLoading(false);

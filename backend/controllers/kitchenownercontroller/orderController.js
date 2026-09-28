@@ -93,7 +93,7 @@ exports.createOrder = async (req, res, next) => {
         description: `Order from ${kitchenName}`,
       });
     } catch (stripeError) {
-      console.error('Stripe payment intent error (order):', stripeError.message);
+      logger.error('Stripe payment intent error (order):', stripeError.message);
       return res.status(402).json({
         message: stripeError.message || 'Payment was declined by Stripe. Please check your card details and try again.',
         code: stripeError.code,
@@ -167,7 +167,7 @@ exports.createOrder = async (req, res, next) => {
 
     res.status(201).json({ success: true, requiresAction: false, order: newOrder });
   } catch (error) {
-    console.error("Error creating order:", error);
+    logger.error('Error creating order:', error);
     next(error);
   }
 };
@@ -206,7 +206,7 @@ exports.confirmOrderPayment = async (req, res, next) => {
 
     res.status(200).json({ success: true, order });
   } catch (error) {
-    console.error('Error confirming order payment:', error);
+    logger.error('Error confirming order payment:', error);
     next(error);
   }
 };

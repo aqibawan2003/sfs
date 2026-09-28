@@ -1,6 +1,7 @@
 const {getUserModel} = require('../../utils/Utils');
 const bcrypt = require('bcryptjs');
 const logger = require('../../utils/logger');
+const { clearSessionCookie } = require('../../utils/sessionCookie');
 
 
 // Reset Password
@@ -38,6 +39,7 @@ exports.resetPassword = async (req, res, next) => {
         // user.verification_token_time = null;
         await user.save();
 
+        clearSessionCookie(res);
         res.json({ message: 'Password reset successfully. Please login with your new password.' });
     } catch (error) {
         next(error);

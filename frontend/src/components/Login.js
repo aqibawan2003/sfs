@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
-import Cookies from 'js-cookie';
 import { useDispatch } from 'react-redux';
 import { updateCartSummary } from '../store/cartSlice';
 import { loginUser, setCredentials } from '../store/authSlice';
@@ -31,31 +30,30 @@ const LoginForm = () => {
   }, [retryAfter > 0]);
 
   useEffect(() => {
-    const token = Cookies.get('token');
-    const user = JSON.parse(sessionStorage.getItem('user'));
-    if (token && user) {
-      dispatch(setCredentials({ token, user })); // Restore auth state without re-calling API
-      navigate('/'); // Redirect to home if already logged in
-    }
+    const restore = async () => {
+      try {
+        const response = await axios.get(`${API_BASE_URL}/auth/me`);
+        dispatch(setCredentials({ user: response.data.user }));
+        sessionStorage.setItem('user', JSON.stringify(response.data.user));
+        navigate('/');
+      } catch {
+        sessionStorage.removeItem('user');
+      }
+    };
+    restore();
   }, [dispatch, navigate]);
 
   const formik = useFormik({
     initialValues: {
       email: '',
-      password: '',
-    },
+      password: '' },
     validationSchema: Yup.object({
       email: Yup.string().email('Invalid email address').required('Required'),
-      password: Yup.string().required('Required'),
-    }),
+      password: Yup.string().required('Required') }),
     onSubmit: async (values) => {
       try {
         const response = await dispatch(loginUser(values)).unwrap();
-        const { token, user, cartSummary } = response;
-        // The app's existing navbar, sockets and API slices still read this
-        // legacy token. Keep it until those callers are migrated; the server
-        // also sets the more secure HTTP-only session cookie.
-        Cookies.set('token', token);
+        const { user, cartSummary } = response;
         sessionStorage.setItem('user', JSON.stringify(user));
 
         dispatch(updateCartSummary(cartSummary));
@@ -65,8 +63,7 @@ const LoginForm = () => {
         
         if (user.role === 'student') {
           toast.success(`${user.first_name} ${user.last_name} has successfully logged in!`, {
-            toastId: 'login-success',
-          });
+            toastId: 'login-success' });
           navigate('/');
         } else if (user.role === 'hostelOwner') {
           navigate('/hostel-owner-profile');
@@ -77,8 +74,7 @@ const LoginForm = () => {
         setRetryAfter(error?.retryAfter || 0);
         setError(error?.message || 'Invalid email or password');
       }
-    },
-  });
+    } });
 
   // Make Enter submit reliably even when a browser does not use the form's
   // implicit submit behavior for the focused input.
@@ -103,17 +99,10 @@ const LoginForm = () => {
     } else {
       setError('');
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/forgot-password`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ email: formik.values.email }),
-        });
-        const data = await response.json();
-        if (response.ok) {
-          Cookies.set('token', data.token);
-          sessionStorage.setItem('verified', data.verified);
+        const { data } = await axios.post(`${API_BASE_URL}/auth/forgot-password`, {
+          email: formik.values.email });
+        if (data.success) {
+          sessionStorage.setItem('verified', 'true');
           navigate('/otp');
           toast.success('OTP sent to your email.');
         } else {

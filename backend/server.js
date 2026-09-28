@@ -35,6 +35,7 @@ const geoRoutes = require('./routes/geoRoutes');
 const pushNotificationRoutes = require('./routes/pushNotificationRoutes');
 const errorHandler = require('./middlewares/errorHandler');
 const logger = require('./utils/logger');
+const csrfProtection = require('./middlewares/csrfProtection');
 
 const app = express();
 const server = http.createServer(app);
@@ -67,8 +68,8 @@ const corsOptions = {
   },
   methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
   credentials: true,
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset']
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-CSRF-Token'],
+  exposedHeaders: ['RateLimit-Limit', 'RateLimit-Remaining', 'RateLimit-Reset', 'X-CSRF-Token']
 };
 
 app.use(cors(corsOptions));
@@ -114,6 +115,7 @@ app.use((req, res, next) => {
 // Body parsers - must be before routes
 app.use(express.json({ limit: '50mb' }));  // Increased limit for image data
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
+app.use(csrfProtection);
 
 // Connect to MongoDB
 connectDB();

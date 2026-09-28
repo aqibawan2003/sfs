@@ -67,7 +67,7 @@ If you did not request a password reset, please ignore this email or contact sup
                 verified: user.email_verified 
             });
         } catch (emailError) {
-            console.error('Error sending password reset email:', emailError);
+            logger.error('Error sending password reset email:', emailError);
             
             // Reset the OTP if email fails
             user.reset_password_token = undefined;
@@ -81,7 +81,7 @@ If you did not request a password reset, please ignore this email or contact sup
             });
         }
     } catch (error) {
-        console.error('Error in forgot password flow:', error);
+        logger.error('Error in forgot password flow:', error);
         res.status(500).json({ 
             success: false,
             message: "An error occurred during password reset request.",

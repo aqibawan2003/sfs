@@ -5,7 +5,8 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
-const { setSessionCookie } = require('../../utils/sessionCookie');
+const { setSessionCookie, setCsrfCookie } = require('../../utils/sessionCookie');
+const { getSessionToken, clearSessionCookie } = require('../../utils/sessionCookie');
 const logger = require('../../utils/logger');
 const sendEmail = require('../../utils/emailService');
 const { generateVerificationToken, maxTokenTime } = require('../../utils/Utils');
@@ -47,13 +48,11 @@ exports.registerAdmin = async (req, res) => {
             role = 'super_admin';
         } else {
             // Subsequent admins → must be created by a super_admin (check token)
-            const authHeader = req.headers.authorization;
-            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            const token = getSessionToken(req);
+            if (!token) {
                 return res.status(401).json({ message: "Only super_admin can create new admins. Provide a super_admin token." });
             }
 
-            const jwt = require('jsonwebtoken');
-            const token = authHeader.split(' ')[1];
             let decoded;
             try {
                 decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -278,9 +277,9 @@ exports.loginAdmin = async (req, res) => {
             { expiresIn: '8h' }
         );
         setSessionCookie(res, token);
+        setCsrfCookie(res);
 
         res.json({
-            token,
             admin: {
                 _id: admin._id,
                 first_name: admin.first_name,
@@ -363,7 +362,9 @@ exports.verifyAdminPasswordResetOtp = async (req, res) => {
             { expiresIn: '10m' }
         );
 
-        res.status(200).json({ message: 'Code verified. You can now set a new password.', resetToken });
+        setSessionCookie(res, resetToken);
+        setCsrfCookie(res);
+        res.status(200).json({ message: 'Code verified. You can now set a new password.' });
     } catch (error) {
         console.error('Admin password reset code verification failed:', error);
         res.status(500).json({ message: 'Could not verify the code. Please try again.' });
@@ -373,8 +374,8 @@ exports.verifyAdminPasswordResetOtp = async (req, res) => {
 exports.resetAdminPassword = async (req, res) => {
     try {
         const { password, confirmPassword } = req.body;
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const resetToken = getSessionToken(req);
+        if (!resetToken) {
             return res.status(401).json({ message: 'Password reset authorization is required.' });
         }
         if (!password || !confirmPassword) {
@@ -389,7 +390,7 @@ exports.resetAdminPassword = async (req, res) => {
 
         let decoded;
         try {
-            decoded = jwt.verify(authHeader.split(' ')[1], process.env.JWT_SECRET);
+            decoded = jwt.verify(resetToken, process.env.JWT_SECRET);
         } catch (error) {
             return res.status(401).json({ message: 'Password reset session is invalid or expired. Request a new code.' });
         }
@@ -416,6 +417,7 @@ exports.resetAdminPassword = async (req, res) => {
         admin.reset_password_token_time = undefined;
         await admin.save();
 
+        clearSessionCookie(res);
         res.status(200).json({ message: 'Password reset successfully. You can now log in.' });
     } catch (error) {
         console.error('Admin password reset failed:', error);

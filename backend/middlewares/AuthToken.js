@@ -1,12 +1,11 @@
 const jwt = require('jsonwebtoken');
 const { getUserModel } = require('../utils/Utils');
 const { getSessionToken } = require('../utils/sessionCookie');
+const logger = require('../utils/logger');
 
 const verifyJWT = async (req, res, next) => {
     try {
-        const authHeader = req.headers.authorization;
-        const headerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
-        const token = (headerToken && headerToken !== 'undefined' && headerToken !== 'null') || getSessionToken(req);
+        const token = getSessionToken(req);
 
         if (!token) {
             return res.status(401).json({ 
@@ -33,7 +32,7 @@ const verifyJWT = async (req, res, next) => {
             req.user = decoded; // Add the decoded token data to the request object
             next();
         } catch (jwtError) {
-            console.error('JWT verification error:', jwtError);
+            logger.error('JWT verification error:', jwtError);
             return res.status(401).json({ 
                 success: false, 
                 message: 'Invalid or expired token',
@@ -41,7 +40,7 @@ const verifyJWT = async (req, res, next) => {
             });
         }
     } catch (error) {
-        console.error('Auth middleware error:', error);
+        logger.error('Auth middleware error:', error);
         return res.status(500).json({ 
             success: false, 
             message: 'Authentication error', 

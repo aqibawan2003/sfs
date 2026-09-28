@@ -44,8 +44,7 @@ const InstituteAutocomplete = ({ id, name, value, onChange, placeholder, classNa
       }
       try {
         const { data } = await axios.get(`${API_BASE_URL}/api/geo/geocode-search`, {
-          params: { q: query.trim() },
-        });
+          params: { q: query.trim() } });
         setSuggestions(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error('Institute search failed:', err);

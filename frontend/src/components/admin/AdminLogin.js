@@ -12,7 +12,6 @@ const AdminLogin = () => {
   const [otp, setOtp] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [resetToken, setResetToken] = useState('');
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,11 +22,8 @@ const AdminLogin = () => {
     setLoading(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/admin/login`, { email, password });
-      if (response.data.token) {
-        localStorage.setItem('adminToken', response.data.token);
-        localStorage.setItem('adminData', JSON.stringify(response.data.admin));
-        navigate('/admin/dashboard');
-      }
+      sessionStorage.setItem('adminData', JSON.stringify(response.data.admin));
+      navigate('/admin/dashboard');
     } catch (err) {
       setError(err.response?.data?.message || 'Invalid email or password');
     } finally {
@@ -58,7 +54,6 @@ const AdminLogin = () => {
     setLoading(true);
     try {
       const response = await axios.post(`${API_BASE_URL}/api/admin/verify-password-reset-otp`, { email, otp });
-      setResetToken(response.data.resetToken);
       setView('reset');
     } catch (err) {
       setError(err.response?.data?.message || 'Could not verify the code. Please try again.');
@@ -75,8 +70,7 @@ const AdminLogin = () => {
     try {
       const response = await axios.patch(
         `${API_BASE_URL}/api/admin/reset-password`,
-        { password: newPassword, confirmPassword },
-        { headers: { Authorization: `Bearer ${resetToken}` } }
+        { password: newPassword, confirmPassword }
       );
       setNotice(response.data.message);
       setView('login');
@@ -84,7 +78,6 @@ const AdminLogin = () => {
       setOtp('');
       setNewPassword('');
       setConfirmPassword('');
-      setResetToken('');
     } catch (err) {
       setError(err.response?.data?.message || 'Could not reset the password. Please try again.');
     } finally {
@@ -99,7 +92,6 @@ const AdminLogin = () => {
     setOtp('');
     setNewPassword('');
     setConfirmPassword('');
-    setResetToken('');
   };
 
   const isRecovery = view !== 'login';

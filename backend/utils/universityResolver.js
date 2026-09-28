@@ -454,7 +454,9 @@ const seededUniversityDatabase = {
   'national college of arts (nca)': { name: 'National College of Arts Lahore - Main Campus', lat: 31.5682911, lng: 74.3072396 },
   'lahore garrison university (lgu)': { name: 'Lahore Garrison University - DHA Phase VI Campus', lat: 31.4638355, lng: 74.4406649 },
   'govt. shalimar graduate college': { name: 'Government Shalimar Graduate College - Baghbanpura Campus', lat: 31.58884, lng: 74.3788 },
-  'university of education lahore': { name: 'University of Education - Township Campus', lat: 31.4537211, lng: 74.2968249 },
+  // University of Education confirms College Road, Township, Lahore; the
+  // published Township Campus point is approximately 31.4537, 74.2963.
+  'university of education lahore': { name: 'University of Education - Township Campus', lat: 31.4537, lng: 74.2963 },
   'punjab tianjin university of technology (ptut)': { name: 'Punjab Tianjin University of Technology - Green Town Campus', lat: 31.4374, lng: 74.2964 },
   'lahore leads university': { name: 'Lahore Leads University - Main Campus', lat: 31.5029986, lng: 74.326773 },
   'fast-nuces lahore': { name: 'FAST-NUCES - Lahore Campus', lat: 31.4667, lng: 74.2641 },
@@ -539,6 +541,11 @@ Object.assign(seededUniversityDatabase, {
   'university of home economics': seededUniversityDatabase['university of home economics lahore'],
   'azam garrison college': seededUniversityDatabase['azam garrison school and college'],
   'government shalimar graduate college': seededUniversityDatabase['govt. shalimar graduate college'],
+  // Campus names entered by users should resolve to the same verified campus
+  // coordinates as their canonical university aliases.
+  'university of education - township campus': seededUniversityDatabase['university of education lahore'],
+  'university of education': seededUniversityDatabase['university of education lahore'],
+  'university of the punjab - quaid-e-azam campus': seededUniversityDatabase['university of the punjab (pu)'],
 });
 
 /**

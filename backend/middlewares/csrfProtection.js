@@ -8,6 +8,11 @@ module.exports = (req, res, next) => {
 
   const cookies = parseCookies(req.headers.cookie);
   if (!cookies.sfs_session) return next(); // Public endpoints (login/register etc.)
+  // Bearer-authenticated clients already prove possession of the JWT and were
+  // supported before cookie sessions were introduced. Keep those requests
+  // compatible even when an older session cookie is still present.
+  const authorization = req.headers.authorization || '';
+  if (authorization.startsWith('Bearer ')) return next();
   const supplied = req.headers['x-csrf-token'];
   const suppliedBuffer = Buffer.from(typeof supplied === 'string' ? supplied : '');
   const cookieBuffer = Buffer.from(cookies.sfs_csrf || '');

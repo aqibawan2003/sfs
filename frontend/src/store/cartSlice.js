@@ -1,17 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import API_BASE_URL from '../utils/api';
 
 // Add to cart API
 export const addToCartAPI = createAsyncThunk('cart/addToCartAPI', async ({ kitchenId, productId, quantity }, { rejectWithValue }) => {
+  const token = Cookies.get('token');
 
   try {
     const response = await axios.post(`${API_BASE_URL}/api/cart/addItem`, 
       { kitchenId, productId, quantity }, 
       {
-        headers: {
-          
-        } }
+        headers: { Authorization: `Bearer ${token}` } }
     );
     return response.data.cartSummary; // Only return cart summary (itemCount and kitchenCount)
   } catch (error) {
@@ -25,11 +25,10 @@ export const addToCartAPI = createAsyncThunk('cart/addToCartAPI', async ({ kitch
 
 // Get user's cart API
 export const getCartAPI = createAsyncThunk('cart/getCartAPI', async () => {
+  const token = Cookies.get('token');
 
   const response = await axios.get(`${API_BASE_URL}/api/cart/getItem`, {
-    headers: {
-      
-    } });
+    headers: { Authorization: `Bearer ${token}` } });
 
   if (response.data.message === "No items in cart") {
     return { carts: [], message: response.data.message };
@@ -40,32 +39,29 @@ export const getCartAPI = createAsyncThunk('cart/getCartAPI', async () => {
 
 // Remove item from cart API
 export const removeFromCartAPI = createAsyncThunk('cart/removeFromCartAPI', async ({ kitchenId, productId }) => {
+  const token = Cookies.get('token');
 
   await axios.delete(`${API_BASE_URL}/api/cart/${kitchenId}/${productId}`, {
-    headers: {
-      
-    } });
+    headers: { Authorization: `Bearer ${token}` } });
   return { kitchenId, productId };
 });
 
 // Update item quantity API
 export const updateItemQuantityAPI = createAsyncThunk('cart/updateItemQuantityAPI', async ({ kitchenId, productId, quantity }) => {
+  const token = Cookies.get('token');
 
   const response = await axios.put(`${API_BASE_URL}/api/cart/updateItem/${kitchenId}/${productId}`, { quantity }, {
-    headers: {
-      
-    } });
+    headers: { Authorization: `Bearer ${token}` } });
   return response.data.cartSummary;
 });
 
 // Clear cart API
 export const clearCartAPI = createAsyncThunk('cart/clearCartAPI', async ({ kitchenId }) => {
+  const token = Cookies.get('token');
 
   console.log('Clearing cart for kitchen:', kitchenId);
   await axios.delete(`${API_BASE_URL}/api/cart/${kitchenId}`, {
-    headers: {
-      
-    } });
+    headers: { Authorization: `Bearer ${token}` } });
   return kitchenId;
 });
 

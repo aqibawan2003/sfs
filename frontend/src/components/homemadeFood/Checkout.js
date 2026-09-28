@@ -5,6 +5,7 @@ import { getStudentDataAPI } from '../../store/studentSlice'; // Using Redux act
 import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../Navbar';
 import axios from 'axios'; // Importing axios library
+import Cookies from 'js-cookie';
 import Footer from '../Footer';
 import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PaymentMethodDropdown } from '../PaymentOptions';
@@ -106,9 +107,10 @@ const Checkout = () => {
       paymentMethodId: paymentMethodIdToSend };
 
     try {
+      const token = Cookies.get('token');
 
       const response = await axios.post(`${API_BASE_URL}/api/order/create`, orderData, {
-        headers: { } });
+        headers: { Authorization: `Bearer ${token}` } });
 
       if (response.data.requiresAction && response.data.clientSecret) {
         // Extra authentication (3D Secure) required
@@ -125,7 +127,7 @@ const Checkout = () => {
           await axios.post(
             `${API_BASE_URL}/api/order/confirm-payment`,
             { orderId: response.data.orderId },
-            { headers: { } }
+            { headers: { Authorization: `Bearer ${token}` } }
           );
           await dispatch(clearCartAPI({ kitchenId }));
           setPaymentSuccess(true);

@@ -43,10 +43,14 @@ export const loginUser = createAsyncThunk(
       );
       return response.data;
     } catch (error) {
+      // express-rate-limit includes RateLimit headers on successful and normal
+      // 400 responses too. A bad password is not a lockout; only honour the
+      // reset value when the server actually returned 429.
+      const isRateLimited = error.response?.status === 429;
       return rejectWithValue(
         {
           ...(error.response?.data || { message: 'Unable to log in. Please try again.' }),
-          retryAfter: Number(error.response?.headers?.['ratelimit-reset']) || 0,
+          retryAfter: isRateLimited ? Number(error.response?.headers?.['ratelimit-reset']) || 0 : 0,
         }
       );
     }

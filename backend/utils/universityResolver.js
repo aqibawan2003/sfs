@@ -21,8 +21,9 @@ const universityDatabase = {
   'lahore university of management sciences': { name: 'Lahore University of Management Sciences', lat: 31.470326, lng: 74.4097439 },
 
   // COMSATS - COMSATS University
-  'comsats': { name: 'COMSATS University Islamabad', lat: 33.6844, lng: 73.0479 },
-  'comsats university': { name: 'COMSATS University Islamabad', lat: 33.6844, lng: 73.0479 },
+  // COMSATS University Islamabad, Park Road, Tarlai Kalan
+  'comsats': { name: 'COMSATS University Islamabad', lat: 33.65182628071665, lng: 73.15440461456367 },
+  'comsats university': { name: 'COMSATS University Islamabad', lat: 33.65182628071665, lng: 73.15440461456367 },
 
   // PU - Punjab University
   'pu': { name: 'University of the Punjab', lat: 31.4886984, lng: 74.2926335 },
@@ -48,10 +49,10 @@ const universityDatabase = {
   'iba': { name: 'Institute of Business Administration', lat: 31.5421, lng: 74.2914 },
 
   // Government Colleges in Lahore (20 colleges)
-  'govt. college lahore': { name: 'Government College Lahore', lat: 31.4843815, lng: 74.3214337 },
-  'government college lahore': { name: 'Government College Lahore', lat: 31.4843815, lng: 74.3214337 },
-  'gc lahore': { name: 'Government College Lahore', lat: 31.4843815, lng: 74.3214337 },
-  'gcl': { name: 'Government College Lahore', lat: 31.4843815, lng: 74.3214337 },
+  'govt. college lahore': { name: 'Government College University Lahore', lat: 31.5731518, lng: 74.3083536 },
+  'government college lahore': { name: 'Government College University Lahore', lat: 31.5731518, lng: 74.3083536 },
+  'gc lahore': { name: 'Government College University Lahore', lat: 31.5731518, lng: 74.3083536 },
+  'gcl': { name: 'Government College University Lahore', lat: 31.5731518, lng: 74.3083536 },
 
   'govt. college for women lahore': { name: 'Government College for Women (Mall Road)', lat: 31.5709, lng: 74.3146 },
   'govt. college for women': { name: 'Government College for Women (Mall Road)', lat: 31.5709, lng: 74.3146 },
@@ -75,8 +76,9 @@ const universityDatabase = {
   'govt. postgraduate college for women': { name: 'Government Postgraduate College for Women', lat: 31.5688, lng: 74.3041 },
   'pgc women': { name: 'Government Postgraduate College for Women', lat: 31.5688, lng: 74.3041 },
 
-  'govt. associates college': { name: 'Government Associates College', lat: 31.5614, lng: 74.3102 },
-  'associates college': { name: 'Government Associates College', lat: 31.5614, lng: 74.3102 },
+  // Government Associates College, 15-Lake Road, New Mozang
+  'govt. associates college': { name: 'Government Associates College', lat: 31.5582384, lng: 74.3067483 },
+  'associates college': { name: 'Government Associates College', lat: 31.5582384, lng: 74.3067483 },
 
   'govt. bashir ahmed college': { name: 'Government Bashir Ahmed College', lat: 31.5425, lng: 74.3245 },
   'bashir ahmed college': { name: 'Government Bashir Ahmed College', lat: 31.5425, lng: 74.3245 },
@@ -109,8 +111,9 @@ const universityDatabase = {
   'degree college shekhupura road': { name: 'Government Degree College (Shekhupura Road)', lat: 31.5421, lng: 74.2945 },
 
   // Additional Government Colleges in Lahore (20 more)
-  'govt. jinnah college': { name: 'Government Jinnah College', lat: 31.5687, lng: 74.3156 },
-  'jinnah college': { name: 'Government Jinnah College', lat: 31.5687, lng: 74.3156 },
+  // Government Jinnah Degree College for Women, Mozang
+  'govt. jinnah college': { name: 'Government Jinnah College', lat: 31.5512286, lng: 74.3173670 },
+  'jinnah college': { name: 'Government Jinnah College', lat: 31.5512286, lng: 74.3173670 },
 
   'govt. sadiq college': { name: 'Government Sadiq College', lat: 31.5502, lng: 74.3214 },
   'sadiq college': { name: 'Government Sadiq College', lat: 31.5502, lng: 74.3214 },
@@ -170,8 +173,9 @@ const universityDatabase = {
   'pieas': { name: 'Pakistan Institute of Engineering and Applied Sciences', lat: 33.6711, lng: 73.2733 },
   'pakistan institute engineering': { name: 'Pakistan Institute of Engineering and Applied Sciences', lat: 33.6711, lng: 73.2733 },
 
-  'nust': { name: 'National University of Sciences and Technology', lat: 33.6844, lng: 73.0479 },
-  'national university sciences': { name: 'National University of Sciences and Technology', lat: 33.6844, lng: 73.0479 },
+  // NUST main campus, Sector H-12, Islamabad
+  'nust': { name: 'National University of Sciences and Technology', lat: 33.6428814, lng: 72.9926685 },
+  'national university sciences': { name: 'National University of Sciences and Technology', lat: 33.6428814, lng: 72.9926685 },
 
   'uet': { name: 'University of Engineering and Technology Lahore', lat: 31.5487, lng: 74.3245 },
   'university of engineering': { name: 'University of Engineering and Technology Lahore', lat: 31.5487, lng: 74.3245 },
@@ -225,7 +229,6 @@ const universityDatabase = {
   'lahore college women': { name: 'Lahore College for Women University', lat: 31.5641, lng: 74.3245 },
   'lcwu': { name: 'Lahore College for Women University', lat: 31.5641, lng: 74.3245 },
 
-  'pakistan college': { name: 'Pakistan College', lat: 31.5741, lng: 74.3125 },
 
   'punjab college': { name: 'Punjab College', lat: 31.5825, lng: 74.3214 },
 
@@ -240,8 +243,9 @@ const universityDatabase = {
   'aga khan university': { name: 'Aga Khan University', lat: 33.7881, lng: 73.1850 },
   'aku': { name: 'Aga Khan University', lat: 33.7881, lng: 73.1850 },
 
-  'fatima memorial college': { name: 'Fatima Memorial College of Medicine', lat: 31.5741, lng: 74.3214 },
-  'fatima memorial': { name: 'Fatima Memorial College of Medicine', lat: 31.5741, lng: 74.3214 },
+  // Fatima Memorial College of Medicine and Dentistry, Shadman
+  'fatima memorial college': { name: 'Fatima Memorial College of Medicine', lat: 31.53553, lng: 74.32765 },
+  'fatima memorial': { name: 'Fatima Memorial College of Medicine', lat: 31.53553, lng: 74.32765 },
 
   'pmdc': { name: 'Pakistan Medical and Dental Council', lat: 31.5641, lng: 74.3156 },
 
@@ -260,37 +264,31 @@ const universityDatabase = {
 
   'punjab college commerce': { name: 'Punjab College of Commerce', lat: 31.5704, lng: 74.3189 },
 
-  'siddiqui college': { name: 'Siddiqui College', lat: 31.5741, lng: 74.3125 },
 
   'solutions iq': { name: 'Solutions IQ Institute', lat: 31.5825, lng: 74.3156 },
 
   'ehp engineering': { name: 'EHP Engineering College', lat: 31.5587, lng: 74.3214 },
 
-  'leads university': { name: 'LEADS University', lat: 31.5641, lng: 74.3102 },
+  // Lahore Leads University, Main Boulevard Garden Town
+  'leads university': { name: 'LEADS University', lat: 31.5030825, lng: 74.3290337 },
 
   'numl': { name: 'National University of Modern Languages', lat: 33.7265, lng: 73.1411 },
   'national university modern languages': { name: 'National University of Modern Languages', lat: 33.7265, lng: 73.1411 },
 
-  'punjab college for women': { name: 'Punjab College for Women', lat: 31.5687, lng: 74.3214 },
-
   'govt. college women cantt': { name: 'Government College for Women Cantonment', lat: 31.5523553, lng: 74.3683058 },
 
-  'jinnah college women': { name: 'Jinnah College for Women', lat: 31.5614, lng: 74.3156 },
-
   'women college universitas': { name: 'Women College University of Lahore', lat: 31.5614, lng: 74.3245 },
-
-  'govt. associates college women': { name: 'Government Associates College for Women', lat: 31.5687, lng: 74.3102 },
 
   'hailey college commerce': { name: 'Hailey College of Commerce', lat: 31.5641, lng: 74.3214 },
   'hcc': { name: 'Hailey College of Commerce', lat: 31.5641, lng: 74.3214 },
 
-  'college of agriculture': { name: 'College of Agriculture, University of Punjab', lat: 31.5741, lng: 74.3125 },
+  'college of agriculture': { name: 'College of Agriculture, University of Punjab', lat: 31.4886984, lng: 74.2926335 },
 
   'veterinary college': { name: 'University of Veterinary and Animal Sciences', lat: 31.5845, lng: 74.3214 },
 
-  'college of education': { name: 'Institute of Education and Research', lat: 31.5687, lng: 74.3156 },
+  'college of education': { name: 'Institute of Education and Research', lat: 31.4886984, lng: 74.2926335 },
 
-  'ier': { name: 'Institute of Education and Research', lat: 31.5687, lng: 74.3156 },
+  'ier': { name: 'Institute of Education and Research', lat: 31.4886984, lng: 74.2926335 },
 
   'teacher training': { name: 'Government College of Teacher Education', lat: 31.5614, lng: 74.3102 },
 
@@ -304,7 +302,7 @@ const universityDatabase = {
 
   'uvas': { name: 'University of Veterinary and Animal Sciences', lat: 31.5845, lng: 74.3214 },
 
-  'college engineering': { name: 'College of Engineering, University of the Punjab', lat: 31.5741, lng: 74.3125 },
+  'college engineering': { name: 'College of Engineering, University of the Punjab', lat: 31.4886984, lng: 74.2926335 },
 
   'fast lahore': { name: 'FAST School of Computing', lat: 31.4667, lng: 74.2641 },
 
@@ -312,25 +310,25 @@ const universityDatabase = {
 
   'nadia professional': { name: 'Nadia Professional Academy', lat: 31.5741, lng: 74.3156 },
 
-  'college of administration': { name: 'College of Public Administration', lat: 31.5687, lng: 74.3214 },
+  'college of administration': { name: 'College of Public Administration', lat: 31.4886984, lng: 74.2926335 },
 
-  'cpas': { name: 'College of Public Administration Sciences', lat: 31.5687, lng: 74.3214 },
+  'cpas': { name: 'College of Public Administration Sciences', lat: 31.4886984, lng: 74.2926335 },
 
-  'school social work': { name: 'Institute of Social & Cultural Studies', lat: 31.5641, lng: 74.3102 },
+  'school social work': { name: 'Institute of Social & Cultural Studies', lat: 31.4886984, lng: 74.2926335 },
 
-  'librarianship': { name: 'Department of Library and Information Sciences', lat: 31.5741, lng: 74.3125 },
+  'librarianship': { name: 'Department of Library and Information Sciences', lat: 31.4886984, lng: 74.2926335 },
 
   'mass communication': { name: 'Department of Mass Communication', lat: 31.5614, lng: 74.3214 },
 
-  'journalism school': { name: 'School of Journalism', lat: 31.5687, lng: 74.3156 },
+  'journalism school': { name: 'School of Journalism', lat: 31.4886984, lng: 74.2926335 },
 
   'fine arts': { name: 'Faculty of Fine Arts', lat: 31.5741, lng: 74.3102 },
 
   'music academy': { name: 'National Music Academy', lat: 31.5614, lng: 74.3145 },
 
-  'theatre arts': { name: 'Department of Theatre Arts', lat: 31.5687, lng: 74.3214 },
+  'theatre arts': { name: 'Department of Theatre Arts', lat: 31.4886984, lng: 74.2926335 },
 
-  'physical education': { name: 'Department of Physical Education', lat: 31.5741, lng: 74.3214 },
+  'physical education': { name: 'Department of Physical Education', lat: 31.4886984, lng: 74.2926335 },
 
   'sports complex': { name: 'Lahore Sports Complex', lat: 31.4674704, lng: 74.4433305 },
 
@@ -342,7 +340,7 @@ const universityDatabase = {
 
   'bba college': { name: 'Business Management Institute', lat: 31.5614, lng: 74.3214 },
 
-  'mba college': { name: 'Institute of Business Management', lat: 31.5741, lng: 74.3125 },
+  'mba college': { name: 'Institute of Business Management', lat: 31.4886984, lng: 74.2926335 },
 
   // 34 additional Lahore institutes/colleges/private universities — coordinates
   // live-geocoded via Nominatim (not hand-typed), added 2026-07-11. ~65 other
@@ -414,8 +412,6 @@ const universityDatabase = {
   'uhe lahore': { name: 'University of Home Economics Lahore', lat: 31.5252123, lng: 74.3522823 },
 
   'islamia college civil lines': { name: 'Islamia College Civil Lines Lahore', lat: 31.5720492, lng: 74.301089 },
-
-  'govt college model town': { name: 'Government College Model Town Lahore', lat: 31.4843815, lng: 74.3214337 },
 
   'govt college faisal town': { name: 'Government College Faisal Town Lahore', lat: 31.4806207, lng: 74.3085768 },
 
@@ -557,11 +553,47 @@ Object.assign(seededUniversityDatabase, {
 function resolveUniversityFromKnown(universityInput) {
   if (!universityInput) return null;
 
-  const key = universityInput.trim().toLowerCase();
+  const key = universityInput.trim().toLowerCase().replace(/\s+/g, ' ');
+  const candidateKeys = [key];
 
-  if (seededUniversityDatabase[key]) {
-    return seededUniversityDatabase[key];
+  // Autocomplete displays campus-specific labels, while the resolver stores
+  // the canonical institution key. Resolve only known suffix variants; do
+  // not use broad substring matching because it can select another institute.
+  const withoutCampusSuffix = key
+    .replace(/\s+-\s+[^-]+\s+campus$/i, '')
+    .replace(/\s+campus$/i, '')
+    .trim();
+
+  if (withoutCampusSuffix !== key) {
+    candidateKeys.push(withoutCampusSuffix);
   }
+
+  for (const candidateKey of candidateKeys) {
+    if (seededUniversityDatabase[candidateKey]) {
+      return seededUniversityDatabase[candidateKey];
+    }
+    if (universityDatabase[candidateKey]) {
+      return universityDatabase[candidateKey];
+    }
+  }
+
+  // Some seeded records have a canonical display name that is more specific
+  // than their lookup alias (for example, "... Lahore - Main Campus").
+  // Match that exact normalized canonical name, never an arbitrary substring.
+  const canonicalMatch = Object.values(seededUniversityDatabase).find((record) => {
+    const canonicalKey = record.name.toLowerCase().replace(/\s+/g, ' ');
+    const canonicalBase = canonicalKey.replace(/\s+-\s+[^-]+\s+campus$/i, '').trim();
+    return candidateKeys.includes(canonicalKey) || candidateKeys.includes(canonicalBase);
+  });
+
+  if (canonicalMatch) return canonicalMatch;
+
+  const legacyCanonicalMatch = Object.values(universityDatabase).find((record) => {
+    const recordName = record.name.toLowerCase().replace(/\s+/g, ' ');
+    return candidateKeys.includes(recordName);
+  });
+
+  if (legacyCanonicalMatch) return legacyCanonicalMatch;
 
   // Unknown names deliberately fall through to live geocoding. Substring
   // matching can silently map one institution to another.

@@ -35,7 +35,7 @@ On first connection, `seedDummyData.js` automatically seeds 15 hostels, 15 kitch
 
 ## First-time super admin setup (Postman)
 
-The first admin registered through `POST /api/admin/register` becomes a `super_admin` with `email_verified: false`. Log in normally through `POST /api/admin/login`, then use the returned bearer token to change the password through `PATCH /api/admin/change-password`:
+The first admin registered through `POST /api/admin/register` becomes a `super_admin` with `email_verified: false`. Log in normally through `POST /api/admin/login`; the response sets an HTTP-only `sfs_session` cookie. Then call `PATCH /api/admin/change-password` with the session cookie and CSRF header:
 
 ```json
 {
@@ -59,7 +59,7 @@ From the admin login page, request a reset code using the admin account email. T
 
 1. `POST /api/admin/forgot-password` with `{"email":"admin@example.com"}` sends a five-minute code when the account exists. The response is intentionally the same whether or not the email belongs to an admin.
 2. `POST /api/admin/verify-password-reset-otp` with `{"email":"admin@example.com","otp":"123456"}` verifies and consumes the code, then returns a short-lived reset token.
-3. `PATCH /api/admin/reset-password` with `{"password":"new-password","confirmPassword":"new-password"}` and `Authorization: Bearer <resetToken>` updates the password. The reset token is single-use and expires after ten minutes.
+3. `PATCH /api/admin/reset-password` with `{"password":"new-password","confirmPassword":"new-password"}` and the reset session cookie updates the password. The reset session is single-use and expires after ten minutes.
 
 These recovery routes are public and rate limited. They are separate from super-admin onboarding verification and require the configured Brevo email settings to deliver codes.
 
@@ -85,4 +85,7 @@ Deploy to **Render** (or any host that keeps a persistent process running) — n
 - `/api/upload/image` requires authentication. `/api/upload/registration-image` permits only `profile`, `hostel`, and `kitchen` images before login, limited to 8 uploads per 15 minutes per IP.
 - Bed reservation is atomic before Stripe runs. Cancellations attempt a refund before local payment state changes.
 
-- Run `npx jest tests/sessionCookie.test.js --runInBand` from `backend` to execute the session-cookie test.
+- Cookie-authenticated writes require a matching `sfs_csrf` / `X-CSRF-Token` double-submit token. This is intentional CSRF protection; do not bypass it for authenticated endpoints.
+- Once Stripe accepts a hostel payment, bed state and booking history are saved in one MongoDB transaction to prevent partial database writes.
+
+- Run `npm test -- --runInBand` from `backend` to execute the session-cookie and CSRF tests.

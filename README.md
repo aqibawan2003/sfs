@@ -284,6 +284,42 @@ Read the [complete deployment guide](DEPLOYMENT_GUIDE.md) for environment config
 
 If a secret is ever exposed, revoke it at the provider, generate a replacement, and update the deployment environment immediately.
 
+## Authentication hardening migration (September 2026)
+
+SFS now keeps signed session JWTs in the `sfs_session` **HTTP-only cookie** instead of returning or storing a readable token in the browser. This prevents page JavaScript from reading the session credential. The frontend restores the signed-in user through `GET /auth/me`; REST calls and Socket.IO connections use the cookie automatically.
+
+State-changing requests made with a session cookie use a double-submit CSRF token: the `sfs_csrf` cookie must match the `X-CSRF-Token` header. The Axios interceptor obtains the value from `GET /auth/csrf`. These two protections are documented so future refactors do not accidentally keep one protection while removing the other.
+
+After Stripe accepts a hostel payment, the occupied-bed state and booking record are saved in one MongoDB transaction. This prevents a partially saved booking if one database write fails.
+
+Comments in the relevant middleware, session utility, Socket.IO setup, and booking controller explain what changed and why. Keep those comments when refactoring these flows.
+
+### Test the migration
+
+```bash
+cd backend
+npm test -- --runInBand
+```
+
+The suite includes cookie-parsing and CSRF-request tests. Before production deployment, also test login, registration-image upload, Stripe test-card payment/refund, and deployed VAPID/Brevo configuration.
+
+### Revert safely later
+
+Do not use `git reset --hard` on a shared branch. First identify the migration commit:
+
+```bash
+git log --oneline
+```
+
+Then create a new commit that reverses it while preserving history:
+
+```bash
+git revert <migration-commit-sha>
+git push origin main
+```
+
+If later commits depend on this migration, revert those first or resolve conflicts deliberately. A code revert does not invalidate cookies already issued; rotate `JWT_SECRET` if an emergency session invalidation is needed.
+
 ## 👨‍💻 Project team
 
 <div align="center">

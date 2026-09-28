@@ -103,7 +103,7 @@ const LoginForm = () => {
         const { data } = await axios.post(`${API_BASE_URL}/auth/forgot-password`, {
           email: formik.values.email });
         if (data.success) {
-          sessionStorage.setItem('verified', 'true');
+          sessionStorage.setItem('otpPurpose', 'password-reset');
           navigate('/otp');
           toast.success('OTP sent to your email.');
         } else {

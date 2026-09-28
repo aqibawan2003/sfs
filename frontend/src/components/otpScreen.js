@@ -37,16 +37,16 @@ const OtpScreen = () => {
     }
 
     try {
-      const verified = sessionStorage.getItem('verified');
-      if (verified) {
+      const otpPurpose = sessionStorage.getItem('otpPurpose');
+      if (otpPurpose === 'password-reset') {
         await axios.post(`${API_BASE_URL}/auth/verify-otp`, { otp });
-        sessionStorage.removeItem('verified');
+        sessionStorage.removeItem('otpPurpose');
         navigate('/reset-password');
         return;
       }
       else{
         const response = await axios.patch(`${API_BASE_URL}/auth/verifyEmail`, { otp });
-        sessionStorage.removeItem('verified');
+        sessionStorage.removeItem('otpPurpose');
         sessionStorage.setItem('user', JSON.stringify(response.data.user));
         dispatch(setCredentials({ user: response.data.user }));
         if(response.status === 200){

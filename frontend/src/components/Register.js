@@ -257,6 +257,8 @@ const RegistrationForm = () => {
         if (response.requiresVerification) {
           // Clear any previously logged-in user data so stale profile isn't shown
           sessionStorage.removeItem('user');
+          sessionStorage.removeItem('verified');
+          sessionStorage.setItem('otpPurpose', 'registration');
           toast.success('Registration successful! Please check your email for OTP.');
           navigate('/otp');
         }
@@ -390,6 +392,8 @@ const RegistrationForm = () => {
         console.log("Direct API call succeeded:", response.data);
         
         if (response.data.requiresVerification) {
+          sessionStorage.removeItem('verified');
+          sessionStorage.setItem('otpPurpose', 'registration');
           toast.success('Registration successful! Please check your email for OTP.');
           navigate('/otp');
         }

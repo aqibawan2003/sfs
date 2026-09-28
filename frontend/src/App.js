@@ -103,7 +103,7 @@ function App() {
        <Route path='/Mission' element={<Mission/>}/>
        <Route path='/about-us' element={<AboutUs/>}/>
        <Route path='/AboutUs' element={<Navigate to="/about-us" replace />}/>
-       <Route path='/profile' element={<ProtectedRoute allowedRoles={['student']}><StudentProfile/></ProtectedRoute>}/>
+       <Route path='/profile' element={<ProtectedRoute allowedRoles={['student', 'hostelOwner', 'kitchenOwner']}><StudentProfile/></ProtectedRoute>}/>
        <Route path='/booking' element={<ProtectedRoute allowedRoles={['hostelOwner']}><HostelOwnerBookingBed/></ProtectedRoute>}/>
        <Route path='/contact-us' element={<ContactUs/>}/>
        <Route path='/ContactUs' element={<Navigate to="/contact-us" replace />}/>

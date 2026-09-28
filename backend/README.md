@@ -75,3 +75,14 @@ These recovery routes are public and rate limited. They are separate from super-
 ## Deployment
 
 Deploy to **Render** (or any host that keeps a persistent process running) — not Vercel. Socket.IO needs a long-lived connection that serverless functions can't provide. Full steps in `../DEPLOYMENT_GUIDE.md`.
+
+
+## Recent security and reliability updates
+
+- Authentication accepts a bearer token or the `sfs_session` HTTP-only cookie; normal sessions verify that the account still exists and is not banned.
+- Login/profile responses do not expose password hashes or reset/verification values.
+- Password-reset OTPs are account-scoped, consumed on verification, and issue a 10-minute reset token.
+- `/api/upload/image` requires authentication. `/api/upload/registration-image` permits only `profile`, `hostel`, and `kitchen` images before login, limited to 8 uploads per 15 minutes per IP.
+- Bed reservation is atomic before Stripe runs. Cancellations attempt a refund before local payment state changes.
+
+- Run `npx jest tests/sessionCookie.test.js --runInBand` from `backend` to execute the session-cookie test.

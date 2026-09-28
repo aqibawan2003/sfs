@@ -319,3 +319,15 @@ This project is available under the [MIT License](backend/LICENSE).
   ·
   <a href="DEPLOYMENT_GUIDE.md">Deployment guide</a>
 </div>
+
+
+## Recent security and reliability updates
+
+- Sensitive password and reset fields are excluded from API responses.
+- Password-reset OTPs are account-scoped, one-time, and issue short-lived reset tokens.
+- Banned/deleted accounts are rejected on login and authenticated requests.
+- Bed reservation is atomic before Stripe payment processing; cancellations request refunds before local state changes.
+- Active booking/order records and booked beds are protected from deletion.
+- Authenticated Cloudinary uploads are separated from a restricted, rate-limited registration-image flow.
+
+- The chatbot has a bounded response cache and a responsive, redesigned interface.

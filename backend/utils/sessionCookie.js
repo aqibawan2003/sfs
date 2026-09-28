@@ -14,6 +14,10 @@ function parseCookies(header = '') {
 }
 
 function getSessionToken(req) {
+  const auth = req.headers.authorization;
+  if (auth && auth.startsWith('Bearer ')) {
+    return auth.split(' ')[1];
+  }
   return parseCookies(req.headers.cookie).sfs_session;
 }
 

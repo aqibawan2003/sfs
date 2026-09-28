@@ -6,7 +6,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Navbar from '../Navbar';
 import axios from 'axios'; // Importing axios library
 import Footer from '../Footer';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import { PaymentMethodDropdown } from '../PaymentOptions';
 import API_BASE_URL from '../../utils/api';
 
@@ -55,7 +55,7 @@ const Checkout = () => {
       return;
     }
 
-    const cardElement = elements.getElement(CardElement);
+    const cardElement = elements.getElement(CardNumberElement);
     if (!cardElement) {
       setPaymentError('Please enter your card details.');
       return;
@@ -259,9 +259,9 @@ const Checkout = () => {
       </div>
 
       <div className="mb-2">
-        <label className="block text-white text-sm font-bold mb-2">Card Details</label>
+        <label className="block text-white text-sm font-bold mb-2">Card Number</label>
         <div className="shadow border rounded w-full py-3 px-3 bg-white">
-          <CardElement
+          <CardNumberElement
             options={{
               style: {
                 base: {
@@ -270,6 +270,20 @@ const Checkout = () => {
                   '::placeholder': { color: '#9ca3af' } },
                 invalid: { color: '#dc2626' } } }}
           />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 gap-3 mb-2">
+        <div>
+          <label className="block text-white text-sm font-bold mb-2">Expiry (MM / YY)</label>
+          <div className="shadow border rounded py-3 px-3 bg-white">
+            <CardExpiryElement options={{ style: { base: { fontSize: '16px', color: '#1f2937', '::placeholder': { color: '#9ca3af' } }, invalid: { color: '#dc2626' } } }} />
+          </div>
+        </div>
+        <div>
+          <label className="block text-white text-sm font-bold mb-2">CVC</label>
+          <div className="shadow border rounded py-3 px-3 bg-white">
+            <CardCvcElement options={{ style: { base: { fontSize: '16px', color: '#1f2937', '::placeholder': { color: '#9ca3af' } }, invalid: { color: '#dc2626' } } }} />
+          </div>
         </div>
       </div>
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { processPayment } from '../../store/paymentSlice';
-import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
+import { CardNumberElement, CardExpiryElement, CardCvcElement, useStripe, useElements } from '@stripe/react-stripe-js';
 import Modal from 'react-modal';
 import PaymentOptions from '../PaymentOptions';
 
@@ -71,7 +71,7 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
         return;
     }
 
-    const cardElement = elements.getElement(CardElement);
+    const cardElement = elements.getElement(CardNumberElement);
     if (!cardElement) {
         setPaymentError('Please enter your card details.');
         setPaymentProcessing(false);
@@ -228,15 +228,14 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
           </div>
 
           <div className="mb-2">
-            <label className="block text-gray-700 text-sm font-bold mb-2">Card Details</label>
+            <label className="block text-gray-700 text-sm font-bold mb-2">Card Number</label>
             <div
               className="shadow border rounded w-full min-h-[48px] px-3 bg-white flex items-center cursor-text focus-within:ring-2 focus-within:ring-blue-400 focus-within:border-blue-400"
               onClick={() => stripeCardElement?.focus()}
             >
-              <CardElement
+              <CardNumberElement
                 onReady={setStripeCardElement}
                 options={{
-                  hidePostalCode: true,
                   style: {
                     base: {
                       fontSize: '16px',
@@ -247,6 +246,20 @@ const CheckoutModal = ({ isOpen, onClose, bed, room, hostelOwnerId, onSuccess })
                     invalid: { color: '#dc2626' } } }}
                 className="w-full"
               />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 mb-2">
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2">Expiry (MM / YY)</label>
+              <div className="shadow border rounded min-h-[48px] px-3 bg-white flex items-center focus-within:ring-2 focus-within:ring-blue-400">
+                <CardExpiryElement options={{ style: { base: { fontSize: '16px', color: '#1f2937', fontFamily: 'Arial, sans-serif', '::placeholder': { color: '#9ca3af' } }, invalid: { color: '#dc2626' } } }} />
+              </div>
+            </div>
+            <div>
+              <label className="block text-gray-700 text-sm font-bold mb-2">CVC</label>
+              <div className="shadow border rounded min-h-[48px] px-3 bg-white flex items-center focus-within:ring-2 focus-within:ring-blue-400">
+                <CardCvcElement options={{ style: { base: { fontSize: '16px', color: '#1f2937', fontFamily: 'Arial, sans-serif', '::placeholder': { color: '#9ca3af' } }, invalid: { color: '#dc2626' } } }} />
+              </div>
             </div>
           </div>
 

@@ -705,6 +705,7 @@ const RegistrationForm = () => {
                   onBlur={formik.handleBlur}
                   error={formik.touched.profile_picture && formik.errors.profile_picture}
                   uploadType="profile"
+                  isRegistration
                 />
               </>
             )}
@@ -741,6 +742,7 @@ const RegistrationForm = () => {
                   onBlur={formik.handleBlur}
                   error={formik.touched.profile_picture && formik.errors.profile_picture}
                   uploadType="profile"
+                  isRegistration
                 />
 
                 <div className="mb-4">
@@ -835,6 +837,7 @@ const RegistrationForm = () => {
                   onBlur={formik.handleBlur}
                   error={formik.touched.hostel_picture && formik.errors.hostel_picture}
                   uploadType="hostel"
+                  isRegistration
                 />
 
                 <div className="mb-4">
@@ -1054,6 +1057,7 @@ const RegistrationForm = () => {
                   onBlur={formik.handleBlur}
                   error={formik.touched.profile_picture && formik.errors.profile_picture}
                   uploadType="profile"
+                  isRegistration
                 />
 
                 <div className="mb-4">
@@ -1109,6 +1113,7 @@ const RegistrationForm = () => {
                   onBlur={formik.handleBlur}
                   error={formik.touched.kitchen_picture && formik.errors.kitchen_picture}
                   uploadType="kitchen"
+                  isRegistration
                 />
               </>
             )}

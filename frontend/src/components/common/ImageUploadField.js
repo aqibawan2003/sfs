@@ -69,9 +69,14 @@ const ImageUploadField = ({
       formData.append('image', file);
       formData.append('type', uploadType);
 
-      const res = await axios.post(`${API_BASE_URL}/api/upload/image`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${Cookies.get('token')}` },
-      });
+      const token = Cookies.get('token');
+      // Registration occurs before a user owns a token. That route is limited
+      // to registration image categories and has a stricter server rate limit.
+      const endpoint = token ? '/api/upload/image' : '/api/upload/registration-image';
+      const headers = { 'Content-Type': 'multipart/form-data' };
+      if (token) headers.Authorization = `Bearer ${token}`;
+
+      const res = await axios.post(`${API_BASE_URL}${endpoint}`, formData, { headers });
 
       onChange(res.data.url);
     } catch (err) {

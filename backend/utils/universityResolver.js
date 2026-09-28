@@ -35,8 +35,9 @@ const universityDatabase = {
   'university of lahore': { name: 'University of Lahore', lat: 32.0400106, lng: 72.8348701 },
 
   // KIIT - Kinnaird College
-  'kinnaird': { name: 'Kinnaird College for Women', lat: 31.5409, lng: 74.3206 },
-  'kinnaird college': { name: 'Kinnaird College for Women', lat: 31.5409, lng: 74.3206 },
+  // Kinnaird College, 93-Jail Road, G.O.R.-I Lahore
+  'kinnaird': { name: 'Kinnaird College for Women', lat: 31.53747, lng: 74.34043 },
+  'kinnaird college': { name: 'Kinnaird College for Women', lat: 31.53747, lng: 74.34043 },
 
   // Forman Christian College
   'forman': { name: 'Forman Christian College', lat: 31.5214848, lng: 74.3338898 },
@@ -452,7 +453,7 @@ const seededUniversityDatabase = {
   'punjab tianjin university of technology (ptut)': { name: 'Punjab Tianjin University of Technology - Green Town Campus', lat: 31.4374, lng: 74.2964 },
   'lahore leads university': { name: 'Lahore Leads University - Main Campus', lat: 31.5029986, lng: 74.326773 },
   'fast-nuces lahore': { name: 'FAST-NUCES - Lahore Campus', lat: 31.4667, lng: 74.2641 },
-  'kinnaird college for women': { name: 'Kinnaird College for Women - Main Campus', lat: 31.5409, lng: 74.3206 },
+  'kinnaird college for women': { name: 'Kinnaird College for Women - Main Campus', lat: 31.53747, lng: 74.34043 },
   'lahore school of economics': { name: 'Lahore School of Economics - Main Campus', lat: 31.5027922, lng: 74.4749169 },
   'university of south asia': { name: 'University of South Asia - Lahore Campus', lat: 31.4257432, lng: 74.2313591 },
   'green international university': { name: 'Green International University - Lahore Campus', lat: 31.397867, lng: 74.2293872 },

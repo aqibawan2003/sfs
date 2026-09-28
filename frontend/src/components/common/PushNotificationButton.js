@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 import API_BASE_URL from '../../utils/api';
 
 const toUint8Array = (base64) => {
@@ -26,7 +27,13 @@ const PushNotificationButton = () => {
       setState('working');
       setFeedback('');
       const permission = await Notification.requestPermission();
-      if (permission !== 'granted') return setState(permission === 'denied' ? 'denied' : 'disabled');
+      if (permission !== 'granted') {
+        setState(permission === 'denied' ? 'denied' : 'disabled');
+        toast.warn(permission === 'denied'
+          ? 'Phone alerts are blocked in your browser settings.'
+          : 'Phone alerts were not enabled.');
+        return;
+      }
 
       const headers = { };
       const [{ data }, registration] = await Promise.all([
@@ -39,6 +46,7 @@ const PushNotificationButton = () => {
       await axios.post(`${API_BASE_URL}/api/push/subscribe`, subscription.toJSON(), { headers });
       setState('enabled');
       setFeedback('Notifications enabled.');
+      toast.success('Phone alerts enabled successfully.');
       // Confirm immediately; actual booking/order alerts are sent later by
       // the backend when a relevant event occurs.
       registration.showNotification('SFS notifications enabled', {
@@ -49,6 +57,7 @@ const PushNotificationButton = () => {
       console.error('Could not enable push notifications:', error);
       setState('disabled');
       setFeedback(error.response?.data?.message || 'Could not enable notifications. Check browser permission and try again.');
+      toast.error(error.response?.data?.message || 'Could not enable phone alerts. Please try again.');
     }
   };
 
@@ -77,9 +86,11 @@ const PushNotificationButton = () => {
 
       setState('disabled');
       setFeedback('Notifications disabled.');
+      toast.success('Phone alerts disabled successfully.');
     } catch (error) {
       console.error('Could not disable push notifications:', error);
       setState('enabled');
+      toast.error('Could not disable phone alerts. Please try again.');
     }
   };
 

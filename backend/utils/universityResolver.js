@@ -546,6 +546,7 @@ Object.assign(seededUniversityDatabase, {
   'university of education township campus': seededUniversityDatabase['university of education lahore'],
   'university of education': seededUniversityDatabase['university of education lahore'],
   'ue bank road': seededUniversityDatabase['university of education bank road'],
+  'university of education - bank road campus': seededUniversityDatabase['university of education bank road'],
   'university of education bank road campus': seededUniversityDatabase['university of education bank road'],
   'university of the punjab - quaid-e-azam campus': seededUniversityDatabase['university of the punjab (pu)'],
 });

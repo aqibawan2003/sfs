@@ -8,7 +8,7 @@ fs.mkdirSync(outputDirectory, { recursive: true });
 
 const doc = new PDFDocument({ size: 'A4', margin: 54, info: {
   Title: 'SFS Security and Reliability Fixes Report',
-  Author: 'Student Facility System Team',
+  Author: 'Aqib Ejaz',
   Subject: 'Implemented security, payment, data-integrity and frontend fixes',
 } });
 doc.pipe(fs.createWriteStream(outputPath));

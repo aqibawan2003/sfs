@@ -11,6 +11,7 @@ const toUint8Array = (base64) => {
 
 const PushNotificationButton = () => {
   const [state, setState] = useState('checking');
+  const [feedback, setFeedback] = useState('');
   const supported = 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
 
   useEffect(() => {
@@ -24,6 +25,7 @@ const PushNotificationButton = () => {
   const enable = async () => {
     try {
       setState('working');
+      setFeedback('');
       const permission = await Notification.requestPermission();
       if (permission !== 'granted') return setState(permission === 'denied' ? 'denied' : 'disabled');
       const token = Cookies.get('token');
@@ -38,9 +40,18 @@ const PushNotificationButton = () => {
       });
       await axios.post(`${API_BASE_URL}/api/push/subscribe`, subscription.toJSON(), { headers });
       setState('enabled');
+      setFeedback('Notifications enabled.');
+      // Confirm immediately; actual booking/order alerts are sent later by
+      // the backend when a relevant event occurs.
+      registration.showNotification('SFS notifications enabled', {
+        body: 'You will receive booking and order updates on this device.',
+        icon: '/logo.png',
+        tag: 'sfs-notifications-enabled',
+      }).catch(() => {});
     } catch (error) {
       console.error('Could not enable push notifications:', error);
       setState('disabled');
+      setFeedback(error.response?.data?.message || 'Could not enable notifications. Check browser permission and try again.');
     }
   };
 
@@ -69,6 +80,7 @@ const PushNotificationButton = () => {
       }
 
       setState('disabled');
+      setFeedback('Notifications disabled.');
     } catch (error) {
       console.error('Could not disable push notifications:', error);
       setState('enabled');
@@ -88,16 +100,23 @@ const PushNotificationButton = () => {
         : 'Enable phone alerts';
 
   return (
+    <span className="relative inline-flex">
     <button
       type="button"
       onClick={isEnabled ? disable : enable}
       disabled={isBusy || isBlocked}
-      className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-white/15 bg-white/5 text-base text-white/85 transition-colors hover:bg-white/10 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-default disabled:opacity-45"
+      className={`inline-flex h-9 w-9 items-center justify-center rounded-md border text-base transition-colors focus:outline-none focus:ring-2 focus:ring-white/30 disabled:cursor-default disabled:opacity-45 ${isEnabled ? 'border-emerald-400/60 bg-emerald-500/20 text-emerald-100 hover:bg-emerald-500/30' : 'border-white/15 bg-white/5 text-white/85 hover:bg-white/10 hover:text-white'}`}
       title={tooltip}
       aria-label={tooltip}
     >
       {isBlocked ? '🔕' : '🔔'}
     </button>
+    {feedback && (
+      <span role="status" className="absolute right-0 top-11 z-50 w-56 rounded bg-black/90 px-2 py-1 text-xs leading-4 text-white shadow-lg">
+        {feedback}
+      </span>
+    )}
+    </span>
   );
 };
 

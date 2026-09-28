@@ -320,13 +320,11 @@ const universityDatabase = {
 
   'mass communication': { name: 'Department of Mass Communication', lat: 31.5614, lng: 74.3214 },
 
-  'journalism school': { name: 'School of Journalism', lat: 31.4886984, lng: 74.2926335 },
 
   'fine arts': { name: 'Faculty of Fine Arts', lat: 31.5741, lng: 74.3102 },
 
   'music academy': { name: 'National Music Academy', lat: 31.5614, lng: 74.3145 },
 
-  'theatre arts': { name: 'Department of Theatre Arts', lat: 31.4886984, lng: 74.2926335 },
 
   'physical education': { name: 'Department of Physical Education', lat: 31.4886984, lng: 74.2926335 },
 
@@ -338,9 +336,7 @@ const universityDatabase = {
 
   'imc': { name: 'Institute of Management and Commerce', lat: 31.5687, lng: 74.3156 },
 
-  'bba college': { name: 'Business Management Institute', lat: 31.5614, lng: 74.3214 },
 
-  'mba college': { name: 'Institute of Business Management', lat: 31.4886984, lng: 74.2926335 },
 
   // 34 additional Lahore institutes/colleges/private universities — coordinates
   // live-geocoded via Nominatim (not hand-typed), added 2026-07-11. ~65 other

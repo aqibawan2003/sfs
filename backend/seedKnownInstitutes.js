@@ -15,8 +15,17 @@ async function seedKnownInstitutes() {
   try {
     const entries = Object.entries(seededUniversityDatabase);
     const verifiedKeys = new Set(entries.map(([key]) => key));
-    const retiredLegacyKeys = Object.keys(universityDatabase)
-      .filter(key => !verifiedKeys.has(key));
+    const removedCandidateKeys = [
+      'bba college',
+      'mba college',
+      'journalism school',
+      'theatre arts',
+    ];
+    const retiredLegacyKeys = [...new Set([
+      ...Object.keys(universityDatabase)
+      .filter(key => !verifiedKeys.has(key)),
+      ...removedCandidateKeys,
+    ])];
 
     // Delete only keys that came from the old bundled static list. Records
     // learned later through live geocoding are not touched.

@@ -14,7 +14,6 @@ module.exports = (req, res, next) => {
     '/auth/login',
     '/auth/register',
     '/auth/forgot-password',
-    '/auth/verify-otp',
   ];
   if (publicAuthPaths.includes(req.path)) return next();
 

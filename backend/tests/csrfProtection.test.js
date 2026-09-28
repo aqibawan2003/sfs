@@ -29,6 +29,16 @@ describe('CSRF protection', () => {
     expect(response.json).toHaveBeenCalledWith({ message: 'Invalid or missing CSRF token.' });
   });
 
+  test('requires CSRF protection for password-reset OTP verification', () => {
+    const response = makeResponse();
+    csrfProtection({
+      method: 'POST',
+      path: '/auth/verify-otp',
+      headers: { cookie: 'sfs_session=reset-jwt' },
+    }, response, jest.fn());
+    expect(response.status).toHaveBeenCalledWith(403);
+  });
+
   test('allows a cookie-authenticated write when the double-submit token matches', () => {
     const next = jest.fn();
     csrfProtection({

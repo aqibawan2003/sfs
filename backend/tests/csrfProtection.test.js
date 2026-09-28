@@ -12,6 +12,16 @@ describe('CSRF protection', () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
+  test('allows login with a stale session cookie', () => {
+    const next = jest.fn();
+    csrfProtection({
+      method: 'POST',
+      path: '/auth/login',
+      headers: { cookie: 'sfs_session=expired-session' },
+    }, makeResponse(), next);
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
   test('rejects a cookie-authenticated write with no CSRF token', () => {
     const response = makeResponse();
     csrfProtection({ method: 'PATCH', headers: { cookie: 'sfs_session=session-jwt' } }, response, jest.fn());

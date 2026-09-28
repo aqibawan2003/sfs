@@ -344,6 +344,21 @@ const HostelList = () => {
                     : <span className="text-sm text-gray-500">No facilities listed.</span>}
                 </div>
               </div>
+              <div className="mt-5">
+                <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Nearby institutes</p>
+                <div className="mt-3 space-y-2">
+                  {(selectedHostel.nearby_institutes || []).filter(institute => institute?.university).length > 0
+                    ? selectedHostel.nearby_institutes
+                        .filter(institute => institute?.university)
+                        .map((institute, index) => (
+                          <div key={`${institute.university}-${index}`} className="flex items-center justify-between rounded-lg border border-[#465047] bg-[#252a26] px-3 py-2 text-sm">
+                            <span className="text-gray-200">{institute.university}</span>
+                            {institute.distance && <span className="ml-3 shrink-0 text-xs text-[#c8b88f]">{institute.distance} km</span>}
+                          </div>
+                        ))
+                    : <span className="text-sm text-gray-500">No nearby institutes listed.</span>}
+                </div>
+              </div>
               <div className="mt-7 flex justify-end">
                 <button type="button" onClick={() => setSelectedHostel(null)} className="rounded-lg bg-[#ECDFCC] px-6 py-2.5 text-sm font-semibold text-[#1E201E] transition hover:bg-[#D6C4B0]">Close</button>
               </div>

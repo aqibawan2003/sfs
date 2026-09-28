@@ -454,6 +454,9 @@ const seededUniversityDatabase = {
   // Separate from the Township Campus; map location checked against the
   // Bank Road campus map listing and official UE address.
   'university of education bank road': { name: 'University of Education - Bank Road Campus', lat: 31.56263, lng: 74.30608 },
+  // Rashid Latif Khan University, 35-KM Main Ferozepur Road, Lahore.
+  'rashid latif khan university': { name: 'Rashid Latif Khan University', lat: 31.2738, lng: 74.4052 },
+  'rlku': { name: 'Rashid Latif Khan University', lat: 31.2738, lng: 74.4052 },
   'punjab tianjin university of technology (ptut)': { name: 'Punjab Tianjin University of Technology - Green Town Campus', lat: 31.4374, lng: 74.2964 },
   'lahore leads university': { name: 'Lahore Leads University - Main Campus', lat: 31.5029986, lng: 74.326773 },
   'fast-nuces lahore': { name: 'FAST-NUCES - Lahore Campus', lat: 31.4667, lng: 74.2641 },
@@ -548,6 +551,8 @@ Object.assign(seededUniversityDatabase, {
   'ue bank road': seededUniversityDatabase['university of education bank road'],
   'university of education - bank road campus': seededUniversityDatabase['university of education bank road'],
   'university of education bank road campus': seededUniversityDatabase['university of education bank road'],
+  'rashid latif khan university': seededUniversityDatabase['rashid latif khan university'],
+  rlku: seededUniversityDatabase['rashid latif khan university'],
   'university of the punjab - quaid-e-azam campus': seededUniversityDatabase['university of the punjab (pu)'],
 });
 

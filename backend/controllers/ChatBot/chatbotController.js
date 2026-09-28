@@ -163,6 +163,11 @@ function detectIntent(msg) {
 
 // ─── Static Responses ──────────────────────────────────────────────────────────
 function greetingResponse() {
+    return `Walaikum Assalam! I’m your SFS helper. 😊
+
+I can help you find a *hostel*, check *available beds*, browse *food*, compare *prices*, or explain *bookings*.
+
+What are you looking for today?`;
     return `Assalam-o-Alaikum! Welcome to Student Facility System (SFS).
 
 I'm the SFS assistant. Here's what I can help you with:
@@ -176,12 +181,22 @@ What would you like to know?`;
 }
 
 function smallTalkResponse() {
+    return `I’m doing well—thanks for asking! I’m here to make SFS easier: hostels, beds, food, prices, bookings, and account help.
+
+What would you like to do?`;
     return `I'm doing well, thanks for asking! I'm the SFS assistant — a bot built for the Student Facility System, here to help with hostel bookings, food orders, pricing, and account questions.
 
 What can I help you with?`;
 }
 
 function contactResponse() {
+    return `*Need support?*
+
+Email: aqibawan0102@gmail.com
+Phone: +92-310-4693600
+Hours: Monday–Saturday, 9 AM–6 PM PKT
+
+Tell us what happened and we’ll help.`;
     return `*Contact & Support*
 
 Developer: Aqib Awan
@@ -193,6 +208,15 @@ Support hours: Monday – Saturday, 9 AM – 6 PM PKT`;
 }
 
 function howToResponse() {
+    return `*Using SFS is simple:*
+
+*Students:* register, browse hostels or food, pay securely, then track bookings and orders from Profile.
+
+*Hostel owners:* register, wait for approval, add rooms/beds, then respond to booking requests.
+
+*Kitchen owners:* register, wait for approval, add dishes, then manage incoming orders.
+
+Want help with a specific step?`;
     return `*How to Use SFS*
 
 For Students:
@@ -216,6 +240,11 @@ For Kitchen Owners:
 }
 
 function paymentResponse() {
+    return `*Payments*
+
+You can currently pay by credit or debit card through *Stripe*. Prices are shown in PKR, and SFS never stores your card details.
+
+JazzCash and EasyPaisa are planned for a future update.`;
     return `*Payment Options*
 
 Stripe (active):
@@ -228,11 +257,17 @@ EasyPaisa — coming soon`;
 }
 
 function farewellResponse() {
+    return `You’re welcome! Have a great day. If you need anything later, just open this chat. 😊`;
     return `Thanks for using SFS. If you need anything else, I'm here.
 Email: aqibawan0102@gmail.com | Phone: +92-310-4693600`;
 }
 
 function facilitiesResponse() {
+    return `*Popular hostel facilities*
+
+Wi-Fi, AC, CCTV, generator, laundry, parking, water cooler, and study rooms are commonly listed.
+
+Open a hostel’s details to see its exact facilities.`;
     return `*Common Hostel Facilities on SFS*
 
 - Wi-Fi (high-speed internet)
@@ -248,6 +283,11 @@ Each hostel lists its own available facilities on the *Hostels* page — check a
 }
 
 function bookingStatusResponse() {
+    return `*Checking your bookings*
+
+Log in, then open *Profile → My Bookings*. Food orders are under *Profile → My Orders*.
+
+You’ll see the latest status and details there.`;
     return `*Your Bookings*
 
 To view your current bookings:
@@ -261,6 +301,13 @@ Need help? Contact: +92-310-4693600`;
 }
 
 function cancelResponse() {
+    return `*To cancel a hostel booking:*
+
+1. Open *Profile → My Bookings*
+2. Select the booking
+3. Choose *Cancel Booking*
+
+If payment was completed, SFS requests the Stripe refund before finalising cancellation.`;
     return `*Cancellation Policy*
 
 To cancel a hostel booking:
@@ -274,6 +321,15 @@ Support: aqibawan0102@gmail.com`;
 }
 
 function unknownResponse(userMessage) {
+    return `I’m not fully sure what you mean by “${userMessage}”.
+
+Try asking:
+• *Find a hostel near UET*
+• *Are any beds available?*
+• *Show budget food*
+• *How do I cancel a booking?*
+
+You can write naturally—I’ll do my best to help.`;
     return `I didn't quite understand: "${userMessage}"
 
 Here's what I can help with:

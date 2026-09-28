@@ -104,6 +104,7 @@ const LoginForm = () => {
           email: formik.values.email });
         if (data.success) {
           sessionStorage.setItem('otpPurpose', 'password-reset');
+          sessionStorage.setItem('otpExpiresAt', String(Date.now() + 5 * 60 * 1000));
           navigate('/otp');
           toast.success('OTP sent to your email.');
         } else {

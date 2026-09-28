@@ -9,19 +9,28 @@ const OtpScreen = () => {
   const [otp, setOtp] = useState('');
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [timeLeft, setTimeLeft] = useState(300); // 5 minutes in seconds
-  const [isOtpExpired, setIsOtpExpired] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(() => {
+    const expiresAt = Number(sessionStorage.getItem('otpExpiresAt'));
+    return expiresAt ? Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000)) : 0;
+  });
+  const [isOtpExpired, setIsOtpExpired] = useState(() => {
+    const expiresAt = Number(sessionStorage.getItem('otpExpiresAt'));
+    return !expiresAt || expiresAt <= Date.now();
+  });
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (timeLeft > 0) {
-      const timer = setInterval(() => setTimeLeft(timeLeft - 1), 1000);
-      return () => clearInterval(timer);
-    } else {
-      setIsOtpExpired(true); // OTP expired when timer reaches 0
-    }
-  }, [timeLeft]);
+    const updateTimer = () => {
+      const expiresAt = Number(sessionStorage.getItem('otpExpiresAt'));
+      const remaining = expiresAt ? Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000)) : 0;
+      setTimeLeft(remaining);
+      setIsOtpExpired(remaining <= 0);
+    };
+    updateTimer();
+    const timer = setInterval(updateTimer, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -46,12 +55,14 @@ const OtpScreen = () => {
       if (otpPurpose === 'password-reset') {
         await axios.post(`${API_BASE_URL}/auth/verify-otp`, { otp: normalizedOtp });
         sessionStorage.removeItem('otpPurpose');
+        sessionStorage.removeItem('otpExpiresAt');
         navigate('/reset-password');
         return;
       }
       else{
         const response = await axios.patch(`${API_BASE_URL}/auth/verifyEmail`, { otp: normalizedOtp });
         sessionStorage.removeItem('otpPurpose');
+        sessionStorage.removeItem('otpExpiresAt');
         sessionStorage.setItem('user', JSON.stringify(response.data.user));
         dispatch(setCredentials({ user: response.data.user }));
         if(response.status === 200){
@@ -77,6 +88,7 @@ const OtpScreen = () => {
       console.log("i am in resend otp");
 
       await axios.get(`${API_BASE_URL}/auth/resendOTP`);
+      sessionStorage.setItem('otpExpiresAt', String(Date.now() + 5 * 60 * 1000));
       setTimeLeft(300);
       setMessage('OTP resent successfully');
       setError('');

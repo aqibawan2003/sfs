@@ -259,6 +259,7 @@ const RegistrationForm = () => {
           sessionStorage.removeItem('user');
           sessionStorage.removeItem('verified');
           sessionStorage.setItem('otpPurpose', 'registration');
+          sessionStorage.setItem('otpExpiresAt', String(Date.now() + 5 * 60 * 1000));
           toast.success('Registration successful! Please check your email for OTP.');
           navigate('/otp');
         }
@@ -394,6 +395,7 @@ const RegistrationForm = () => {
         if (response.data.requiresVerification) {
           sessionStorage.removeItem('verified');
           sessionStorage.setItem('otpPurpose', 'registration');
+          sessionStorage.setItem('otpExpiresAt', String(Date.now() + 5 * 60 * 1000));
           toast.success('Registration successful! Please check your email for OTP.');
           navigate('/otp');
         }

@@ -58,7 +58,7 @@ const OtpScreen = () => {
             Authorization: `Bearer ${token}`,
           },
         });
-        Cookies.set('token', response.data.token); // Set the real post-verification token
+        // The verified session was set by the server as an HTTP-only cookie.
         sessionStorage.removeItem('verified');
         sessionStorage.setItem('user', JSON.stringify(response.data.user));
         if(response.status === 200){

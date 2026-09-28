@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { FaUpload, FaLink, FaSpinner, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -69,7 +70,7 @@ const ImageUploadField = ({
       formData.append('type', uploadType);
 
       const res = await axios.post(`${API_BASE_URL}/api/upload/image`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${Cookies.get('token')}` },
       });
 
       onChange(res.data.url);

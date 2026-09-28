@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { FaUpload, FaSpinner } from 'react-icons/fa';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
@@ -44,7 +45,7 @@ const InlineUploadButton = ({ onUploaded, uploadType = 'general' }) => {
       formData.append('image', file);
       formData.append('type', uploadType);
       const res = await axios.post(`${API_BASE_URL}/api/upload/image`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: { 'Content-Type': 'multipart/form-data', Authorization: `Bearer ${Cookies.get('token')}` },
       });
       onUploaded(res.data.url);
     } catch (err) {

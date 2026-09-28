@@ -6,6 +6,7 @@ const router = express.Router();
 const multer = require('multer');
 const rateLimit = require('express-rate-limit');
 const { uploadImage } = require('../controllers/uploadController/uploadController');
+const verifyJWT = require('../middlewares/AuthToken');
 
 // Keep the file in memory only long enough to stream it to Cloudinary — never
 // written to disk, so there's nothing to clean up on this server.
@@ -24,6 +25,6 @@ const uploadLimiter = rateLimit({
   message: { message: 'Too many image uploads. Please wait a few minutes and try again.' },
 });
 
-router.post('/image', uploadLimiter, upload.single('image'), uploadImage);
+router.post('/image', verifyJWT, uploadLimiter, upload.single('image'), uploadImage);
 
 module.exports = router;

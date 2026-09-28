@@ -1,14 +1,16 @@
 const jwt = require('jsonwebtoken');
 const Admin = require('../models/admin/Admin');
+const { getSessionToken } = require('../utils/sessionCookie');
 
 // Allows both admin and super_admin
 const adminAuth = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const headerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+    const token = (headerToken && headerToken !== 'undefined' && headerToken !== 'null') || getSessionToken(req);
+    if (!token) {
       return res.status(401).json({ message: 'No token provided. Admin access required.' });
     }
-    const token = authHeader.split(' ')[1];
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
     if (decoded.role !== 'admin' && decoded.role !== 'super_admin') {

@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const { setSessionCookie } = require('../../utils/sessionCookie');
 const logger = require('../../utils/logger');
 const sendEmail = require('../../utils/emailService');
 const { generateVerificationToken, maxTokenTime } = require('../../utils/Utils');
@@ -253,7 +254,7 @@ exports.loginAdmin = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const admin = await Admin.findOne({ email });
+        const admin = await Admin.findOne({ email }).select('+password');
         if (!admin) {
             return res.status(404).json({ message: "Admin not found" });
         }
@@ -276,6 +277,7 @@ exports.loginAdmin = async (req, res) => {
             process.env.JWT_SECRET,
             { expiresIn: '8h' }
         );
+        setSessionCookie(res, token);
 
         res.json({
             token,
@@ -595,8 +597,14 @@ exports.deleteHostelOwner = async (req, res) => {
     try {
         const Hostelowner = require('../../models/hostelowner/Hostelowner');
         const Hostelroom = require('../../models/hostelowner/Hostelroom');
+        const RoomBed = require('../../models/hostelowner/RoomBed');
+        const Booking = require('../../models/student/Booking');
         const { id } = req.params;
 
+        const activeBooking = await Booking.findOne({ hostel_id: id, status: { $in: ['Pending', 'Approved', 'Booked', 'Expiring'] } });
+        if (activeBooking) return res.status(409).json({ message: 'Cannot delete an owner with active bookings. Ban the account or resolve bookings first.' });
+        const roomIds = (await Hostelroom.find({ hostelId: id }).select('_id').lean()).map(room => room._id);
+        await RoomBed.deleteMany({ roomId: { $in: roomIds } });
         // Delete all hostels owned by this owner
         await Hostelroom.deleteMany({ hostelId: id }); // hostelId is the correct field in Hostelroom model
 
@@ -638,8 +646,11 @@ exports.deleteKitchenOwner = async (req, res) => {
     try {
         const Kitchenowner = require('../../models/kitchenowner/Kitchenowner');
         const Dish = require('../../models/kitchenowner/Dish');
+        const Order = require('../../models/student/Order');
         const { id } = req.params;
 
+        const activeOrder = await Order.findOne({ kitchenOwnerId: id, status: { $nin: ['Completed', 'Cancelled'] } });
+        if (activeOrder) return res.status(409).json({ message: 'Cannot delete a kitchen owner with active orders. Ban the account or resolve orders first.' });
         // Delete all dishes by this owner
         await Dish.deleteMany({ kitchen_owner_id: id });
 
@@ -944,7 +955,7 @@ exports.changeOwnPassword = async (req, res) => {
             return res.status(400).json({ message: 'New password must be at least 6 characters.' });
         }
 
-        const admin = await Admin.findById(req.admin._id || req.admin.id);
+        const admin = await Admin.findById(req.admin._id || req.admin.id).select('+password');
         if (!admin) {
             return res.status(404).json({ message: 'Admin not found.' });
         }

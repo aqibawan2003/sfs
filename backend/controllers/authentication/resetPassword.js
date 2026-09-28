@@ -6,11 +6,14 @@ const logger = require('../../utils/logger');
 // Reset Password
 exports.resetPassword = async (req, res, next) => {
     logger.debug('hello check rest password');
-    const { id, role } = req.user;
+    const { id, role, purpose } = req.user;
     // logger.debug(req.user);
     logger.debug('req.body', req.body);
     const { password, confirmPassword } = req.body;
 
+    if (purpose !== 'password-reset') {
+        return res.status(401).json({ message: 'A verified password-reset token is required.' });
+    }
     if (!password || !confirmPassword) {
         return res.status(400).json({ message: 'New password and confirm password are required.' });
     }

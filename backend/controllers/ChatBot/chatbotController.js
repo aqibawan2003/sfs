@@ -4,6 +4,31 @@ const RoomBed = require('../../models/hostelowner/RoomBed');
 const KitchenOwner = require('../../models/kitchenowner/Kitchenowner');
 const Dish = require('../../models/kitchenowner/Dish');
 const Review = require('../../models/student/Review');
+const logger = require('../../utils/logger');
+
+// Short-lived, bounded cache for public chatbot answers. Dynamic listings are
+// expensive aggregate/query combinations, but do not need to be recomputed for
+// every identical message in the same minute.
+const responseCache = new Map();
+const CACHE_TTL_MS = 60 * 1000;
+const CACHE_MAX_ENTRIES = 200;
+
+function getCachedReply(key) {
+    const entry = responseCache.get(key);
+    if (!entry || entry.expiresAt <= Date.now()) {
+        responseCache.delete(key);
+        return null;
+    }
+    return entry.reply;
+}
+
+function cacheReply(key, reply) {
+    if (responseCache.size >= CACHE_MAX_ENTRIES) {
+        const oldestKey = responseCache.keys().next().value;
+        responseCache.delete(oldestKey);
+    }
+    responseCache.set(key, { reply, expiresAt: Date.now() + CACHE_TTL_MS });
+}
 
 // ─── Ratings Helper ─────────────────────────────────────────────────────────
 // Pulls real average ratings from the Review collection for a batch of
@@ -270,7 +295,15 @@ exports.handleMessage = async (req, res) => {
         return res.status(400).json({ reply: 'Please send a message.' });
     }
 
+    const cacheKey = userMessage.toLowerCase().replace(/\s+/g, ' ');
+    const cachedReply = getCachedReply(cacheKey);
+    if (cachedReply) return res.json({ reply: cachedReply, cached: true });
+
     const intent = detectIntent(userMessage);
+    const sendReply = (reply) => {
+        cacheReply(cacheKey, reply);
+        return res.json({ reply });
+    };
 
     try {
         let reply = '';
@@ -567,10 +600,10 @@ exports.handleMessage = async (req, res) => {
                 reply = unknownResponse(userMessage);
         }
 
-        return res.json({ reply });
+        return sendReply(reply);
 
     } catch (error) {
-        console.error('Chatbot error:', error);
+        logger.error('Chatbot error:', error);
         return res.json({
             reply: `I'm having trouble fetching live data right now.\n\nFor immediate help:\nEmail: aqibawan0102@gmail.com\nPhone: +92-310-4693600`
         });

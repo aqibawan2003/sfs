@@ -9,6 +9,11 @@ import { ToastContainer } from 'react-toastify';
 import { store } from './store/store';
 import './index.css';
 import App from './App';
+import axios from 'axios';
+
+// Send the HTTP-only session cookie on cross-origin API calls. Existing
+// bearer headers remain temporarily compatible during this migration.
+axios.defaults.withCredentials = true;
 
 // Prevent a flash of unstyled React content on slow connections. In the
 // production build CRA extracts our CSS to /static/css/*.css; reveal the app

@@ -34,7 +34,12 @@ exports.uploadImage = async (req, res) => {
       });
     }
 
-    const folder = `sfs/${req.body.type || 'general'}`;
+    const type = String(req.body.type || 'general').toLowerCase();
+    const allowedFolders = new Set(['general', 'profile', 'hostel', 'kitchen', 'room', 'dish']);
+    if (!allowedFolders.has(type)) {
+      return res.status(400).json({ message: 'Invalid image upload type.' });
+    }
+    const folder = `sfs/${type}`;
 
     const uploadFromBuffer = () =>
       new Promise((resolve, reject) => {

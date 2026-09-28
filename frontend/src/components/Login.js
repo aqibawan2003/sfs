@@ -51,8 +51,9 @@ const LoginForm = () => {
     onSubmit: async (values) => {
       try {
         const response = await dispatch(loginUser(values)).unwrap();
-        const { token, user, cartSummary } = response;
-        Cookies.set('token', token);
+        const { user, cartSummary } = response;
+        // The server keeps the long-lived session in an HTTP-only cookie.
+        // Do not copy the access token into JavaScript-readable storage.
         sessionStorage.setItem('user', JSON.stringify(user));
 
         dispatch(updateCartSummary(cartSummary));

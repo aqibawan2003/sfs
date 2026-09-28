@@ -9,6 +9,7 @@ const {sendOtp} = require('../../controllers/authentication/forgetPassword');
 const {verifyOtp} = require('../../controllers/authentication/verifyPasswordOtp');
 const {resetPassword} = require('../../controllers/authentication/resetPassword');
 const verifyJWT = require('../../middlewares/AuthToken');
+const { clearSessionCookie } = require('../../utils/sessionCookie');
 const {
   validateRegister,
   validateLogin,
@@ -25,5 +26,9 @@ router.post('/login', validateLogin, loginUser);
 router.post('/forgot-password', validateForgotPassword, sendOtp);
 router.post('/verify-otp',verifyJWT, verifyOtp);
 router.patch('/reset-password',verifyJWT, resetPassword);
+router.post('/logout', (req, res) => {
+  clearSessionCookie(res);
+  res.status(204).end();
+});
 
 module.exports = router;

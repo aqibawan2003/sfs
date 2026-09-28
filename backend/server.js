@@ -34,6 +34,7 @@ const reviewRoutes = require('./routes/reviewRoutes');
 const geoRoutes = require('./routes/geoRoutes');
 const pushNotificationRoutes = require('./routes/pushNotificationRoutes');
 const errorHandler = require('./middlewares/errorHandler');
+const logger = require('./utils/logger');
 
 const app = express();
 const server = http.createServer(app);
@@ -106,7 +107,7 @@ const io = connectSocket(server);
 
 // Request logging middleware for debugging
 app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
+  logger.debug(`${new Date().toISOString()} - ${req.method} ${req.originalUrl}`);
   next();
 });
 

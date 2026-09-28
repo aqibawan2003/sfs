@@ -1,27 +1,35 @@
 const jwt = require('jsonwebtoken');
+const { getUserModel } = require('../utils/Utils');
+const { getSessionToken } = require('../utils/sessionCookie');
 
-const verifyJWT = (req, res, next) => {
+const verifyJWT = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
+        const headerToken = authHeader && authHeader.startsWith('Bearer ') ? authHeader.slice(7) : null;
+        const token = (headerToken && headerToken !== 'undefined' && headerToken !== 'null') || getSessionToken(req);
 
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ 
-                success: false,
-                message: 'Authorization token is required' 
-            });
-        }
-
-        const token = authHeader.split(' ')[1];
-        
         if (!token) {
             return res.status(401).json({ 
                 success: false,
-                message: 'Token is missing' 
+                message: 'Authorization token is required'
             });
         }
 
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
+            // Reset-flow tokens intentionally do not require an active account
+            // lookup. Every normal session does, so bans and deleted accounts
+            // take effect immediately rather than after JWT expiry.
+            if (!decoded.purpose && !decoded.isPending) {
+                if (!decoded.id) {
+                    return res.status(401).json({ success: false, message: 'Invalid token payload' });
+                }
+                const User = getUserModel(decoded.role);
+                const user = User && await User.findById(decoded.id).select('isBanned status');
+                if (!user || user.isBanned || user.status === 'banned') {
+                    return res.status(403).json({ success: false, message: 'This account is no longer allowed to access the service.' });
+                }
+            }
             req.user = decoded; // Add the decoded token data to the request object
             next();
         } catch (jwtError) {

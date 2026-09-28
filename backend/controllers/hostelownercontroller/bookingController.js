@@ -45,11 +45,6 @@ exports.bookBed = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Room not found or does not belong to the specified hostel' });
         }
 
-        const bedToBook = await Bed.findOne({ roomId: room._id, bed_number: parseInt(bedId) });
-        if (!bedToBook || bedToBook.isBooked) {
-            return res.status(400).json({ success: false, message: 'This bed is already booked. Please choose another one.' });
-        }
-
         const hostelOwner = await HostelOwner.findById(room.hostelId);
         if (!hostelOwner) {
             return res.status(400).json({ success: false, message: 'Invalid hostel owner' });
@@ -58,6 +53,23 @@ exports.bookBed = async (req, res) => {
         if (!paymentMethodId) {
             return res.status(400).json({ success: false, message: 'No payment method was provided. Please re-enter your card details.' });
         }
+
+        // Claim the bed before charging. The isBooked predicate makes this a
+        // compare-and-set operation, so just one simultaneous request can
+        // proceed to Stripe for a physical bed.
+        const reservationTime = new Date();
+        let bedToBook = await Bed.findOneAndUpdate(
+            { roomId: room._id, bed_number: parseInt(bedId), isBooked: false },
+            { $set: { isBooked: true, bookingStatus: 'Pending', paymentStatus: 'pending', bookingDate: reservationTime, bookedBy: customerId } },
+            { new: true }
+        );
+        if (!bedToBook) {
+            return res.status(409).json({ success: false, message: 'This bed was just booked by another student. Please choose another one.' });
+        }
+        const releaseReservation = () => Bed.updateOne(
+            { _id: bedToBook._id, bookedBy: customerId, paymentStatus: 'pending' },
+            { $set: { isBooked: false, bookingStatus: null, bookedBy: null, bookingDate: null }, $unset: { paymentIntentId: 1 } }
+        );
 
         // Create a payment intent with Stripe
         // NOTE: PKR requires your Stripe account to be enabled for Pakistani Rupees.
@@ -73,6 +85,7 @@ exports.bookBed = async (req, res) => {
                 automatic_payment_methods: { enabled: true, allow_redirects: 'never' },
             });
         } catch (stripeError) {
+            await releaseReservation();
             // Surface the REAL Stripe error to the frontend instead of a generic 500.
             // Common causes: PKR not enabled on the Stripe account, invalid card, test-mode mismatch.
             console.error('Stripe payment intent error:', stripeError.message);
@@ -83,12 +96,8 @@ exports.bookBed = async (req, res) => {
             });
         }
 
-        // Update bed booking status based on payment intent status
-        bedToBook.isBooked = true;
-        bedToBook.bookingStatus = 'Pending';
+        // The bed was already reserved atomically; attach Stripe metadata now.
         bedToBook.paymentIntentId = paymentIntent.id;
-        bedToBook.bookingDate = new Date();
-        bedToBook.bookedBy = customerId;
 
         if (paymentIntent.status === 'requires_action') {
             bedToBook.paymentStatus = 'pending'; // Pending status if further action is needed
@@ -117,6 +126,7 @@ exports.bookBed = async (req, res) => {
         if (paymentIntent.status !== 'succeeded') {
             // Payment didn't go through and doesn't need further action either —
             // do not mark the bed as booked.
+            await releaseReservation();
             return res.status(402).json({
                 success: false,
                 message: `Payment was not completed (status: ${paymentIntent.status}). Please try again.`,
@@ -713,11 +723,25 @@ exports.unbookRoom = async (req, res) => {
         if (!isOwningStudent && !isOwningHostel) {
             return res.status(403).json({ error: 'Unauthorized to cancel this booking' });
         }
+        if (booking.status === 'Cancelled') {
+            return res.status(409).json({ error: 'This booking has already been cancelled' });
+        }
 
         // Find the bed associated with the booking and update its booking status.
         // Match on the student who actually holds the bed, not on whoever is
         // making the request (the hostel owner's own ID would never match here).
         const bedToUnbook = await findBedForBooking(booking);
+        const paymentIntentId = bedToUnbook?.paymentIntentId;
+        // Refund before local state changes; otherwise a failed refund could
+        // erase the only record needed to reconcile the payment.
+        if (paymentIntentId && bedToUnbook.paymentStatus === 'completed') {
+            try {
+                await stripe.refunds.create({ payment_intent: paymentIntentId });
+            } catch (refundError) {
+                console.error('Booking cancellation refund failed:', refundError.message);
+                return res.status(502).json({ error: 'Refund failed; the booking was not cancelled.' });
+            }
+        }
 
         // Old history can outlive its student or bed relationship. If the bed
         // still exists, release it; otherwise there is nothing left to free
@@ -726,9 +750,8 @@ exports.unbookRoom = async (req, res) => {
             bedToUnbook.isBooked = false;
             bedToUnbook.bookingStatus = null;
             bedToUnbook.bookedBy = null;
-            bedToUnbook.paymentIntentId = null;
-            bedToUnbook.paymentStatus = 'pending';
-            bedToUnbook.bookingDate = null;
+            // Preserve the payment reference for audits and reconciliation.
+            if (paymentIntentId) bedToUnbook.paymentStatus = 'refunded';
             await bedToUnbook.save();
         }
 

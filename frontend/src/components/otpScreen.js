@@ -31,6 +31,11 @@ const OtpScreen = () => {
 
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
+    const normalizedOtp = otp.replace(/\D/g, '').trim();
+    if (!/^\d{6}$/.test(normalizedOtp)) {
+      setError('Please enter the six-digit OTP from the latest email.');
+      return;
+    }
     if (isOtpExpired) {
       setError('OTP has expired. Please request a new one.');
       return;
@@ -39,13 +44,13 @@ const OtpScreen = () => {
     try {
       const otpPurpose = sessionStorage.getItem('otpPurpose');
       if (otpPurpose === 'password-reset') {
-        await axios.post(`${API_BASE_URL}/auth/verify-otp`, { otp });
+        await axios.post(`${API_BASE_URL}/auth/verify-otp`, { otp: normalizedOtp });
         sessionStorage.removeItem('otpPurpose');
         navigate('/reset-password');
         return;
       }
       else{
-        const response = await axios.patch(`${API_BASE_URL}/auth/verifyEmail`, { otp });
+        const response = await axios.patch(`${API_BASE_URL}/auth/verifyEmail`, { otp: normalizedOtp });
         sessionStorage.removeItem('otpPurpose');
         sessionStorage.setItem('user', JSON.stringify(response.data.user));
         dispatch(setCredentials({ user: response.data.user }));
@@ -63,7 +68,7 @@ const OtpScreen = () => {
       }
       
     } catch (error) {
-      setError('Invalid OTP or verification failed.');
+      setError(error.response?.data?.message || 'Invalid OTP or verification failed.');
     }
   };
 

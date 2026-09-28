@@ -447,9 +447,13 @@ const seededUniversityDatabase = {
   'national college of arts (nca)': { name: 'National College of Arts Lahore - Main Campus', lat: 31.5682911, lng: 74.3072396 },
   'lahore garrison university (lgu)': { name: 'Lahore Garrison University - DHA Phase VI Campus', lat: 31.4638355, lng: 74.4406649 },
   'govt. shalimar graduate college': { name: 'Government Shalimar Graduate College - Baghbanpura Campus', lat: 31.58884, lng: 74.3788 },
-  // University of Education confirms College Road, Township, Lahore; the
-  // published Township Campus point is approximately 31.4537, 74.2963.
-  'university of education lahore': { name: 'University of Education - Township Campus', lat: 31.4537, lng: 74.2963 },
+  // University of Education, Township Campus, College Road, Lahore.
+  // Coordinate checked against the published PITB campus listing.
+  'university of education lahore': { name: 'University of Education - Township Campus', lat: 31.4537165, lng: 74.2990136 },
+  // University of Education, Bank Road Campus, Lahore.
+  // Separate from the Township Campus; map location checked against the
+  // Bank Road campus map listing and official UE address.
+  'university of education bank road': { name: 'University of Education - Bank Road Campus', lat: 31.56263, lng: 74.30608 },
   'punjab tianjin university of technology (ptut)': { name: 'Punjab Tianjin University of Technology - Green Town Campus', lat: 31.4374, lng: 74.2964 },
   'lahore leads university': { name: 'Lahore Leads University - Main Campus', lat: 31.5029986, lng: 74.326773 },
   'fast-nuces lahore': { name: 'FAST-NUCES - Lahore Campus', lat: 31.4667, lng: 74.2641 },
@@ -536,8 +540,13 @@ Object.assign(seededUniversityDatabase, {
   'government shalimar graduate college': seededUniversityDatabase['govt. shalimar graduate college'],
   // Campus names entered by users should resolve to the same verified campus
   // coordinates as their canonical university aliases.
+  ue: seededUniversityDatabase['university of education lahore'],
   'university of education - township campus': seededUniversityDatabase['university of education lahore'],
+  'university of education township': seededUniversityDatabase['university of education lahore'],
+  'university of education township campus': seededUniversityDatabase['university of education lahore'],
   'university of education': seededUniversityDatabase['university of education lahore'],
+  'ue bank road': seededUniversityDatabase['university of education bank road'],
+  'university of education bank road campus': seededUniversityDatabase['university of education bank road'],
   'university of the punjab - quaid-e-azam campus': seededUniversityDatabase['university of the punjab (pu)'],
 });
 

@@ -1,5 +1,36 @@
 // Map of university abbreviations and partial names to full official names with coordinates
 const universityDatabase = {
+  // TEVTA Lahore institutes (map-verified Lahore locations)
+  'ss govt. vocational training institute shah alam': { name: 'S.S. Government Vocational Training Institute (W), Shah Alam Gate, Lahore', lat: 31.5834324, lng: 74.3272033 },
+  'ss government vocational training institute shah alam': { name: 'S.S. Government Vocational Training Institute (W), Shah Alam Gate, Lahore', lat: 31.5834324, lng: 74.3272033 },
+  'government vocational training institute ss shahalam': { name: 'S.S. Government Vocational Training Institute (W), Shah Alam Gate, Lahore', lat: 31.5834324, lng: 74.3272033 },
+
+  'government vocational training institute delhi gate': { name: 'Government Vocational Training Institute (W), Inside Delhi Gate, Lahore', lat: 31.5820660, lng: 74.3263265 },
+  'gvti delhi gate lahore': { name: 'Government Vocational Training Institute (W), Inside Delhi Gate, Lahore', lat: 31.5820660, lng: 74.3263265 },
+
+  'rsln government vocational training institute': { name: 'RSLN Government Vocational Training Institute (W), Mouj Darya Road, Lahore', lat: 31.5694149, lng: 74.3037694 },
+  'rsln government vocational training institute, mouj darya road, lahore': { name: 'RSLN Government Vocational Training Institute (W), Mouj Darya Road, Lahore', lat: 31.5694149, lng: 74.3037694 },
+  'rsln gvti lahore': { name: 'RSLN Government Vocational Training Institute (W), Mouj Darya Road, Lahore', lat: 31.5694149, lng: 74.3037694 },
+
+  'government technical training institute women gujjarpura': { name: 'Government Technical Training Institute for Women, Gujjarpura, Lahore', lat: 31.6039, lng: 74.3374 },
+  'gttiw gujjarpura lahore': { name: 'Government Technical Training Institute for Women, Gujjarpura, Lahore', lat: 31.6039, lng: 74.3374 },
+
+  'government vocational training institute baghbanpura': { name: 'Government Vocational Training Institute (W), Baghbanpura, Lahore', lat: 31.5752255, lng: 74.3810625 },
+  'government vocational training institute, baghbanpura, lahore': { name: 'Government Vocational Training Institute (W), Baghbanpura, Lahore', lat: 31.5752255, lng: 74.3810625 },
+  'gvti baghbanpura lahore': { name: 'Government Vocational Training Institute (W), Baghbanpura, Lahore', lat: 31.5752255, lng: 74.3810625 },
+
+  'government vocational training institute shadbagh': { name: 'Government Vocational Training Institute (W), Shadbagh, Lahore', lat: 31.5886, lng: 74.3291 },
+  'gvti shadbagh lahore': { name: 'Government Vocational Training Institute (W), Shadbagh, Lahore', lat: 31.5886, lng: 74.3291 },
+
+  'government vocational training institute dev samaj road': { name: 'Government Vocational Training Institute (W), Dev Samaj Road, Lahore', lat: 31.5694149, lng: 74.3037694 },
+  'gvti dev samaj road lahore': { name: 'Government Vocational Training Institute (W), Dev Samaj Road, Lahore', lat: 31.5694149, lng: 74.3037694 },
+
+  'government technical training institute women kamal ganj': { name: 'Government Technical Training Institute for Women, Kamal Ganj, Lahore', lat: 31.5767216, lng: 74.2973203 },
+  'gttiw kamal ganj lahore': { name: 'Government Technical Training Institute for Women, Kamal Ganj, Lahore', lat: 31.5767216, lng: 74.2973203 },
+
+  'technical and vocational training authority lahore': { name: 'Technical Education and Vocational Training Authority (TEVTA), Lahore', lat: 31.5538, lng: 74.3275 },
+  'tevta lahore': { name: 'Technical Education and Vocational Training Authority (TEVTA), Lahore', lat: 31.5538, lng: 74.3275 },
+
   // GCUL - Government College University Lahore
   'gcul': { name: 'Government College University Lahore', lat: 31.5731518, lng: 74.3083536 },
   'gcu': { name: 'Government College University Lahore', lat: 31.5731518, lng: 74.3083536 },

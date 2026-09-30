@@ -1,5 +1,20 @@
 .booking-page {
-  color: #f1f3ed;
+  background-color: #f3f6f4;
+  color: #1f2937;
+}
+
+/* Keep the page surface and the shared owner navigation in the same slate
+   family. The cards remain dark so the booking data has a clear hierarchy. */
+.booking-page main {
+  background-color: #f3f6f4;
+}
+
+.booking-page h1 {
+  color: #1f2937;
+}
+
+.booking-page main > div > header p:not([class*="text-[#ecdfcc"]) {
+  color: #52616b;
 }
 
 .booking-page .bg-slate-900\/70,
@@ -34,7 +49,7 @@
 
 .booking-page .text-amber-400,
 .booking-page .text-amber-300 {
-  color: #ecdfcc;
+  color: #b7791f;
 }
 
 .booking-page input:focus,

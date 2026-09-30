@@ -319,7 +319,7 @@
 }
 
 /* Refined assistant experience */
-.chatbot-container { width: auto; right: 24px; bottom: 24px; z-index: 2000; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
+.chatbot-container { width: auto; right: 24px; bottom: 24px; z-index: 9999; font-family: Inter, ui-sans-serif, system-ui, sans-serif; }
 .chatbot { width: 380px; height: min(610px, calc(100vh - 210px)); min-height: 0; border: 1px solid rgba(255,255,255,.12); border-radius: 22px; background: #171a1b; box-shadow: 0 24px 70px rgba(0,0,0,.42); animation: chatIn .22s ease-out; }
 @keyframes chatIn { from { opacity: 0; transform: translateY(12px) scale(.98); } to { opacity: 1; transform: none; } }
 .chatbot.minimized { height: 62px; background: #334235; border-radius: 31px; }

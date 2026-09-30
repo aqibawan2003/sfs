@@ -25,14 +25,16 @@ const sans = { fontFamily: "'Space Grotesk', system-ui, sans-serif" };
 const body = { fontFamily: "system-ui, -apple-system, sans-serif" };
 
 const ink = {
-  bg:        '#697565',
+  // Keep the green identity as a very light page canvas so secondary copy
+  // remains readable on every admin tab (tables, cards, and listing pages).
+  bg:        '#EEF2EC',
   surface:   '#F7F8F4',
   panel:     '#E6EBE1',
   line:      '#59636E',
   lineSoft:  '#D7DED3',
   text:      '#1A1A1A',
-  sub:       '#5A5A5A',
-  faint:     '#8A9086',
+  sub:       '#3F4941',
+  faint:     '#5F6B61',
   brand:     '#697565',
   brandLight:'#8BA188',
   brandDark: '#4A5347',

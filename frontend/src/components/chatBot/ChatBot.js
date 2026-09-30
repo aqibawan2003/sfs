@@ -113,6 +113,7 @@ function ChatBot() {
                   onClick={(e) => { e.stopPropagation(); setIsOpen(false); }}
                   className="close-button"
                   title="Close"
+                  aria-label="Close chat"
                 >
                   &#10005;
                 </button>

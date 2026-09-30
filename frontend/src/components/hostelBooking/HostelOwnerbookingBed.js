@@ -6,7 +6,6 @@ import HostelNavbar from './HostelOwnerNavbar';
 import { archiveBooking, completeBooking, decideBooking, fetchBookings } from '../../store/bookingsSlice';
 import ErrorState from '../common/ErrorState';
 import ResponseCountdown from '../common/ResponseCountdown';
-import './HostelOwnerbookingBed.css';
 
 const statusClass = {
   Pending: 'border-[#5a5548] bg-[#292820] text-[#d4c99d]',
@@ -178,7 +177,7 @@ const HostelOwnerBookingBed = () => {
   const controlClass = 'h-11 rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm text-slate-200 outline-none transition focus:border-amber-400';
 
   return (
-    <div className="booking-page min-h-screen bg-[#f3f6f4] md:flex">
+    <div className="booking-page min-h-screen bg-[#697565] md:flex">
       <HostelNavbar />
       <main className="min-w-0 flex-1 px-4 pb-12 pt-20 sm:px-6 md:px-8 md:pt-8 lg:px-10">
         <div className="mx-auto max-w-7xl">

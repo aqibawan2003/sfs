@@ -18,20 +18,17 @@ const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 const MAX_MINI_ADMINS = 4;
 
 // ── Design tokens ──────────────────────────────────────────────────────────
-// Light, clean SaaS-dashboard identity built around the site's real brand
-// green (#697565) - white cards on a soft green-tinted canvas, dark
-// readable text, and the brand color reserved for accents/actions rather
-// than covering the whole UI. Matches the actual public-facing site instead
-// of an unrelated dark "console" theme.
+// Dashboard identity shared with the public home page: the same green canvas,
+// warm light panels, deep readable text, and the dark green navigation.
 const sans = { fontFamily: "'Space Grotesk', system-ui, sans-serif" };
 const body = { fontFamily: "system-ui, -apple-system, sans-serif" };
 
 const ink = {
-  bg:        '#F0F3EE',
-  surface:   '#FFFFFF',
-  panel:     '#F5F7F1',
-  line:      '#E1E7DB',
-  lineSoft:  '#EBEFE6',
+  bg:        '#697565',
+  surface:   '#F7F8F4',
+  panel:     '#E6EBE1',
+  line:      '#59636E',
+  lineSoft:  '#D7DED3',
   text:      '#1A1A1A',
   sub:       '#5A5A5A',
   faint:     '#8A9086',

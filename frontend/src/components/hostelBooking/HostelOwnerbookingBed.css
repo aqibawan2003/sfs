@@ -1,0 +1,44 @@
+.booking-page {
+  color: #f1f3ed;
+}
+
+.booking-page .bg-slate-900\/70,
+.booking-page .bg-slate-900\/50,
+.booking-page .bg-slate-900\/40 {
+  background-color: #1e201e;
+}
+
+.booking-page .border-slate-800,
+.booking-page .border-slate-700 {
+  border-color: #59665a;
+}
+
+.booking-page .bg-slate-950 {
+  background-color: #151817;
+}
+
+.booking-page .text-slate-200,
+.booking-page .text-slate-300,
+.booking-page .text-slate-400 {
+  color: #d2d6d2;
+}
+
+.booking-page .text-slate-500,
+.booking-page .text-slate-600 {
+  color: #9da89d;
+}
+
+.booking-page .text-white {
+  color: #fff7e8;
+}
+
+.booking-page .text-amber-400,
+.booking-page .text-amber-300 {
+  color: #ecdfcc;
+}
+
+.booking-page input:focus,
+.booking-page select:focus,
+.booking-page button:hover {
+  border-color: #ecdfcc;
+}

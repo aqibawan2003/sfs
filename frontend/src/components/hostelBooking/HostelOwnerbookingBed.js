@@ -6,6 +6,7 @@ import HostelNavbar from './HostelOwnerNavbar';
 import { archiveBooking, completeBooking, decideBooking, fetchBookings } from '../../store/bookingsSlice';
 import ErrorState from '../common/ErrorState';
 import ResponseCountdown from '../common/ResponseCountdown';
+import './HostelOwnerbookingBed.css';
 
 const statusClass = {
   Pending: 'border-[#5a5548] bg-[#292820] text-[#d4c99d]',
@@ -25,13 +26,13 @@ const statusLabel = {
 
 const Detail = ({ label, value, mono }) => (
   <div className="min-w-0">
-    <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-    <p className={`truncate text-sm text-slate-200 ${mono ? 'font-mono text-xs' : ''}`} title={value}>{value || 'N/A'}</p>
+    <p className="mb-1 text-xs font-semibold uppercase tracking-wider text-[#9da89d]">{label}</p>
+    <p className={`truncate text-sm text-[#f1f3ed] ${mono ? 'font-mono text-xs' : ''}`} title={value}>{value || 'N/A'}</p>
   </div>
 );
 
 const StudentAvatar = ({ name, src }) => (
-  <div className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-amber-400 font-bold text-slate-950 ring-2 ring-slate-700">
+  <div className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-[#ecdfcc] font-bold text-[#1e201e] ring-2 ring-[#697565]">
     <span>{(name || '?')[0].toUpperCase()}</span>
     {src && (
       <img
@@ -51,9 +52,9 @@ const SelectionCircle = ({ checked, onChange, label }) => (
     aria-checked={checked}
     aria-label={label}
     onClick={onChange}
-    className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition ${checked ? 'border-[#c8aa5a] bg-[#29271f]' : 'border-slate-600 bg-[#111827] hover:border-slate-400'}`}
+    className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border transition ${checked ? 'border-[#ecdfcc] bg-[#697565]' : 'border-[#59665a] bg-[#171a18] hover:border-[#ecdfcc]'}`}
   >
-    <span className={`h-2.5 w-2.5 rounded-full transition ${checked ? 'bg-[#c8aa5a]' : 'bg-transparent'}`} />
+    <span className={`h-2.5 w-2.5 rounded-full transition ${checked ? 'bg-[#ecdfcc]' : 'bg-transparent'}`} />
   </button>
 );
 
@@ -177,17 +178,17 @@ const HostelOwnerBookingBed = () => {
   const controlClass = 'h-11 rounded-xl border border-slate-700 bg-slate-950 px-3 text-sm text-slate-200 outline-none transition focus:border-amber-400';
 
   return (
-    <div className="min-h-screen bg-[#111714] md:flex">
+    <div className="booking-page min-h-screen bg-[#697565] md:flex">
       <HostelNavbar />
       <main className="min-w-0 flex-1 px-4 pb-12 pt-20 sm:px-6 md:px-8 md:pt-8 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <header className="mb-7 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
             <div>
-              <p className="mb-1 text-sm font-semibold uppercase tracking-[0.2em] text-amber-400">Hostel management</p>
-              <h1 className="text-3xl font-bold text-white sm:text-4xl">Booking requests</h1>
-              <p className="mt-2 text-sm text-slate-400">Review reservations, verify payments, and manage occupied beds.</p>
+              <p className="mb-1 text-sm font-semibold uppercase tracking-[0.2em] text-[#ecdfcc]">Hostel management</p>
+              <h1 className="text-3xl font-bold text-[#1e201e] sm:text-4xl">Booking requests</h1>
+              <p className="mt-2 text-sm text-[#263126]">Review reservations, verify payments, and manage occupied beds.</p>
             </div>
-            <p className="text-sm text-slate-500">Showing {filteredBookings.length} of {bookings.length}</p>
+            <p className="text-sm text-[#263126]">Showing {filteredBookings.length} of {bookings.length}</p>
           </header>
 
           <section className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -197,16 +198,16 @@ const HostelOwnerBookingBed = () => {
               ['Approved', counts.approved, <FaCheckCircle />, 'bg-emerald-400/10 text-emerald-300'],
               ['Payments complete', counts.paid, <FaWallet />, 'bg-violet-400/10 text-violet-300'],
             ].map(([label, value, icon, color]) => (
-              <div key={label} className="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-lg shadow-black/10 sm:p-5">
+              <div key={label} className="rounded-2xl border border-[#59665a] bg-[#1e201e] p-4 shadow-lg shadow-black/20 sm:p-5">
                 <div className="flex items-center justify-between gap-2">
-                  <div><p className="text-xs text-slate-400 sm:text-sm">{label}</p><p className="mt-1 text-2xl font-bold text-white">{value}</p></div>
+                  <div><p className="text-xs text-[#bfc8bc] sm:text-sm">{label}</p><p className="mt-1 text-2xl font-bold text-[#fff7e8]">{value}</p></div>
                   <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${color}`}>{icon}</span>
                 </div>
               </div>
             ))}
           </section>
 
-          <section className="mb-6 rounded-2xl border border-slate-800 bg-slate-900/70 p-4">
+          <section className="mb-6 rounded-2xl border border-[#59665a] bg-[#1e201e] p-4">
             <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[minmax(250px,1fr)_165px_165px_160px_48px]">
               <label className="relative block">
                 <FaSearch className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500" />

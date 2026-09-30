@@ -207,7 +207,6 @@ const AdminLogin = () => {
         </div>
       </div>
       <Footer />
-      </div>
     </div>
   );
 };

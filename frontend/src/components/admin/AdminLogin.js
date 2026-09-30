@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
-import Footer from '../Footer';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -112,12 +111,12 @@ const AdminLogin = () => {
         : 'Choose a new password for your admin account.';
 
   return (
-    <div className="h-full w-full bg-[#1f2937]">
-      <div className="bg-[#1f2937] h-full w-full flex flex-col md:flex-row justify-center container">
-        <div className="flex flex-col items-center justify-center max-h-[100vh] bg-[#1f2937] mb-12 mt-8">
-          <img className="w-[85vw] max-w-[500px] h-auto md:h-[500px] mt-5 rounded-md bg-[#1f2937]" src="/images/login.jpg" alt="Login Illustration" />
+    <div className="h-full w-full bg-black">
+      <div className="bg-black h-full w-full flex flex-col md:flex-row justify-center container">
+        <div className="flex flex-col items-center justify-center max-h-[100vh] bg-black mb-12 mt-8">
+          <img className="w-[85vw] max-w-[500px] h-auto md:h-[500px] mt-5 rounded-md bg-black" src="/images/login.jpg" alt="Login Illustration" />
         </div>
-        <div className="px-4 md:pl-10 md:px-0 flex flex-col justify-center relative bg-[#1f2937] p-3 mt-8 mb-12 w-full max-w-lg overflow-y-auto scrollbar-hide h-auto md:h-[100vh]">
+        <div className="px-4 md:pl-10 md:px-0 flex flex-col justify-center relative bg-black p-3 mt-8 mb-12 w-full max-w-lg overflow-y-auto scrollbar-hide h-auto md:h-[100vh]">
           <div className="text-gray-300 text-center pt-9 justify-end">
             <h1 className="font-bold text-4xl">{title}</h1>
             <p className="text-wrap max-w-md p-3">{description}</p>
@@ -206,7 +205,6 @@ const AdminLogin = () => {
           <p className="mt-3 text-center text-xs text-gray-600">Access restricted to authorized administrators only.</p>
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

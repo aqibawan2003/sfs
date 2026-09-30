@@ -6,6 +6,7 @@ import HostelNavbar from './HostelOwnerNavbar';
 import { archiveBooking, completeBooking, decideBooking, fetchBookings } from '../../store/bookingsSlice';
 import ErrorState from '../common/ErrorState';
 import ResponseCountdown from '../common/ResponseCountdown';
+import Footer from '../Footer';
 
 const statusClass = {
   Pending: 'border-[#5a5548] bg-[#292820] text-[#d4c99d]',
@@ -304,6 +305,7 @@ const HostelOwnerBookingBed = () => {
             </div>
           )}
         </div>
+        <Footer />
       </main>
     </div>
   );

@@ -3,6 +3,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import ImageUploadField from '../common/ImageUploadField';
+import Footer from '../Footer';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import {
@@ -1159,7 +1160,7 @@ const AdminDashboard = () => {
           )}
         </main>
 
-        <footer className="px-5 md:px-8 py-5" style={{ background: ink.surface, borderTop: `1px solid ${ink.line}` }}>
+        {false && <footer className="px-5 md:px-8 py-5" style={{ background: ink.surface, borderTop: `1px solid ${ink.line}` }}>
           <div className="flex flex-col gap-2 text-[11.5px] sm:flex-row sm:items-center sm:justify-between" style={{ color: ink.faint }}>
             <p>© {new Date().getFullYear()} Student Facility System</p>
             <div className="flex items-center gap-4">
@@ -1167,7 +1168,8 @@ const AdminDashboard = () => {
               <a href="mailto:aqibawan0102@gmail.com" className="font-medium hover:underline" style={{ color: ink.sub }}>Technical support</a>
             </div>
           </div>
-        </footer>
+        </footer>}
+        <Footer />
       </div>
 
       {showChangePassword && (

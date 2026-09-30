@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
+import Footer from '../Footer';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
@@ -204,6 +205,8 @@ const AdminLogin = () => {
           </p>
           <p className="mt-3 text-center text-xs text-gray-600">Access restricted to authorized administrators only.</p>
         </div>
+      </div>
+      <Footer />
       </div>
     </div>
   );

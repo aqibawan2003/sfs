@@ -8,6 +8,7 @@ import {
 import HostelNavbar from "./HostelOwnerNavbar";
 import { AddOrUpdateRoomModal } from "./AddOrUpdateRoomModal/AddOrUpdateRoomModal";
 import ErrorState from "../common/ErrorState";
+import Footer from "../Footer";
 
 const TotalRoom = () => {
   const dispatch = useDispatch();
@@ -58,7 +59,7 @@ const TotalRoom = () => {
   return (
     <div className="bg-[#1E201E] min-h-screen flex">
       <HostelNavbar />
-      <main className="flex-1 p-6 pt-20 md:pt-6 text-white">
+      <main className="flex min-w-0 flex-1 flex-col p-6 pt-20 text-white md:pt-6">
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {rooms.map((room) => (
@@ -111,6 +112,7 @@ const TotalRoom = () => {
             handleClose={handleCloseModal}
           />
         )}
+        <Footer />
       </main>
     </div>
   );

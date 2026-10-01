@@ -537,7 +537,14 @@ const AdminDashboard = () => {
     setPpLoading(false);
   };
 
-  const handleLogout = async () => { await axios.post(`${API_BASE_URL}/auth/logout`).catch(() => {}); setAdminData(null); navigate('/admin/login'); };
+  const handleLogout = () => {
+    // Clear the client session and navigate immediately. The server request is
+    // still sent, but a slow backend should not delay the logout screen.
+    setAdminData(null);
+    sessionStorage.removeItem('adminData');
+    navigate('/admin/login', { replace: true });
+    axios.post(`${API_BASE_URL}/auth/logout`).catch(() => {});
+  };
 
   const tabs = [
     { key:'overview',     label:'Overview',        icon:<FaChartBar />,    count: null },

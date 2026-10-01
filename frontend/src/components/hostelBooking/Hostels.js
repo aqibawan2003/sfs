@@ -37,7 +37,8 @@ const HostelList = () => {
   const [filters, setFilters] = useState({
     university: '',
     facilities: [],   // multi-select array
-    maxDistance: '' });
+    maxDistance: '',
+    priceRange: '' });
   const [filteredHostels, setFilteredHostels] = useState([]);
   const [searchedUniversity, setSearchedUniversity] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -137,11 +138,12 @@ const HostelList = () => {
     const university = params.get('university') || '';
     const facilitiesParam = params.get('facilities') || '';
     const maxDistance = params.get('maxDistance') || '';
+    const priceRange = params.get('priceRange') || '';
     const facilitiesArr = facilitiesParam ? facilitiesParam.split(',') : [];
 
-    setFilters({ university, facilities: facilitiesArr, maxDistance });
+    setFilters({ university, facilities: facilitiesArr, maxDistance, priceRange });
 
-    if (university || facilitiesParam || maxDistance) {
+    if (university || facilitiesParam || maxDistance || priceRange) {
       fetchFilteredHostels(params.toString());
     }
   }, [location.search]);
@@ -173,6 +175,7 @@ const HostelList = () => {
     if (filters.university) params.set('university', filters.university);
     if (filters.facilities.length > 0) params.set('facilities', filters.facilities.join(','));
     if (filters.maxDistance) params.set('maxDistance', filters.maxDistance);
+    if (filters.priceRange) params.set('priceRange', filters.priceRange);
     navigate(`?${params.toString()}`);
   };
 
@@ -269,6 +272,19 @@ const HostelList = () => {
               className="border-2 border-blue-500 rounded p-2 w-full md:w-60"
               min="0"
             />
+
+            {/* Monthly price range */}
+            <select
+              name="priceRange"
+              value={filters.priceRange || ''}
+              onChange={handleFilterChange}
+              className="border-2 border-blue-500 rounded p-2 w-full md:w-60"
+            >
+              <option value="">All Prices</option>
+              <option value="low">Below PKR 5,000</option>
+              <option value="mid">PKR 5,000–15,000</option>
+              <option value="premium">Above PKR 15,000</option>
+            </select>
 
             <button
               className="bg-[#697565] text-white p-2 border-2 hover:bg-[#25292e] rounded ml-2 w-full md:w-auto"

@@ -1,4 +1,5 @@
 const HostelOwner = require('../../models/hostelowner/Hostelowner');
+const Hostelroom = require('../../models/hostelowner/Hostelroom');
 const KnownInstitute = require('../../models/KnownInstitute');
 const getLatLngFromAddress = require('../../utils/geocodingService');
 const logger = require('../../utils/logger');
@@ -108,9 +109,9 @@ function escapeRegex(str) {
 const getFilteredHostels = async (req, res) => {
   try {
     logger.debug('Filter query:', req.query);
-    const { university, facilities, maxDistance } = req.query;
+    const { university, facilities, maxDistance, priceRange } = req.query;
 
-    if (!university && !maxDistance && !(facilities && facilities.trim())) {
+    if (!university && !maxDistance && !(facilities && facilities.trim()) && !priceRange) {
       return res.status(400).json({
         success: false,
         message: 'At least one filter criteria is required',
@@ -135,6 +136,15 @@ const getFilteredHostels = async (req, res) => {
       } else if (facilityList.length > 1) {
         filter.facilities = { $all: facilityList.map((f) => new RegExp(`^${escapeRegex(f)}$`, 'i')) };
       }
+    }
+
+    // Room prices determine the hostel's price category.
+    if (priceRange === 'low') {
+      filter.rooms = { $in: await Hostelroom.find({ price: { $lt: 5000 } }).distinct('_id') };
+    } else if (priceRange === 'mid') {
+      filter.rooms = { $in: await Hostelroom.find({ price: { $gte: 5000, $lte: 15000 } }).distinct('_id') };
+    } else if (priceRange === 'premium') {
+      filter.rooms = { $in: await Hostelroom.find({ price: { $gt: 15000 } }).distinct('_id') };
     }
 
     const hostels = await HostelOwner.find(filter)
